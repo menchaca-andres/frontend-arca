@@ -7,7 +7,13 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "typecheck": "tsc -b",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"*.{json,md,html}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"*.{json,md,html}\"",
     "preview": "vite preview"
+  },
+  "engines": {
+    "node": ">=22"
   },
   "dependencies": {
     "lucide-react": "^1.48.0",
@@ -20,6 +26,7 @@
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
     "oxlint": "^1.81.0",
+    "prettier": "^3.9.10",
     "typescript": "~6.0.2",
     "vite": "^8.3.0"
   }

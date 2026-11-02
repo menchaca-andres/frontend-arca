@@ -2,6 +2,8 @@
 
 Interfaz del Sistema de Gestión Humana de ARCA Ltda. React + TypeScript + Vite. Solo habla con el API Gateway (`VITE_API_URL`, por defecto `http://localhost:8080`).
 
+Requiere **Node 22 o superior**.
+
 ## Estructura
 
 ```
@@ -21,4 +23,10 @@ cp .env.example .env
 npm run dev      # http://localhost:5173
 npm run build
 npm run lint
+npm run typecheck
+npm run format:check
 ```
+
+## Docker
+
+El `Dockerfile` construye la SPA y la sirve con Nginx. El `docker-compose.yml` del repo `backend-arca` lo levanta en `http://localhost:5173`; el build acepta `VITE_API_URL` como argumento.

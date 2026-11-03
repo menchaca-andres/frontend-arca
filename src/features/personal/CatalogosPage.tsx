@@ -145,7 +145,7 @@ export function CatalogosPage() {
     const codigo = formArea.codigo.trim()
     const nombre = formArea.nombre.trim()
     if (!codigo || !nombre) {
-      toast.warning('Completá el código y el nombre del área', 'Datos incompletos')
+      toast.warning('Completa el código y el nombre del área', 'Datos incompletos')
       return
     }
 
@@ -177,7 +177,7 @@ export function CatalogosPage() {
     const salarioMax = Number(formCargo.salarioMax)
 
     if (!formCargo.areaId || !nombre || !formCargo.salarioMin || !formCargo.salarioMax) {
-      toast.warning('Completá el área, el nombre y la banda salarial', 'Datos incompletos')
+      toast.warning('Completa el área, el nombre y la banda salarial', 'Datos incompletos')
       return
     }
     if (!Number.isFinite(salarioMin) || !Number.isFinite(salarioMax) || salarioMin > salarioMax) {
@@ -317,7 +317,7 @@ export function CatalogosPage() {
           areasVisibles.length === 0 ? (
             <EmptyState
               title="Sin áreas registradas"
-              description="Creá la primera área para empezar a organizar el personal."
+              description="Crea la primera área para empezar a organizar el personal."
               action={
                 <Button variant="primary" onClick={() => abrirArea()}>
                   Nueva Área
@@ -367,7 +367,7 @@ export function CatalogosPage() {
         ) : cargos.length === 0 ? (
           <EmptyState
             title="Sin cargos registrados"
-            description="Creá un cargo dentro de un área activa."
+            description="Crea un cargo dentro de un área activa."
             action={
               <Button variant="primary" onClick={() => abrirCargo()}>
                 Nuevo Cargo

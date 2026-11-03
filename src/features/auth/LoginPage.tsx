@@ -40,7 +40,7 @@ export function LoginPage() {
         <header>
           <p className="eyebrow">ARCA Ltda.</p>
           <h1>Gestión Humana</h1>
-          <p className="muted">Ingresá con tu correo y contraseña.</p>
+          <p className="muted">Ingresa con tu correo y contraseña.</p>
         </header>
 
         <form onSubmit={onSubmit} noValidate>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Plus, Search } from 'lucide-react'
 import {
   Button,
@@ -16,12 +16,23 @@ import {
   TableRow,
   useToast,
 } from '../../components'
+import { ApiService } from '../../services/api'
+import type { Area, Cargo } from '../../types'
 import { formatCurrency, formatDate } from '../../utils/formatters'
+import { useAuth } from '../auth/useAuth'
 
 export function PersonalPage() {
   const toast = useToast()
+  const { usuario } = useAuth()
+  const puedeGestionar = usuario?.rol === 'ADMIN' || usuario?.rol === 'RRHH'
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
+  const [areas, setAreas] = useState<Area[]>([])
+  const [cargos, setCargos] = useState<Cargo[]>([])
+  const [areaId, setAreaId] = useState('')
+  const [cargoId, setCargoId] = useState('')
+  const [cargandoAreas, setCargandoAreas] = useState(false)
+  const [cargandoCargos, setCargandoCargos] = useState(false)
 
   const funcionarios = [
     {
@@ -66,6 +77,86 @@ export function PersonalPage() {
       f.ci.includes(searchTerm),
   )
 
+  useEffect(() => {
+    if (!isModalOpen || !puedeGestionar) return
+
+    let cancelado = false
+    ApiService.getAreas()
+      .then((data) => {
+        if (!cancelado) setAreas(data)
+      })
+      .catch((error) => {
+        if (!cancelado) {
+          toast.error(error instanceof Error ? error.message : 'No se pudieron cargar las áreas')
+        }
+      })
+      .finally(() => {
+        if (!cancelado) setCargandoAreas(false)
+      })
+
+    return () => {
+      cancelado = true
+    }
+  }, [isModalOpen, puedeGestionar, toast])
+
+  useEffect(() => {
+    if (!isModalOpen || !areaId) return
+
+    let cancelado = false
+    ApiService.getCargos({ areaId })
+      .then((data) => {
+        if (!cancelado) setCargos(data)
+      })
+      .catch((error) => {
+        if (!cancelado) {
+          setCargos([])
+          toast.error(error instanceof Error ? error.message : 'No se pudieron cargar los cargos')
+        }
+      })
+      .finally(() => {
+        if (!cancelado) setCargandoCargos(false)
+      })
+
+    return () => {
+      cancelado = true
+    }
+  }, [areaId, isModalOpen, toast])
+
+  const opcionesArea = useMemo(
+    () => areas.map((area) => ({ value: area.id, label: `${area.codigo} · ${area.nombre}` })),
+    [areas],
+  )
+
+  const opcionesCargo = useMemo(
+    () => cargos.map((cargo) => ({ value: cargo.id, label: cargo.nombre })),
+    [cargos],
+  )
+
+  const cargoSeleccionado = useMemo(
+    () => cargos.find((cargo) => cargo.id === cargoId),
+    [cargoId, cargos],
+  )
+
+  const ayudaCargo = cargoSeleccionado
+    ? `Banda salarial: ${formatCurrency(cargoSeleccionado.salarioMin)} — ${formatCurrency(cargoSeleccionado.salarioMax)}`
+    : areaId && !cargandoCargos && cargos.length === 0
+      ? 'No hay cargos activos en esta área.'
+      : undefined
+
+  const abrirModal = () => {
+    setCargandoAreas(true)
+    setIsModalOpen(true)
+  }
+
+  const cerrarModal = () => {
+    setIsModalOpen(false)
+    setAreaId('')
+    setCargoId('')
+    setCargos([])
+    setCargandoAreas(false)
+    setCargandoCargos(false)
+  }
+
   return (
     <div className="module-view-ds">
       <header className="page-header-ds">
@@ -76,13 +167,11 @@ export function PersonalPage() {
             Gestión de fichas, asignaciones laborales, áreas y cargos de ARCA Ltda.
           </p>
         </div>
-        <Button
-          variant="primary"
-          leftIcon={<Plus size={18} />}
-          onClick={() => setIsModalOpen(true)}
-        >
-          Nuevo Funcionario
-        </Button>
+        {puedeGestionar && (
+          <Button variant="primary" leftIcon={<Plus size={18} />} onClick={abrirModal}>
+            Nuevo Funcionario
+          </Button>
+        )}
       </header>
 
       <Card>
@@ -151,18 +240,27 @@ export function PersonalPage() {
 
       <Modal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={cerrarModal}
         title="Registrar Nuevo Funcionario"
         footer={
           <div className="modal-actions-right">
-            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+            <Button variant="outline" onClick={cerrarModal}>
               Cancelar
             </Button>
             <Button
               variant="primary"
               onClick={() => {
-                setIsModalOpen(false)
-                toast.success('Funcionario registrado exitosamente (Demo)', 'Registro completado')
+                if (!areaId || !cargoId) {
+                  toast.warning('Selecciona un área y un cargo', 'Datos incompletos')
+                  return
+                }
+                const area = areas.find((item) => item.id === areaId)
+                const cargo = cargos.find((item) => item.id === cargoId)
+                toast.success(
+                  `Funcionario registrado en ${area?.nombre ?? 'el área'} como ${cargo?.nombre ?? 'el cargo'} (Demo)`,
+                  'Registro completado',
+                )
+                cerrarModal()
               }}
             >
               Guardar Funcionario
@@ -182,21 +280,34 @@ export function PersonalPage() {
           <div className="form-grid-2">
             <Select
               label="Área"
-              options={[
-                { value: 'tec', label: 'Tecnología' },
-                { value: 'rrhh', label: 'Recursos Humanos' },
-                { value: 'fin', label: 'Finanzas' },
-              ]}
-              placeholder="Seleccionar área..."
+              options={opcionesArea}
+              placeholder={cargandoAreas ? 'Cargando áreas...' : 'Seleccionar área...'}
+              value={areaId}
+              onChange={(event) => {
+                const nextAreaId = event.target.value
+                setAreaId(nextAreaId)
+                setCargoId('')
+                setCargos([])
+                setCargandoCargos(Boolean(nextAreaId))
+              }}
+              disabled={cargandoAreas}
+              required
             />
             <Select
               label="Cargo"
-              options={[
-                { value: 'dev', label: 'Desarrollador de Software' },
-                { value: 'analista', label: 'Analista de Negocio' },
-                { value: 'contador', label: 'Contador General' },
-              ]}
-              placeholder="Seleccionar cargo..."
+              options={opcionesCargo}
+              placeholder={
+                !areaId
+                  ? 'Elige un área primero'
+                  : cargandoCargos
+                    ? 'Cargando cargos...'
+                    : 'Seleccionar cargo...'
+              }
+              value={cargoId}
+              onChange={(event) => setCargoId(event.target.value)}
+              disabled={!areaId || cargandoCargos}
+              helperText={ayudaCargo}
+              required
             />
           </div>
           <div className="form-grid-2">

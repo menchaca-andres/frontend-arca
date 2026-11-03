@@ -61,6 +61,38 @@ export class ApiService {
     return this.request('/api/auth/me')
   }
 
+  static async get<T>(path: string, options?: RequestInit): Promise<T> {
+    return this.request<T>(path, { ...options, method: 'GET' })
+  }
+
+  static async post<T>(path: string, body?: unknown, options?: RequestInit): Promise<T> {
+    return this.request<T>(path, {
+      ...options,
+      method: 'POST',
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    })
+  }
+
+  static async put<T>(path: string, body?: unknown, options?: RequestInit): Promise<T> {
+    return this.request<T>(path, {
+      ...options,
+      method: 'PUT',
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    })
+  }
+
+  static async patch<T>(path: string, body?: unknown, options?: RequestInit): Promise<T> {
+    return this.request<T>(path, {
+      ...options,
+      method: 'PATCH',
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    })
+  }
+
+  static async delete<T>(path: string, options?: RequestInit): Promise<T> {
+    return this.request<T>(path, { ...options, method: 'DELETE' })
+  }
+
   private static async request<T>(path: string, init: RequestInit = {}): Promise<T> {
     const headers = new Headers(init.headers)
     headers.set('Accept', 'application/json')

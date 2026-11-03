@@ -50,12 +50,15 @@ export function Sidebar({ rol, isOpenMobile, onCloseMobile }: SidebarProps) {
             {navItems.map((item) => {
               const Icon = item.icon
               const label = item.getLabel(rol)
+              const hasChildNavItem = navItems.some(
+                (other) => other.path !== item.path && other.path.startsWith(`${item.path}/`),
+              )
 
               return (
                 <li key={item.id} className="nav-item-ds">
                   <NavLink
                     to={item.path}
-                    end={item.path === '/'}
+                    end={item.path === '/' || hasChildNavItem}
                     className={({ isActive }) => `nav-link-ds ${isActive ? 'is-active' : ''}`}
                     onClick={onCloseMobile}
                   >

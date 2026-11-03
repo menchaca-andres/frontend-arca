@@ -17,3 +17,36 @@ export interface ApiErrorPayload {
   message: string
   details?: unknown
 }
+
+export interface Area {
+  id: string
+  codigo: string
+  nombre: string
+  activo: boolean
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface Cargo {
+  id: string
+  areaId: string
+  area?: Area
+  nombre: string
+  salarioMin: number
+  salarioMax: number
+  activo: boolean
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface AreaInput {
+  codigo: string
+  nombre: string
+}
+
+export interface CargoInput {
+  areaId: string
+  nombre: string
+  salarioMin: number
+  salarioMax: number
+}

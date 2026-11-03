@@ -1,4 +1,12 @@
-import type { ApiErrorPayload, LoginResponse, UsuarioSesion } from '../types'
+import type {
+  ApiErrorPayload,
+  Area,
+  AreaInput,
+  Cargo,
+  CargoInput,
+  LoginResponse,
+  UsuarioSesion,
+} from '../types'
 
 const GATEWAY_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:8080').replace(/\/+$/, '')
 const TOKEN_KEY = 'arca.token'
@@ -59,6 +67,43 @@ export class ApiService {
     funcionarioId: string | null
   }> {
     return this.request('/api/auth/me')
+  }
+
+  static async getAreas(includeInactive = false): Promise<Area[]> {
+    const suffix = includeInactive ? '?incluirInactivos=true' : ''
+    return this.get<Area[]>(`/api/v1/personal/areas${suffix}`)
+  }
+
+  static async createArea(input: AreaInput): Promise<Area> {
+    return this.post<Area>('/api/v1/personal/areas', input)
+  }
+
+  static async updateArea(
+    id: string,
+    input: Partial<AreaInput> & { activo?: boolean },
+  ): Promise<Area> {
+    return this.patch<Area>(`/api/v1/personal/areas/${id}`, input)
+  }
+
+  static async getCargos(
+    params: { includeInactive?: boolean; areaId?: string } = {},
+  ): Promise<Cargo[]> {
+    const query = new URLSearchParams()
+    if (params.includeInactive) query.set('incluirInactivos', 'true')
+    if (params.areaId) query.set('areaId', params.areaId)
+    const suffix = query.size > 0 ? `?${query.toString()}` : ''
+    return this.get<Cargo[]>(`/api/v1/personal/cargos${suffix}`)
+  }
+
+  static async createCargo(input: CargoInput): Promise<Cargo> {
+    return this.post<Cargo>('/api/v1/personal/cargos', input)
+  }
+
+  static async updateCargo(
+    id: string,
+    input: Partial<Omit<CargoInput, 'areaId'>> & { activo?: boolean },
+  ): Promise<Cargo> {
+    return this.patch<Cargo>(`/api/v1/personal/cargos/${id}`, input)
   }
 
   static async get<T>(path: string, options?: RequestInit): Promise<T> {

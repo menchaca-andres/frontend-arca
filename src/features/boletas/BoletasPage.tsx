@@ -15,14 +15,19 @@ import {
   useToast,
 } from '../../components'
 import { formatCurrency } from '../../utils/formatters'
+import { useAuth } from '../auth/useAuth'
 
 export function BoletasPage() {
   const toast = useToast()
+  const { usuario } = useAuth()
+  const esFuncionario = usuario?.rol === 'FUNCIONARIO'
+  const puedeCalcular = usuario?.rol === 'RRHH'
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const boletas = [
     {
       id: '1',
+      funcionarioId: '11111111-1111-4111-8111-111111111101',
       numero: 'BOL-2026-10-001',
       periodo: 'Octubre 2026',
       funcionario: 'Carlos Mamani Flores',
@@ -34,6 +39,7 @@ export function BoletasPage() {
     },
     {
       id: '2',
+      funcionarioId: '11111111-1111-4111-8111-111111111103',
       numero: 'BOL-2026-10-002',
       periodo: 'Octubre 2026',
       funcionario: 'Daniela Mendoza Vargas',
@@ -45,56 +51,72 @@ export function BoletasPage() {
     },
   ]
 
+  const boletasVisibles = esFuncionario
+    ? boletas.filter((b) => b.funcionarioId === usuario?.funcionarioId)
+    : boletas
+  const totalLiquido = boletasVisibles.reduce((total, b) => total + b.liquidoPagable, 0)
+  const totalDescuentos = boletasVisibles.reduce((total, b) => total + b.totalDescuentos, 0)
+
   return (
     <div className="module-view-ds">
       <header className="page-header-ds">
         <div>
           <p className="eyebrow-ds">Módulo de Boletas y Planillas (ms-boletas)</p>
-          <h1 className="page-title-ds">Emisión de Boletas de Pago</h1>
+          <h1 className="page-title-ds">
+            {esFuncionario ? 'Mis Boletas de Pago' : 'Emisión de Boletas de Pago'}
+          </h1>
           <p className="page-subtitle-ds">
-            Liquidación mensual en Bolivianos (Bs), boletas inmutables y descarga en PDF.
+            {esFuncionario
+              ? 'Consulta y descarga tus boletas emitidas.'
+              : 'Liquidación mensual en Bolivianos (Bs), boletas inmutables y descarga en PDF.'}
           </p>
         </div>
-        <Button
-          variant="primary"
-          leftIcon={<Calculator size={18} />}
-          onClick={() => setIsModalOpen(true)}
-        >
-          Calcular Planilla del Periodo
-        </Button>
+        {puedeCalcular && (
+          <Button
+            variant="primary"
+            leftIcon={<Calculator size={18} />}
+            onClick={() => setIsModalOpen(true)}
+          >
+            Calcular Planilla del Periodo
+          </Button>
+        )}
       </header>
 
       <div className="stats-grid-ds">
         <Card className="stat-card">
           <div className="stat-content">
-            <span className="stat-label">Total Planilla Octubre</span>
-            <strong className="stat-value">{formatCurrency(13704.53)}</strong>
+            <span className="stat-label">
+              {esFuncionario ? 'Mi Líquido Pagable' : 'Total Planilla Octubre'}
+            </span>
+            <strong className="stat-value">{formatCurrency(totalLiquido)}</strong>
             <span className="stat-footnote">Líquido pagable consolidado</span>
           </div>
         </Card>
         <Card className="stat-card">
           <div className="stat-content">
-            <span className="stat-label">Descuentos de Ley</span>
-            <strong className="stat-value">{formatCurrency(1995.47)}</strong>
+            <span className="stat-label">
+              {esFuncionario ? 'Mis Descuentos' : 'Descuentos de Ley'}
+            </span>
+            <strong className="stat-value">{formatCurrency(totalDescuentos)}</strong>
             <span className="stat-footnote">Aportes a la seguridad social</span>
           </div>
         </Card>
         <Card className="stat-card">
           <div className="stat-content">
-            <span className="stat-label">Boletas Emitidas</span>
-            <strong className="stat-value">2 boletas</strong>
+            <span className="stat-label">{esFuncionario ? 'Mis Boletas' : 'Boletas Emitidas'}</span>
+            <strong className="stat-value">{boletasVisibles.length} boletas</strong>
             <span className="stat-footnote">Inmutabilidad garantizada</span>
           </div>
         </Card>
       </div>
 
-      <Card title="Boletas Emitidas en el Periodo">
+      <Card title={esFuncionario ? 'Mis Boletas Emitidas' : 'Boletas Emitidas en el Periodo'}>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>N° Boleta</TableHead>
               <TableHead>Periodo</TableHead>
-              <TableHead>Funcionario</TableHead>
+              {!esFuncionario && <TableHead>Funcionario</TableHead>}
               <TableHead>Haber Básico</TableHead>
               <TableHead>Descuentos</TableHead>
               <TableHead>Líquido Pagable (Bs)</TableHead>
@@ -103,13 +125,15 @@ export function BoletasPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {boletas.map((b) => (
+            {boletasVisibles.map((b) => (
               <TableRow key={b.id}>
                 <TableCell className="font-mono">{b.numero}</TableCell>
                 <TableCell>{b.periodo}</TableCell>
-                <TableCell>
-                  <strong>{b.funcionario}</strong>
-                </TableCell>
+                {!esFuncionario && (
+                  <TableCell>
+                    <strong>{b.funcionario}</strong>
+                  </TableCell>
+                )}
                 <TableCell className="font-mono">{formatCurrency(b.haberBasico)}</TableCell>
                 <TableCell className="font-mono text-danger">
                   - {formatCurrency(b.totalDescuentos)}

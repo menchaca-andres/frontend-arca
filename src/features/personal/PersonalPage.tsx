@@ -25,6 +25,7 @@ export function PersonalPage() {
   const toast = useToast()
   const { usuario } = useAuth()
   const puedeGestionar = usuario?.rol === 'ADMIN' || usuario?.rol === 'RRHH'
+  const esFuncionario = usuario?.rol === 'FUNCIONARIO'
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [areas, setAreas] = useState<Area[]>([])
@@ -47,7 +48,7 @@ export function PersonalPage() {
       estado: 'RATIFICADO',
     },
     {
-      id: '2',
+      id: '11111111-1111-4111-8111-111111111103',
       ci: '9000003',
       nombres: 'Daniela',
       apellidos: 'Mendoza Vargas',
@@ -76,6 +77,10 @@ export function PersonalPage() {
       f.apellidos.toLowerCase().includes(searchTerm.toLowerCase()) ||
       f.ci.includes(searchTerm),
   )
+
+  const funcionariosVisibles = esFuncionario
+    ? funcionarios.filter((f) => f.id === usuario?.funcionarioId || f.ci === '9000003')
+    : filtrados
 
   useEffect(() => {
     if (!isModalOpen || !puedeGestionar) return
@@ -162,9 +167,11 @@ export function PersonalPage() {
       <header className="page-header-ds">
         <div>
           <p className="eyebrow-ds">Módulo de Personal (ms-personal)</p>
-          <h1 className="page-title-ds">Padrón de Funcionarios</h1>
+          <h1 className="page-title-ds">{esFuncionario ? 'Mi Ficha' : 'Padrón de Funcionarios'}</h1>
           <p className="page-subtitle-ds">
-            Gestión de fichas, asignaciones laborales, áreas y cargos de ARCA Ltda.
+            {esFuncionario
+              ? 'Consulta tus datos personales y tu asignación laboral vigente.'
+              : 'Gestión de fichas, asignaciones laborales, áreas y cargos de ARCA Ltda.'}
           </p>
         </div>
         {puedeGestionar && (
@@ -175,18 +182,20 @@ export function PersonalPage() {
       </header>
 
       <Card>
-        <div className="table-controls-ds">
-          <div className="search-filter-box">
-            <Input
-              placeholder="Buscar por nombre, apellido o CI..."
-              leftIcon={<Search size={18} />}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+        {!esFuncionario && (
+          <div className="table-controls-ds">
+            <div className="search-filter-box">
+              <Input
+                placeholder="Buscar por nombre, apellido o CI..."
+                leftIcon={<Search size={18} />}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
-        {filtrados.length === 0 ? (
+        {funcionariosVisibles.length === 0 ? (
           <EmptyState
             title="Sin resultados"
             description="No se encontraron funcionarios registrados con ese criterio."
@@ -205,7 +214,7 @@ export function PersonalPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtrados.map((f) => (
+              {funcionariosVisibles.map((f) => (
                 <TableRow key={f.id}>
                   <TableCell className="font-mono">{f.ci}</TableCell>
                   <TableCell>

@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   Receipt,
   ShieldCheck,
+  UserCog,
   Users,
 } from 'lucide-react'
 import type { Rol } from '../types'
@@ -75,6 +76,14 @@ export const NAVIGATION_ITEMS: NavItemConfig[] = [
     getLabel: () => 'Auditoría',
     allowedRoles: ['ADMIN'],
     description: 'Registro de operaciones y trazabilidad de seguridad.',
+  },
+  {
+    id: 'usuarios',
+    path: '/usuarios',
+    icon: UserCog,
+    getLabel: () => 'Usuarios',
+    allowedRoles: ['ADMIN'],
+    description: 'Gestión de cuentas de usuario, roles y accesos.',
   },
 ]
 

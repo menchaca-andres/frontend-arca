@@ -50,3 +50,34 @@ export interface CargoInput {
   salarioMin: number
   salarioMax: number
 }
+
+export interface UsuarioItem {
+  id: string
+  email: string
+  rol: Rol
+  funcionarioId: string | null
+  activo: boolean
+  ultimoAcceso: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CrearUsuarioInput {
+  email: string
+  rol: Rol
+  funcionarioId?: string | null
+}
+
+export interface CrearUsuarioResponse {
+  usuario: UsuarioItem
+  passwordTemporal: string
+}
+
+export interface CambiarRolInput {
+  rol: Rol
+  funcionarioId?: string | null
+}
+
+export interface CambiarEstadoInput {
+  activo: boolean
+}

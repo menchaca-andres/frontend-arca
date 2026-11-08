@@ -2,9 +2,15 @@ import type {
   ApiErrorPayload,
   Area,
   AreaInput,
+  CambiarEstadoInput,
+  CambiarRolInput,
   Cargo,
   CargoInput,
+  CrearUsuarioInput,
+  CrearUsuarioResponse,
   LoginResponse,
+  Rol,
+  UsuarioItem,
   UsuarioSesion,
 } from '../types'
 
@@ -104,6 +110,28 @@ export class ApiService {
     input: Partial<Omit<CargoInput, 'areaId'>> & { activo?: boolean },
   ): Promise<Cargo> {
     return this.patch<Cargo>(`/api/v1/personal/cargos/${id}`, input)
+  }
+
+  static async getUsuarios(
+    params: { rol?: Rol; activo?: boolean } = {},
+  ): Promise<UsuarioItem[]> {
+    const query = new URLSearchParams()
+    if (params.rol) query.set('rol', params.rol)
+    if (params.activo !== undefined) query.set('activo', String(params.activo))
+    const suffix = query.size > 0 ? `?${query.toString()}` : ''
+    return this.get<UsuarioItem[]>(`/api/usuarios${suffix}`)
+  }
+
+  static async createUsuario(input: CrearUsuarioInput): Promise<CrearUsuarioResponse> {
+    return this.post<CrearUsuarioResponse>('/api/usuarios', input)
+  }
+
+  static async updateUsuarioRol(id: string, input: CambiarRolInput): Promise<UsuarioItem> {
+    return this.patch<UsuarioItem>(`/api/usuarios/${id}/rol`, input)
+  }
+
+  static async updateUsuarioEstado(id: string, input: CambiarEstadoInput): Promise<UsuarioItem> {
+    return this.patch<UsuarioItem>(`/api/usuarios/${id}/estado`, input)
   }
 
   static async get<T>(path: string, options?: RequestInit): Promise<T> {

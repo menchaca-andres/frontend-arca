@@ -9,6 +9,7 @@ import { ProtectedRoute } from './features/auth/ProtectedRoute'
 import { BoletasPage } from './features/boletas'
 import { ContratosPage } from './features/contratos'
 import { CatalogosPage, PersonalPage } from './features/personal'
+import { UsuariosPage } from './features/usuarios'
 import { VacacionesPage } from './features/vacaciones'
 
 function App() {
@@ -74,6 +75,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={['ADMIN']}>
                     <AuditoriaPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="usuarios"
+                element={
+                  <ProtectedRoute allowedRoles={['ADMIN']}>
+                    <UsuariosPage />
                   </ProtectedRoute>
                 }
               />

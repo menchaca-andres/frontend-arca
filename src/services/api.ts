@@ -8,7 +8,10 @@ import type {
   CargoInput,
   CrearUsuarioInput,
   CrearUsuarioResponse,
+  FichaFuncionario,
+  FuncionarioResumen,
   LoginResponse,
+  RegistrarFuncionarioInput,
   Rol,
   UsuarioItem,
   UsuarioSesion,
@@ -132,6 +135,18 @@ export class ApiService {
 
   static async updateUsuarioEstado(id: string, input: CambiarEstadoInput): Promise<UsuarioItem> {
     return this.patch<UsuarioItem>(`/api/usuarios/${id}/estado`, input)
+  }
+
+  static async getFuncionarios(): Promise<FuncionarioResumen[]> {
+    return this.get<FuncionarioResumen[]>('/api/v1/personal/funcionarios')
+  }
+
+  static async getFuncionarioFicha(id: string): Promise<FichaFuncionario> {
+    return this.get<FichaFuncionario>(`/api/v1/personal/funcionarios/${id}`)
+  }
+
+  static async registrarFuncionario(input: RegistrarFuncionarioInput): Promise<FichaFuncionario> {
+    return this.post<FichaFuncionario>('/api/v1/personal/funcionarios', input)
   }
 
   static async get<T>(path: string, options?: RequestInit): Promise<T> {

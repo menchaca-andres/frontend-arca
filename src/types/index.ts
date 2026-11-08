@@ -81,3 +81,63 @@ export interface CambiarRolInput {
 export interface CambiarEstadoInput {
   activo: boolean
 }
+
+export type CIExpedido = 'LP' | 'CB' | 'SC' | 'OR' | 'PT' | 'CH' | 'TJ' | 'BE' | 'PD'
+
+export type EstadoFuncionario = 'EN_PRUEBA' | 'RATIFICADO' | 'BAJA'
+
+export interface RegistrarFuncionarioInput {
+  ci: string
+  ciExpedido: CIExpedido
+  nombres: string
+  apellidos: string
+  fechaNacimiento: string
+  sexo: 'M' | 'F'
+  correo?: string | null
+  telefono?: string | null
+  direccion?: string | null
+  cargoId: string
+  remuneracion: number
+  fechaIngreso: string
+  diasPrueba?: number
+}
+
+export interface FichaFuncionario {
+  id: string
+  ci: string
+  ciExpedido: string
+  nombres: string
+  apellidos: string
+  fechaNacimiento: string
+  sexo: string
+  correo: string | null
+  telefono: string | null
+  direccion: string | null
+  fechaIngreso: string
+  diasPrueba: number
+  estado: EstadoFuncionario
+  fechaRatificacion: string | null
+  fechaBaja: string | null
+  asignacionVigente: {
+    id: string
+    cargoId: string
+    cargoNombre: string
+    areaId: string
+    areaNombre: string
+    remuneracion: number
+    vigenteDesde: string
+    vigenteHasta: string | null
+    motivo: string
+  } | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface FuncionarioResumen {
+  id: string
+  ci: string
+  ciExpedido: string
+  nombreCompleto: string
+  estado: EstadoFuncionario
+}
+

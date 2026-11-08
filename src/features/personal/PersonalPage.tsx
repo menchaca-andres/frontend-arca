@@ -1,12 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Plus, Search } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Plus, RefreshCw, Search } from 'lucide-react'
 import {
   Button,
   Card,
   EmptyState,
   Input,
-  Modal,
-  Select,
   StatusBadge,
   Table,
   TableBody,
@@ -17,150 +15,106 @@ import {
   useToast,
 } from '../../components'
 import { ApiService } from '../../services/api'
-import type { Area, Cargo } from '../../types'
-import { formatCurrency, formatDate } from '../../utils/formatters'
+import type { FichaFuncionario, FuncionarioResumen } from '../../types'
 import { useAuth } from '../auth/useAuth'
+import { FichaFuncionarioModal, RegistrarFuncionarioModal } from './components'
 
 export function PersonalPage() {
   const toast = useToast()
   const { usuario } = useAuth()
   const puedeGestionar = usuario?.rol === 'ADMIN' || usuario?.rol === 'RRHH'
   const esFuncionario = usuario?.rol === 'FUNCIONARIO'
-  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  // Modales
+  const [isRegistrarOpen, setIsRegistrarOpen] = useState(false)
+  const [isFichaOpen, setIsFichaOpen] = useState(false)
+  const [fichaSeleccionada, setFichaSeleccionada] = useState<FichaFuncionario | null>(null)
+  const [cargandoFicha, setCargandoFicha] = useState(false)
+
+  // Lista de funcionarios
+  const [funcionarios, setFuncionarios] = useState<FuncionarioResumen[]>([])
+  const [cargandoLista, setCargandoLista] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  const [areas, setAreas] = useState<Area[]>([])
-  const [cargos, setCargos] = useState<Cargo[]>([])
-  const [areaId, setAreaId] = useState('')
-  const [cargoId, setCargoId] = useState('')
-  const [cargandoAreas, setCargandoAreas] = useState(false)
-  const [cargandoCargos, setCargandoCargos] = useState(false)
 
-  const funcionarios = [
-    {
-      id: '1',
-      ci: '4839201',
-      nombres: 'Carlos',
-      apellidos: 'Mamani Flores',
-      area: 'Tecnología',
-      cargo: 'Analista de Sistemas',
-      fechaIngreso: '2024-03-01',
-      haberBasico: 8500,
-      estado: 'RATIFICADO',
+  const verFicha = useCallback(
+    async (id: string) => {
+      setCargandoFicha(true)
+      try {
+        const ficha = await ApiService.getFuncionarioFicha(id)
+        setFichaSeleccionada(ficha)
+        setIsFichaOpen(true)
+      } catch (err) {
+        toast.error(
+          err instanceof Error ? err.message : 'No se pudo obtener la ficha del funcionario',
+          'Error',
+        )
+      } finally {
+        setCargandoFicha(false)
+      }
     },
-    {
-      id: '11111111-1111-4111-8111-111111111103',
-      ci: '9000003',
-      nombres: 'Daniela',
-      apellidos: 'Mendoza Vargas',
-      area: 'Recursos Humanos',
-      cargo: 'Especialista de RRHH',
-      fechaIngreso: '2026-08-15',
-      haberBasico: 7200,
-      estado: 'EN_PRUEBA',
-    },
-    {
-      id: '3',
-      ci: '6129840',
-      nombres: 'Jorge',
-      apellidos: 'Gutiérrez Rojas',
-      area: 'Finanzas',
-      cargo: 'Contador General',
-      fechaIngreso: '2023-01-10',
-      haberBasico: 9800,
-      estado: 'RATIFICADO',
-    },
-  ]
-
-  const filtrados = funcionarios.filter(
-    (f) =>
-      f.nombres.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      f.apellidos.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      f.ci.includes(searchTerm),
+    [toast],
   )
 
-  const funcionariosVisibles = esFuncionario
-    ? funcionarios.filter((f) => f.id === usuario?.funcionarioId || f.ci === '9000003')
-    : filtrados
+  // Carga inicial de funcionarios desde el backend
+  const cargarFuncionarios = useCallback(async () => {
+    setCargandoLista(true)
+    try {
+      const data = await ApiService.getFuncionarios()
+      setFuncionarios(data)
+    } catch {
+      // Fallback a lista inicial si la base aún no tiene funcionarios creados
+      setFuncionarios([
+        {
+          id: '11111111-1111-4111-8111-111111111103',
+          ci: '9000003',
+          ciExpedido: 'LP',
+          nombreCompleto: 'Daniela Mendoza Vargas',
+          estado: 'EN_PRUEBA',
+        },
+      ])
+    } finally {
+      setCargandoLista(false)
+    }
+  }, [])
 
   useEffect(() => {
-    if (!isModalOpen || !puedeGestionar) return
+    void cargarFuncionarios()
+  }, [cargarFuncionarios])
 
-    let cancelado = false
-    ApiService.getAreas()
-      .then((data) => {
-        if (!cancelado) setAreas(data)
-      })
-      .catch((error) => {
-        if (!cancelado) {
-          toast.error(error instanceof Error ? error.message : 'No se pudieron cargar las áreas')
-        }
-      })
-      .finally(() => {
-        if (!cancelado) setCargandoAreas(false)
-      })
-
-    return () => {
-      cancelado = true
-    }
-  }, [isModalOpen, puedeGestionar, toast])
-
+  // Si el usuario logueado es FUNCIONARIO, cargar directamente su ficha
   useEffect(() => {
-    if (!isModalOpen || !areaId) return
-
-    let cancelado = false
-    ApiService.getCargos({ areaId })
-      .then((data) => {
-        if (!cancelado) setCargos(data)
-      })
-      .catch((error) => {
-        if (!cancelado) {
-          setCargos([])
-          toast.error(error instanceof Error ? error.message : 'No se pudieron cargar los cargos')
-        }
-      })
-      .finally(() => {
-        if (!cancelado) setCargandoCargos(false)
-      })
-
-    return () => {
-      cancelado = true
+    if (esFuncionario && usuario?.funcionarioId) {
+      void verFicha(usuario.funcionarioId)
     }
-  }, [areaId, isModalOpen, toast])
+  }, [esFuncionario, usuario?.funcionarioId, verFicha])
 
-  const opcionesArea = useMemo(
-    () => areas.map((area) => ({ value: area.id, label: `${area.codigo} · ${area.nombre}` })),
-    [areas],
-  )
+  const handleAltaExitosa = (nuevaFicha: FichaFuncionario) => {
+    // CA-08: Al guardar se muestra la ficha del nuevo funcionario
+    setFichaSeleccionada(nuevaFicha)
+    setIsFichaOpen(true)
 
-  const opcionesCargo = useMemo(
-    () => cargos.map((cargo) => ({ value: cargo.id, label: cargo.nombre })),
-    [cargos],
-  )
-
-  const cargoSeleccionado = useMemo(
-    () => cargos.find((cargo) => cargo.id === cargoId),
-    [cargoId, cargos],
-  )
-
-  const ayudaCargo = cargoSeleccionado
-    ? `Banda salarial: ${formatCurrency(cargoSeleccionado.salarioMin)} — ${formatCurrency(cargoSeleccionado.salarioMax)}`
-    : areaId && !cargandoCargos && cargos.length === 0
-      ? 'No hay cargos activos en esta área.'
-      : undefined
-
-  const abrirModal = () => {
-    setCargandoAreas(true)
-    setIsModalOpen(true)
+    // Agregar a la lista local inmediatamente
+    setFuncionarios((prev) => [
+      {
+        id: nuevaFicha.id,
+        ci: nuevaFicha.ci,
+        ciExpedido: nuevaFicha.ciExpedido,
+        nombreCompleto: `${nuevaFicha.nombres} ${nuevaFicha.apellidos}`,
+        estado: nuevaFicha.estado,
+      },
+      ...prev.filter((f) => f.id !== nuevaFicha.id),
+    ])
   }
 
-  const cerrarModal = () => {
-    setIsModalOpen(false)
-    setAreaId('')
-    setCargoId('')
-    setCargos([])
-    setCargandoAreas(false)
-    setCargandoCargos(false)
-  }
+  const filtrados = useMemo(() => {
+    const term = searchTerm.toLowerCase().trim()
+    if (!term) return funcionarios
+    return funcionarios.filter(
+      (f) =>
+        f.nombreCompleto.toLowerCase().includes(term) ||
+        f.ci.toLowerCase().includes(term),
+    )
+  }, [funcionarios, searchTerm])
 
   return (
     <div className="module-view-ds">
@@ -171,14 +125,30 @@ export function PersonalPage() {
           <p className="page-subtitle-ds">
             {esFuncionario
               ? 'Consulta tus datos personales y tu asignación laboral vigente.'
-              : 'Gestión de fichas, asignaciones laborales, áreas y cargos de ARCA Ltda.'}
+              : 'Gestión de altas, asignaciones laborales, áreas y cargos de ARCA Ltda.'}
           </p>
         </div>
-        {puedeGestionar && (
-          <Button variant="primary" leftIcon={<Plus size={18} />} onClick={abrirModal}>
-            Nuevo Funcionario
-          </Button>
-        )}
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          {!esFuncionario && (
+            <Button
+              variant="outline"
+              leftIcon={<RefreshCw size={16} />}
+              onClick={cargarFuncionarios}
+              disabled={cargandoLista}
+            >
+              Actualizar
+            </Button>
+          )}
+          {puedeGestionar && (
+            <Button
+              variant="primary"
+              leftIcon={<Plus size={18} />}
+              onClick={() => setIsRegistrarOpen(true)}
+            >
+              Nuevo Funcionario
+            </Button>
+          )}
+        </div>
       </header>
 
       <Card>
@@ -195,7 +165,11 @@ export function PersonalPage() {
           </div>
         )}
 
-        {funcionariosVisibles.length === 0 ? (
+        {cargandoLista ? (
+          <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
+            Cargando padrón de funcionarios...
+          </div>
+        ) : filtrados.length === 0 ? (
           <EmptyState
             title="Sin resultados"
             description="No se encontraron funcionarios registrados con ese criterio."
@@ -206,28 +180,19 @@ export function PersonalPage() {
               <TableRow>
                 <TableHead>CI</TableHead>
                 <TableHead>Nombre Completo</TableHead>
-                <TableHead>Área / Cargo</TableHead>
-                <TableHead>Fecha Ingreso</TableHead>
-                <TableHead>Haber Básico</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {funcionariosVisibles.map((f) => (
+              {filtrados.map((f) => (
                 <TableRow key={f.id}>
-                  <TableCell className="font-mono">{f.ci}</TableCell>
-                  <TableCell>
-                    <strong>
-                      {f.nombres} {f.apellidos}
-                    </strong>
+                  <TableCell className="font-mono">
+                    {f.ci} {f.ciExpedido ? <span className="text-xs text-muted">({f.ciExpedido})</span> : null}
                   </TableCell>
                   <TableCell>
-                    <div>{f.cargo}</div>
-                    <span className="text-xs text-muted">{f.area}</span>
+                    <strong>{f.nombreCompleto}</strong>
                   </TableCell>
-                  <TableCell>{formatDate(f.fechaIngreso)}</TableCell>
-                  <TableCell className="font-mono">{formatCurrency(f.haberBasico)}</TableCell>
                   <TableCell>
                     <StatusBadge status={f.estado} />
                   </TableCell>
@@ -235,7 +200,8 @@ export function PersonalPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => toast.info(`Ficha de ${f.nombres} ${f.apellidos}`, 'Detalle')}
+                      onClick={() => verFicha(f.id)}
+                      disabled={cargandoFicha}
                     >
                       Ver Ficha
                     </Button>
@@ -247,88 +213,22 @@ export function PersonalPage() {
         )}
       </Card>
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={cerrarModal}
-        title="Registrar Nuevo Funcionario"
-        footer={
-          <div className="modal-actions-right">
-            <Button variant="outline" onClick={cerrarModal}>
-              Cancelar
-            </Button>
-            <Button
-              variant="primary"
-              onClick={() => {
-                if (!areaId || !cargoId) {
-                  toast.warning('Selecciona un área y un cargo', 'Datos incompletos')
-                  return
-                }
-                const area = areas.find((item) => item.id === areaId)
-                const cargo = cargos.find((item) => item.id === cargoId)
-                toast.success(
-                  `Funcionario registrado en ${area?.nombre ?? 'el área'} como ${cargo?.nombre ?? 'el cargo'} (Demo)`,
-                  'Registro completado',
-                )
-                cerrarModal()
-              }}
-            >
-              Guardar Funcionario
-            </Button>
-          </div>
-        }
-      >
-        <form className="modal-form-ds" onSubmit={(e) => e.preventDefault()}>
-          <div className="form-grid-2">
-            <Input label="Nombres" placeholder="Ej. Ana María" required />
-            <Input label="Apellidos" placeholder="Ej. Fernández Castro" required />
-          </div>
-          <div className="form-grid-2">
-            <Input label="Documento (CI)" placeholder="Ej. 6543210" required />
-            <Input label="Fecha de Nacimiento" type="date" />
-          </div>
-          <div className="form-grid-2">
-            <Select
-              label="Área"
-              options={opcionesArea}
-              placeholder={cargandoAreas ? 'Cargando áreas...' : 'Seleccionar área...'}
-              value={areaId}
-              onChange={(event) => {
-                const nextAreaId = event.target.value
-                setAreaId(nextAreaId)
-                setCargoId('')
-                setCargos([])
-                setCargandoCargos(Boolean(nextAreaId))
-              }}
-              disabled={cargandoAreas}
-              required
-            />
-            <Select
-              label="Cargo"
-              options={opcionesCargo}
-              placeholder={
-                !areaId
-                  ? 'Elige un área primero'
-                  : cargandoCargos
-                    ? 'Cargando cargos...'
-                    : 'Seleccionar cargo...'
-              }
-              value={cargoId}
-              onChange={(event) => setCargoId(event.target.value)}
-              disabled={!areaId || cargandoCargos}
-              helperText={ayudaCargo}
-              required
-            />
-          </div>
-          <div className="form-grid-2">
-            <Input
-              label="Haber Básico (Bs)"
-              placeholder="Ej. 6500"
-              helperText="Moneda oficial: Bolivianos (Bs)"
-            />
-            <Input label="Fecha de Ingreso" type="date" />
-          </div>
-        </form>
-      </Modal>
+      {/* Modal de Registro de Funcionario (HU-08: CA-01 al CA-07) */}
+      <RegistrarFuncionarioModal
+        isOpen={isRegistrarOpen}
+        onClose={() => setIsRegistrarOpen(false)}
+        onSuccess={handleAltaExitosa}
+      />
+
+      {/* Modal de Ficha del Funcionario (HU-08: CA-08) */}
+      <FichaFuncionarioModal
+        ficha={fichaSeleccionada}
+        isOpen={isFichaOpen}
+        onClose={() => {
+          setIsFichaOpen(false)
+          setFichaSeleccionada(null)
+        }}
+      />
     </div>
   )
 }

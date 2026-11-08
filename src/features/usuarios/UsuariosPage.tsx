@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Check, Copy, Plus, RefreshCw, ShieldAlert, UserCheck, UserX } from 'lucide-react'
 import {
   Badge,
@@ -19,7 +19,7 @@ import {
 } from '../../components'
 import { useAuth } from '../auth/useAuth'
 import { ApiService } from '../../services/api'
-import type { CrearUsuarioInput, Rol, UsuarioItem } from '../../types'
+import type { CrearUsuarioInput, FuncionarioResumen, Rol, UsuarioItem } from '../../types'
 import { formatDate } from '../../utils/formatters'
 
 const ROLES: Rol[] = ['ADMIN', 'RRHH', 'DIRECCION', 'FUNCIONARIO']
@@ -54,8 +54,40 @@ export function UsuariosPage() {
   const [nuevoFuncionarioId, setNuevoFuncionarioId] = useState('')
   const [guardandoRol, setGuardandoRol] = useState(false)
 
+  // Lista de funcionarios para vincular cuenta
+  const [funcionarios, setFuncionarios] = useState<FuncionarioResumen[]>([])
+  const [cargandoFuncionarios, setCargandoFuncionarios] = useState(false)
+
   // Estado de copiado al portapapeles
   const [copiado, setCopiado] = useState(false)
+
+  const cargarFuncionarios = useCallback(async () => {
+    try {
+      setCargandoFuncionarios(true)
+      const data = await ApiService.getFuncionarios()
+      setFuncionarios(data)
+    } catch {
+      // Ignorar error si aún no hay funcionarios o endpoint en desarrollo
+      setFuncionarios([])
+    } finally {
+      setCargandoFuncionarios(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (modalAlta || Boolean(modalRol)) {
+      void cargarFuncionarios()
+    }
+  }, [modalAlta, modalRol, cargarFuncionarios])
+
+  const opcionesFuncionarios = useMemo(
+    () =>
+      funcionarios.map((f) => ({
+        value: f.id,
+        label: `${f.nombreCompleto} — CI: ${f.ci}${f.ciExpedido ? ` ${f.ciExpedido}` : ''}`,
+      })),
+    [funcionarios],
+  )
 
   const cargarUsuarios = useCallback(async () => {
     try {
@@ -349,17 +381,25 @@ export function UsuariosPage() {
 
           {formAlta.rol === 'FUNCIONARIO' && (
             <div className="space-y-1">
-              <Input
-                label="ID del Funcionario (UUID)"
-                placeholder="00000000-0000-0000-0000-000000000000"
+              <Select
+                label="Funcionario a Vincular"
+                placeholder={
+                  cargandoFuncionarios
+                    ? 'Cargando funcionarios...'
+                    : opcionesFuncionarios.length === 0
+                      ? 'No hay funcionarios disponibles'
+                      : 'Seleccionar funcionario...'
+                }
                 value={formAlta.funcionarioId ?? ''}
                 onChange={(e) =>
                   setFormAlta((prev) => ({ ...prev, funcionarioId: e.target.value }))
                 }
+                options={opcionesFuncionarios}
+                disabled={cargandoFuncionarios}
                 required
               />
               <p className="text-xs text-neutral-500">
-                El funcionario debe existir en Personal y no estar dado de baja.
+                Selecciona al funcionario registrado en Personal (no dado de baja).
               </p>
             </div>
           )}
@@ -400,13 +440,26 @@ export function UsuariosPage() {
           />
 
           {nuevoRol === 'FUNCIONARIO' && (
-            <Input
-              label="ID del Funcionario (UUID)"
-              placeholder="00000000-0000-0000-0000-000000000000"
-              value={nuevoFuncionarioId}
-              onChange={(e) => setNuevoFuncionarioId(e.target.value)}
-              required
-            />
+            <div className="space-y-1">
+              <Select
+                label="Funcionario a Vincular"
+                placeholder={
+                  cargandoFuncionarios
+                    ? 'Cargando funcionarios...'
+                    : opcionesFuncionarios.length === 0
+                      ? 'No hay funcionarios disponibles'
+                      : 'Seleccionar funcionario...'
+                }
+                value={nuevoFuncionarioId}
+                onChange={(e) => setNuevoFuncionarioId(e.target.value)}
+                options={opcionesFuncionarios}
+                disabled={cargandoFuncionarios}
+                required
+              />
+              <p className="text-xs text-neutral-500">
+                Selecciona al funcionario registrado en Personal (no dado de baja).
+              </p>
+            </div>
           )}
 
           <div className="flex justify-end gap-3 pt-4">

@@ -1,0 +1,51 @@
+.config-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 8px 0;
+}
+.config-form {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  display: grid;
+  gap: 16px;
+}
+.config-filter {
+  display: grid;
+  grid-template-columns: 100px 100px minmax(200px, 1fr);
+  gap: 16px;
+}
+.config-error {
+  color: #991b1b;
+  background: #fef2f2;
+  padding: 14px;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+.config-table-wrap {
+  overflow-x: auto;
+}
+.config-table {
+  border-collapse: collapse;
+  width: 100%;
+  text-align: left;
+}
+.config-table th,
+.config-table td {
+  padding: 14px 10px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: top;
+}
+.config-table th {
+  color: #475569;
+  font-size: 12px;
+}
+@media (max-width: 700px) {
+  .config-filter {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

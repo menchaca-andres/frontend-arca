@@ -142,7 +142,14 @@ export function HistorialVersionesModal({
                         <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b' }}>
                           Variables detectadas ({v.variables?.length ?? 0}):
                         </span>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem', marginTop: '0.25rem' }}>
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            gap: '0.25rem',
+                            marginTop: '0.25rem',
+                          }}
+                        >
                           {v.variables?.map((varName) => (
                             <code
                               key={varName}

@@ -248,7 +248,11 @@ export function EditorPlantillaModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={esEdicion ? `Editar Plantilla — ${plantillaParaEditar?.codigo}` : 'Nueva Plantilla de Contrato'}
+      title={
+        esEdicion
+          ? `Editar Plantilla — ${plantillaParaEditar?.codigo}`
+          : 'Nueva Plantilla de Contrato'
+      }
       size="lg"
       footer={
         <div className="modal-actions-right">
@@ -269,7 +273,10 @@ export function EditorPlantillaModal({
         </div>
       }
     >
-      <form onSubmit={handleGuardar} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <form
+        onSubmit={handleGuardar}
+        style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+      >
         {/* Metadatos de la plantilla */}
         <div className="form-grid-2">
           <Input
@@ -317,13 +324,21 @@ export function EditorPlantillaModal({
               marginBottom: '0.5rem',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 600 }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+              }}
+            >
               <FileCode2 size={16} className="text-brand" />
               <span>Variables Disponibles (Clic para insertar en el cursor):</span>
             </div>
             <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
-              <Sparkles size={12} style={{ display: 'inline', marginRight: '3px' }} />
-              3 variables obligatorias marcadas con ★
+              <Sparkles size={12} style={{ display: 'inline', marginRight: '3px' }} />3 variables
+              obligatorias marcadas con ★
             </span>
           </div>
 
@@ -359,9 +374,17 @@ export function EditorPlantillaModal({
         </div>
 
         {/* Editor de Contenido y Vista Previa lado a lado */}
-        <div style={{ display: 'grid', gridTemplateColumns: vistaPrevia ? '1fr 1fr' : '1fr', gap: '1rem' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: vistaPrevia ? '1fr 1fr' : '1fr',
+            gap: '1rem',
+          }}
+        >
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+            <div
+              style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}
+            >
               <label className="form-label-ds" style={{ margin: 0 }}>
                 Contenido de la Cláusula / Texto
               </label>
@@ -409,7 +432,15 @@ export function EditorPlantillaModal({
                   marginBottom: '0.5rem',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', fontWeight: 600 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                  }}
+                >
                   <Eye size={14} className="text-brand" />
                   <span>Vista Previa Renderizada (Datos Muestra)</span>
                 </div>
@@ -432,7 +463,15 @@ export function EditorPlantillaModal({
           )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', color: '#64748b' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontSize: '0.75rem',
+            color: '#64748b',
+          }}
+        >
           <Info size={14} className="shrink-0" />
           <span>
             {esEdicion
@@ -444,4 +483,3 @@ export function EditorPlantillaModal({
     </Modal>
   )
 }
-

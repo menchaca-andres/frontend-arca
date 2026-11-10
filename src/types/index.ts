@@ -275,4 +275,3 @@ export interface PreviewPlantillaResponse {
   contenidoRenderizado: string
   variables: string[]
 }
-

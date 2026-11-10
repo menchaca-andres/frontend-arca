@@ -147,7 +147,8 @@ export function ContratosPage() {
             fontWeight: 600,
             fontSize: '0.9rem',
             border: 'none',
-            borderBottom: tabActivo === 'plantillas' ? '2px solid #2563eb' : '2px solid transparent',
+            borderBottom:
+              tabActivo === 'plantillas' ? '2px solid #2563eb' : '2px solid transparent',
             color: tabActivo === 'plantillas' ? '#2563eb' : '#64748b',
             backgroundColor: 'transparent',
             cursor: 'pointer',

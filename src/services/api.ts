@@ -1,5 +1,6 @@
 import type {
   ActualizarContactoInput,
+  ActualizarPlantillaInput,
   ApiErrorPayload,
   Area,
   AreaInput,
@@ -8,6 +9,7 @@ import type {
   CambiarRolInput,
   Cargo,
   CargoInput,
+  CrearPlantillaInput,
   CrearUsuarioInput,
   CrearUsuarioResponse,
   DarDeBajaInput,
@@ -16,6 +18,9 @@ import type {
   FuncionarioPadronItem,
   LoginResponse,
   Paginated,
+  PlantillaItem,
+  PlantillaVersionItem,
+  PreviewPlantillaResponse,
   PruebaPorVencerItem,
   RatificarFuncionarioInput,
   RegistrarFuncionarioInput,
@@ -220,6 +225,37 @@ export class ApiService {
 
   static async darDeBajaFuncionario(id: string, input: DarDeBajaInput): Promise<FichaFuncionario> {
     return this.post<FichaFuncionario>(`/api/v1/personal/funcionarios/${id}/baja`, input)
+  }
+
+  // Plantillas de Contrato (HU-17)
+  static async getPlantillas(): Promise<PlantillaItem[]> {
+    return this.get<PlantillaItem[]>('/api/plantillas')
+  }
+
+  static async getPlantilla(id: string): Promise<PlantillaItem> {
+    return this.get<PlantillaItem>(`/api/plantillas/${id}`)
+  }
+
+  static async getPlantillaVersiones(id: string): Promise<PlantillaVersionItem[]> {
+    return this.get<PlantillaVersionItem[]>(`/api/plantillas/${id}/versiones`)
+  }
+
+  static async crearPlantilla(input: CrearPlantillaInput): Promise<PlantillaItem> {
+    return this.post<PlantillaItem>('/api/plantillas', input)
+  }
+
+  static async actualizarPlantilla(
+    id: string,
+    input: ActualizarPlantillaInput,
+  ): Promise<PlantillaItem> {
+    return this.put<PlantillaItem>(`/api/plantillas/${id}`, input)
+  }
+
+  static async previewPlantilla(
+    contenido: string,
+    datos?: Record<string, unknown>,
+  ): Promise<PreviewPlantillaResponse> {
+    return this.post<PreviewPlantillaResponse>('/api/plantillas/preview', { contenido, datos })
   }
 
   static async get<T>(path: string, options?: RequestInit): Promise<T> {

@@ -7,6 +7,8 @@ import { HomePage } from './features/auth/HomePage'
 import { LoginPage } from './features/auth/LoginPage'
 import { ProtectedRoute } from './features/auth/ProtectedRoute'
 import { BoletasPage } from './features/boletas'
+import { ConceptosPage } from './features/boletas/ConceptosPage'
+import { NovedadesPage } from './features/boletas/NovedadesPage'
 import { ContratosPage } from './features/contratos'
 import { CatalogosPage, PersonalPage } from './features/personal'
 import { UsuariosPage } from './features/usuarios'
@@ -30,6 +32,22 @@ function App() {
               }
             >
               <Route index element={<HomePage />} />
+              <Route
+                path="boletas/conceptos"
+                element={
+                  <ProtectedRoute allowedRoles={['RRHH']}>
+                    <ConceptosPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="boletas/novedades"
+                element={
+                  <ProtectedRoute allowedRoles={['RRHH']}>
+                    <NovedadesPage />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="personal"
                 element={

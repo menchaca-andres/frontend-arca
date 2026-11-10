@@ -70,6 +70,22 @@ export const NAVIGATION_ITEMS: NavItemConfig[] = [
     description: 'Cálculo de planilla mensual y boletas de pago inmutables.',
   },
   {
+    id: 'conceptos',
+    path: '/boletas/conceptos',
+    icon: Receipt,
+    getLabel: () => 'Conceptos de planilla',
+    allowedRoles: ['RRHH'],
+    description: 'Configuración de haberes y descuentos.',
+  },
+  {
+    id: 'novedades',
+    path: '/boletas/novedades',
+    icon: CalendarRange,
+    getLabel: () => 'Novedades del período',
+    allowedRoles: ['RRHH'],
+    description: 'Importes individuales por funcionario y período.',
+  },
+  {
     id: 'auditoria',
     path: '/auditoria',
     icon: ShieldCheck,

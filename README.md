@@ -1,5 +1,7 @@
 # frontend-arca
 
+HU-20: RRHH dispone de **Conceptos de planilla** (`/boletas/conceptos`) y **Novedades del período** (`/boletas/novedades`). Se utiliza el gateway y su identidad autenticada. Conceptos configura haberes/descuentos y protege Haber básico; Novedades registra importes individuales sin calcular ni emitir planilla. Ver `docs/HU-20-IMPLEMENTACION.md` del backend hermano para estado, reglas y pruebas.
+
 Interfaz del Sistema de Gestión Humana de ARCA Ltda. React + TypeScript + Vite. Solo habla con el API Gateway (`VITE_API_URL`, por defecto `http://localhost:8080`).
 
 Requiere **Node 22 o superior**.

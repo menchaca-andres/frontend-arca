@@ -128,10 +128,27 @@ export function RegistrarFuncionarioModal({
   const validarFormulario = (): boolean => {
     const errs: Record<string, string> = {}
 
-    if (!ci.trim()) errs.ci = 'El CI es obligatorio'
+    if (!ci.trim()) {
+      errs.ci = 'El CI es obligatorio'
+    } else if (ci.trim().length < 3) {
+      errs.ci = 'El CI debe tener al menos 3 caracteres'
+    } else if (ci.trim().length > 15) {
+      errs.ci = 'El CI no puede exceder 15 caracteres'
+    }
+
     if (!nombres.trim()) errs.nombres = 'El nombre es obligatorio'
     if (!apellidos.trim()) errs.apellidos = 'Los apellidos son obligatorios'
     if (!fechaNacimiento) errs.fechaNacimiento = 'Fecha de nacimiento requerida'
+
+    if (correo.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.trim())) {
+      errs.correo = 'El correo electrónico no tiene un formato válido'
+    }
+    if (telefono.trim().length > 20) {
+      errs.telefono = 'El teléfono no puede exceder 20 caracteres'
+    }
+    if (direccion.trim().length > 200) {
+      errs.direccion = 'La dirección no puede exceder 200 caracteres'
+    }
 
     if (fechaNacimiento && fechaIngreso) {
       const [nacY, nacM, nacD] = fechaNacimiento.split('-').map(Number)
@@ -200,6 +217,21 @@ export function RegistrarFuncionarioModal({
         if (err.code === 'CONFLICT') {
           setErrores((prev) => ({ ...prev, ci: err.message }))
           toast.error(err.message, 'CI Duplicado')
+        } else if (err.code === 'VALIDATION_ERROR' && Array.isArray(err.details)) {
+          const nuevosErrores: Record<string, string> = {}
+          const mensajes: string[] = []
+          for (const item of err.details as Array<{
+            path?: Array<string | number>
+            message?: string
+          }>) {
+            const campo = item.path?.[0]
+            if (campo && typeof campo === 'string') {
+              nuevosErrores[campo] = item.message ?? 'Campo inválido'
+            }
+            if (item.message) mensajes.push(item.message)
+          }
+          setErrores((prev) => ({ ...prev, ...nuevosErrores }))
+          toast.error(mensajes.join('. ') || err.message, 'Datos inválidos')
         } else {
           toast.error(err.message, 'Error al registrar')
         }
@@ -337,12 +369,14 @@ export function RegistrarFuncionarioModal({
               placeholder="ejemplo@arca.bo"
               value={correo}
               onChange={(e) => setCorreo(e.target.value)}
+              error={errores.correo}
             />
             <Input
               label="Teléfono / Celular"
               placeholder="Ej. 70012345"
               value={telefono}
               onChange={(e) => setTelefono(e.target.value)}
+              error={errores.telefono}
             />
           </div>
           <div style={{ marginTop: '0.75rem' }}>
@@ -351,6 +385,7 @@ export function RegistrarFuncionarioModal({
               placeholder="Ej. Av. 6 de Agosto #123, Edif. Arce Piso 4"
               value={direccion}
               onChange={(e) => setDireccion(e.target.value)}
+              error={errores.direccion}
             />
           </div>
         </fieldset>

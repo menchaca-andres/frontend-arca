@@ -234,3 +234,45 @@ export interface PruebaPorVencerItem extends FuncionarioResumen {
   diasRestantes: number
   listoParaRatificar: boolean
 }
+
+export type TipoContrato = 'INDEFINIDO' | 'PLAZO_FIJO'
+
+export interface PlantillaVersionItem {
+  id: string
+  version: number
+  contenido: string
+  variables: string[]
+  activa: boolean
+  creadoPor: string
+  createdAt: string
+}
+
+export interface PlantillaItem {
+  id: string
+  codigo: string
+  nombre: string
+  tipo: TipoContrato
+  activo: boolean
+  versionActiva: PlantillaVersionItem | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CrearPlantillaInput {
+  codigo: string
+  nombre: string
+  tipo: TipoContrato
+  contenido: string
+}
+
+export interface ActualizarPlantillaInput {
+  nombre?: string
+  tipo?: TipoContrato
+  contenido: string
+}
+
+export interface PreviewPlantillaResponse {
+  contenidoRenderizado: string
+  variables: string[]
+}
+

@@ -2,7 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Button, Input, Modal, Select, useToast } from '../../../components'
 import { ApiError, ApiService } from '../../../services/api'
-import type { Area, Cargo, CIExpedido, FichaFuncionario, RegistrarFuncionarioInput } from '../../../types'
+import type {
+  Area,
+  Cargo,
+  CIExpedido,
+  FichaFuncionario,
+  RegistrarFuncionarioInput,
+} from '../../../types'
 import { formatCurrency } from '../../../utils/formatters'
 
 const OPCIONES_EXPEDIDO: Array<{ value: CIExpedido; label: string }> = [
@@ -111,10 +117,7 @@ export function RegistrarFuncionarioModal({
     }
   }, [areaId, isOpen, toast])
 
-  const cargoSeleccionado = useMemo(
-    () => cargos.find((c) => c.id === cargoId),
-    [cargoId, cargos],
-  )
+  const cargoSeleccionado = useMemo(() => cargos.find((c) => c.id === cargoId), [cargoId, cargos])
 
   const ayudaCargo = cargoSeleccionado
     ? `Banda salarial: ${formatCurrency(cargoSeleccionado.salarioMin)} a ${formatCurrency(cargoSeleccionado.salarioMax)}`
@@ -247,7 +250,14 @@ export function RegistrarFuncionarioModal({
       <form className="modal-form-ds" onSubmit={handleSubmit}>
         {/* Sección: Datos Personales */}
         <fieldset style={{ border: 'none', padding: 0, margin: '0 0 1rem' }}>
-          <legend style={{ fontWeight: 600, fontSize: '0.95rem', color: '#1e293b', marginBottom: '0.75rem' }}>
+          <legend
+            style={{
+              fontWeight: 600,
+              fontSize: '0.95rem',
+              color: '#1e293b',
+              marginBottom: '0.75rem',
+            }}
+          >
             1. Datos Personales (CA-01)
           </legend>
           <div className="form-grid-2">
@@ -310,7 +320,14 @@ export function RegistrarFuncionarioModal({
 
         {/* Sección: Información de Contacto */}
         <fieldset style={{ border: 'none', padding: 0, margin: '0 0 1rem' }}>
-          <legend style={{ fontWeight: 600, fontSize: '0.95rem', color: '#1e293b', marginBottom: '0.75rem' }}>
+          <legend
+            style={{
+              fontWeight: 600,
+              fontSize: '0.95rem',
+              color: '#1e293b',
+              marginBottom: '0.75rem',
+            }}
+          >
             2. Información de Contacto (Opcional)
           </legend>
           <div className="form-grid-2">
@@ -340,7 +357,14 @@ export function RegistrarFuncionarioModal({
 
         {/* Sección: Datos Laborales y Asignación */}
         <fieldset style={{ border: 'none', padding: 0, margin: '0 0 0.5rem' }}>
-          <legend style={{ fontWeight: 600, fontSize: '0.95rem', color: '#1e293b', marginBottom: '0.75rem' }}>
+          <legend
+            style={{
+              fontWeight: 600,
+              fontSize: '0.95rem',
+              color: '#1e293b',
+              marginBottom: '0.75rem',
+            }}
+          >
             3. Datos Laborales y Asignación Inicial
           </legend>
           <div className="form-grid-2">

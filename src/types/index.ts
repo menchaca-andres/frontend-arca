@@ -141,3 +141,27 @@ export interface FuncionarioResumen {
   estado: EstadoFuncionario
 }
 
+export interface SaldoVacaciones {
+  funcionarioId: string
+  funcionario: string
+  elegible: boolean
+  motivo: string | null
+  gestiones: number
+  diasGanados: number
+  diasUsados: number
+  diasReservados: number
+  diasDisponibles: number
+  fechaProximaGestion: string
+}
+
+export interface SolicitudVacacion {
+  id: string
+  funcionarioId: string
+  funcionarioNombre: string
+  fechaInicio: string
+  fechaFin: string
+  diasHabiles: number
+  estado: 'PENDIENTE' | 'APROBADA' | 'RECHAZADA'
+  registradoPor: string
+  createdAt: string
+}

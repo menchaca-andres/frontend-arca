@@ -86,6 +86,8 @@ export type CIExpedido = 'LP' | 'CB' | 'SC' | 'OR' | 'PT' | 'CH' | 'TJ' | 'BE' |
 
 export type EstadoFuncionario = 'EN_PRUEBA' | 'RATIFICADO' | 'BAJA'
 
+export type MotivoBaja = 'RENUNCIA' | 'DESPIDO' | 'FIN_CONTRATO' | 'NO_RATIFICADO' | 'OTRO'
+
 export interface RegistrarFuncionarioInput {
   ci: string
   ciExpedido: CIExpedido
@@ -100,6 +102,16 @@ export interface RegistrarFuncionarioInput {
   remuneracion: number
   fechaIngreso: string
   diasPrueba?: number
+}
+
+export interface RatificarFuncionarioInput {
+  fechaRatificacion?: string
+}
+
+export interface DarDeBajaInput {
+  fechaBaja: string
+  motivoBaja: MotivoBaja
+  detalleBaja?: string | null
 }
 
 export interface FichaFuncionario {
@@ -118,6 +130,8 @@ export interface FichaFuncionario {
   estado: EstadoFuncionario
   fechaRatificacion: string | null
   fechaBaja: string | null
+  motivoBaja?: MotivoBaja | null
+  detalleBaja?: string | null
   asignacionVigente: {
     id: string
     cargoId: string
@@ -139,6 +153,8 @@ export interface FuncionarioResumen {
   ciExpedido: string
   nombreCompleto: string
   estado: EstadoFuncionario
+  fechaIngreso?: string
+  diasPrueba?: number
 }
 
 export interface SaldoVacaciones {
@@ -164,4 +180,12 @@ export interface SolicitudVacacion {
   estado: 'PENDIENTE' | 'APROBADA' | 'RECHAZADA'
   registradoPor: string
   createdAt: string
+}
+
+export interface PruebaPorVencerItem extends FuncionarioResumen {
+  fechaIngreso: string
+  diasPrueba: number
+  fechaFinPrueba: string
+  diasRestantes: number
+  listoParaRatificar: boolean
 }

@@ -8,13 +8,16 @@ import type {
   CargoInput,
   CrearUsuarioInput,
   CrearUsuarioResponse,
+  DarDeBajaInput,
   FichaFuncionario,
   FuncionarioResumen,
   LoginResponse,
-  SaldoVacaciones,
-  SolicitudVacacion,
+  PruebaPorVencerItem,
+  RatificarFuncionarioInput,
   RegistrarFuncionarioInput,
   Rol,
+  SaldoVacaciones,
+  SolicitudVacacion,
   UsuarioItem,
   UsuarioSesion,
 } from '../types'
@@ -137,8 +140,15 @@ export class ApiService {
     return this.patch<UsuarioItem>(`/api/usuarios/${id}/estado`, input)
   }
 
-  static async getFuncionarios(): Promise<FuncionarioResumen[]> {
-    return this.get<FuncionarioResumen[]>('/api/v1/personal/funcionarios')
+  static async getFuncionarios(params?: { estado?: string }): Promise<FuncionarioResumen[]> {
+    const query = new URLSearchParams()
+    if (params?.estado) query.set('estado', params.estado)
+    const suffix = query.size > 0 ? `?${query.toString()}` : ''
+    return this.get<FuncionarioResumen[]>(`/api/v1/personal/funcionarios${suffix}`)
+  }
+
+  static async getPruebaPorVencer(): Promise<PruebaPorVencerItem[]> {
+    return this.get<PruebaPorVencerItem[]>('/api/v1/personal/funcionarios/prueba-por-vencer')
   }
 
   static async getFuncionarioFicha(id: string): Promise<FichaFuncionario> {
@@ -171,6 +181,17 @@ export class ApiService {
 
   static async registrarFuncionario(input: RegistrarFuncionarioInput): Promise<FichaFuncionario> {
     return this.post<FichaFuncionario>('/api/v1/personal/funcionarios', input)
+  }
+
+  static async ratificarFuncionario(
+    id: string,
+    input: RatificarFuncionarioInput = {},
+  ): Promise<FichaFuncionario> {
+    return this.post<FichaFuncionario>(`/api/v1/personal/funcionarios/${id}/ratificacion`, input)
+  }
+
+  static async darDeBajaFuncionario(id: string, input: DarDeBajaInput): Promise<FichaFuncionario> {
+    return this.post<FichaFuncionario>(`/api/v1/personal/funcionarios/${id}/baja`, input)
   }
 
   static async get<T>(path: string, options?: RequestInit): Promise<T> {

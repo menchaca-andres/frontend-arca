@@ -1,4 +1,4 @@
-import { Briefcase, CheckCircle2, Mail, UserX } from 'lucide-react'
+import { CheckCircle2 } from 'lucide-react'
 import { Button, Modal, StatusBadge } from '../../../components'
 import type { FichaFuncionario } from '../../../types'
 import { formatCurrency, formatDate } from '../../../utils/formatters'
@@ -64,7 +64,6 @@ export function FichaFuncionarioModal({
             {puedeGestionar && ficha.estado !== 'BAJA' && onCambiarAsignacion && asignacion && (
               <Button
                 variant="outline"
-                leftIcon={<Briefcase size={16} />}
                 onClick={() => onCambiarAsignacion(ficha)}
               >
                 Cambiar asignación
@@ -73,7 +72,6 @@ export function FichaFuncionarioModal({
             {puedeGestionar && ficha.estado !== 'BAJA' && onEditarContacto && (
               <Button
                 variant="outline"
-                leftIcon={<Mail size={16} />}
                 onClick={() => onEditarContacto(ficha)}
               >
                 Editar contacto
@@ -82,7 +80,6 @@ export function FichaFuncionarioModal({
             {puedeGestionar && ficha.estado === 'EN_PRUEBA' && onRatificar && (
               <Button
                 variant="primary"
-                leftIcon={<CheckCircle2 size={16} />}
                 onClick={() => onRatificar(ficha)}
               >
                 Ratificar Funcionario
@@ -91,7 +88,6 @@ export function FichaFuncionarioModal({
             {puedeGestionar && ficha.estado !== 'BAJA' && onDarDeBaja && (
               <Button
                 variant="danger"
-                leftIcon={<UserX size={16} />}
                 onClick={() => onDarDeBaja(ficha)}
               >
                 Dar de Baja

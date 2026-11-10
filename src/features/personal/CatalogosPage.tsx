@@ -261,22 +261,22 @@ export function CatalogosPage() {
 
       <Card>
         <div className="table-controls-ds">
-          <div className="search-filter-box" style={{ display: 'flex', gap: '0.5rem' }}>
-            <Button
-              variant={tab === 'areas' ? 'primary' : 'outline'}
-              size="sm"
+          <nav className="segmented-control-ds" style={{ marginBottom: 0 }} aria-label="Catálogo">
+            <button
+              type="button"
+              className={`segmented-tab-ds ${tab === 'areas' ? 'is-active' : ''}`}
               onClick={() => setTab('areas')}
             >
               Áreas
-            </Button>
-            <Button
-              variant={tab === 'cargos' ? 'primary' : 'outline'}
-              size="sm"
+            </button>
+            <button
+              type="button"
+              className={`segmented-tab-ds ${tab === 'cargos' ? 'is-active' : ''}`}
               onClick={() => setTab('cargos')}
             >
               Cargos
-            </Button>
-          </div>
+            </button>
+          </nav>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             {tab === 'cargos' && (
               <Select

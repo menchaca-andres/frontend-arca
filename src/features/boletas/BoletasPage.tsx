@@ -3,12 +3,9 @@ import {
   AlertCircle,
   Calculator,
   Download,
-  Edit2,
   FileSpreadsheet,
-  ListPlus,
   Plus,
   RefreshCw,
-  Trash2,
 } from 'lucide-react'
 import {
   Badge,
@@ -310,79 +307,33 @@ export function BoletasPage() {
         </div>
       </header>
 
-      {/* Tabs de Navegación */}
+      {/* Tabs de Navegación estilo Apple */}
       {!esFuncionario && (
-        <div
-          style={{
-            display: 'flex',
-            gap: '1rem',
-            borderBottom: '1px solid #e2e8f0',
-            marginBottom: '1.25rem',
-          }}
-        >
+        <nav className="segmented-control-ds" aria-label="Secciones de Planilla">
           <button
             type="button"
             onClick={() => setTabActivo('conceptos')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.6rem 1rem',
-              fontWeight: 600,
-              fontSize: '0.9rem',
-              border: 'none',
-              borderBottom: tabActivo === 'conceptos' ? '2px solid #0f766e' : '2px solid transparent',
-              background: 'transparent',
-              color: tabActivo === 'conceptos' ? '#0f766e' : '#64748b',
-              cursor: 'pointer',
-            }}
+            className={`segmented-tab-ds ${tabActivo === 'conceptos' ? 'is-active' : ''}`}
           >
-            <ListPlus size={18} />
-            Conceptos de Planilla (HU-20)
+            Conceptos de Planilla
           </button>
 
           <button
             type="button"
             onClick={() => setTabActivo('novedades')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.6rem 1rem',
-              fontWeight: 600,
-              fontSize: '0.9rem',
-              border: 'none',
-              borderBottom: tabActivo === 'novedades' ? '2px solid #0f766e' : '2px solid transparent',
-              background: 'transparent',
-              color: tabActivo === 'novedades' ? '#0f766e' : '#64748b',
-              cursor: 'pointer',
-            }}
+            className={`segmented-tab-ds ${tabActivo === 'novedades' ? 'is-active' : ''}`}
           >
-            <FileSpreadsheet size={18} />
-            Novedades del Período (CA-05)
+            Novedades del Período
           </button>
 
           <button
             type="button"
             onClick={() => setTabActivo('boletas')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.6rem 1rem',
-              fontWeight: 600,
-              fontSize: '0.9rem',
-              border: 'none',
-              borderBottom: tabActivo === 'boletas' ? '2px solid #0f766e' : '2px solid transparent',
-              background: 'transparent',
-              color: tabActivo === 'boletas' ? '#0f766e' : '#64748b',
-              cursor: 'pointer',
-            }}
+            className={`segmented-tab-ds ${tabActivo === 'boletas' ? 'is-active' : ''}`}
           >
-            <Calculator size={18} />
             Boletas Emitidas
           </button>
-        </div>
+        </nav>
       )}
 
       {/* TAB 1: CONCEPTOS DE PLANILLA (HU-20) */}
@@ -494,7 +445,6 @@ export function BoletasPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            leftIcon={<Edit2 size={13} />}
                             onClick={() => handleEditarConcepto(c)}
                           >
                             Editar
@@ -504,7 +454,6 @@ export function BoletasPage() {
                               variant="outline"
                               size="sm"
                               className="text-danger hover:bg-red-50"
-                              leftIcon={<Trash2 size={13} />}
                               onClick={() => handleEliminarConcepto(c)}
                             >
                               Eliminar
@@ -629,7 +578,6 @@ export function BoletasPage() {
                           variant="outline"
                           size="sm"
                           className="text-danger hover:bg-red-50"
-                          leftIcon={<Trash2 size={13} />}
                           onClick={() => handleEliminarNovedad(nov.id)}
                         >
                           Eliminar

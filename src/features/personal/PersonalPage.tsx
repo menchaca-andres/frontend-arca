@@ -7,7 +7,6 @@ import {
   Plus,
   RefreshCw,
   Search,
-  UserX,
 } from 'lucide-react'
 import {
   Button,
@@ -480,7 +479,6 @@ export function PersonalPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          leftIcon={<CheckCircle2 size={14} />}
                           onClick={() => iniciarRatificacion(f)}
                         >
                           Ratificar
@@ -493,7 +491,6 @@ export function PersonalPage() {
                           variant="ghost"
                           size="sm"
                           style={{ color: '#dc2626' }}
-                          leftIcon={<UserX size={14} />}
                           onClick={() => iniciarBaja(f)}
                         >
                           Baja

@@ -43,7 +43,7 @@ export function Modal({ isOpen, onClose, title, children, footer, size = 'md' }:
             onClick={onClose}
             aria-label="Cerrar modal"
           >
-            <X size={20} />
+            <X size={15} strokeWidth={2.5} />
           </button>
         </header>
 

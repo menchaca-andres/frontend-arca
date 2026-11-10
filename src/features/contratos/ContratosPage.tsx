@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Edit3, FileCode, FileText, History, Plus, RefreshCw } from 'lucide-react'
+import { FileText, Plus, RefreshCw } from 'lucide-react'
 import {
   Button,
   Card,
@@ -127,57 +127,24 @@ export function ContratosPage() {
         </div>
       </header>
 
-      {/* Tabs de navegación interna */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '1rem',
-          borderBottom: '1px solid #e2e8f0',
-          marginBottom: '1.25rem',
-        }}
-      >
+      {/* Tabs de navegación interna estilo Apple */}
+      <nav className="segmented-control-ds" aria-label="Secciones de Contratos">
         <button
           type="button"
           onClick={() => setTabActivo('plantillas')}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.6rem 1rem',
-            fontWeight: 600,
-            fontSize: '0.9rem',
-            border: 'none',
-            borderBottom: tabActivo === 'plantillas' ? '2px solid #2563eb' : '2px solid transparent',
-            color: tabActivo === 'plantillas' ? '#2563eb' : '#64748b',
-            backgroundColor: 'transparent',
-            cursor: 'pointer',
-          }}
+          className={`segmented-tab-ds ${tabActivo === 'plantillas' ? 'is-active' : ''}`}
         >
-          <FileCode size={18} />
-          <span>Plantillas de Contrato (HU-17)</span>
+          Plantillas de Contrato
         </button>
 
         <button
           type="button"
           onClick={() => setTabActivo('contratos')}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.6rem 1rem',
-            fontWeight: 600,
-            fontSize: '0.9rem',
-            border: 'none',
-            borderBottom: tabActivo === 'contratos' ? '2px solid #2563eb' : '2px solid transparent',
-            color: tabActivo === 'contratos' ? '#2563eb' : '#64748b',
-            backgroundColor: 'transparent',
-            cursor: 'pointer',
-          }}
+          className={`segmented-tab-ds ${tabActivo === 'contratos' ? 'is-active' : ''}`}
         >
-          <FileText size={18} />
-          <span>Contratos Emitidos (HU-18/19)</span>
+          Contratos Emitidos
         </button>
-      </div>
+      </nav>
 
       {tabActivo === 'plantillas' ? (
         <Card>
@@ -225,7 +192,6 @@ export function ContratosPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          leftIcon={<History size={14} />}
                           onClick={() => setPlantillaParaHistorial(p)}
                           title="Ver historial de versiones"
                         >
@@ -235,7 +201,6 @@ export function ContratosPage() {
                           <Button
                             variant="secondary"
                             size="sm"
-                            leftIcon={<Edit3 size={14} />}
                             onClick={() => handleEditar(p)}
                             title="Editar y generar nueva versión"
                           >

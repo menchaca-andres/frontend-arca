@@ -1,6 +1,7 @@
 import type {
   ActualizarContactoInput,
   ActualizarPlantillaInput,
+  ActualizarConceptoInput,
   ApiErrorPayload,
   Area,
   AreaInput,
@@ -9,6 +10,8 @@ import type {
   CambiarRolInput,
   Cargo,
   CargoInput,
+  ConceptoItem,
+  CrearConceptoInput,
   CrearPlantillaInput,
   CrearUsuarioInput,
   CrearUsuarioResponse,
@@ -17,6 +20,7 @@ import type {
   FiltrosPadron,
   FuncionarioPadronItem,
   LoginResponse,
+  NovedadItem,
   Paginated,
   PlantillaItem,
   PlantillaVersionItem,
@@ -24,6 +28,7 @@ import type {
   PruebaPorVencerItem,
   RatificarFuncionarioInput,
   RegistrarFuncionarioInput,
+  RegistrarNovedadInput,
   Rol,
   SaldoVacaciones,
   SolicitudVacacion,
@@ -256,6 +261,52 @@ export class ApiService {
     datos?: Record<string, unknown>,
   ): Promise<PreviewPlantillaResponse> {
     return this.post<PreviewPlantillaResponse>('/api/plantillas/preview', { contenido, datos })
+  }
+
+  static async getConceptos(includeInactive = true): Promise<ConceptoItem[]> {
+    const suffix = includeInactive ? '' : '?activo=true'
+    return this.get<ConceptoItem[]>(`/api/conceptos${suffix}`)
+  }
+
+  static async getConceptoById(id: string): Promise<ConceptoItem> {
+    return this.get<ConceptoItem>(`/api/conceptos/${id}`)
+  }
+
+  static async createConcepto(input: CrearConceptoInput): Promise<ConceptoItem> {
+    return this.post<ConceptoItem>('/api/conceptos', input)
+  }
+
+  static async updateConcepto(id: string, input: ActualizarConceptoInput): Promise<ConceptoItem> {
+    return this.put<ConceptoItem>(`/api/conceptos/${id}`, input)
+  }
+
+  static async deleteConcepto(
+    id: string,
+  ): Promise<{ eliminado: boolean; desactivado: boolean; mensaje: string }> {
+    return this.delete<{ eliminado: boolean; desactivado: boolean; mensaje: string }>(
+      `/api/conceptos/${id}`,
+    )
+  }
+
+  static async getNovedades(params?: {
+    anio?: number
+    mes?: number
+    funcionarioId?: string
+  }): Promise<NovedadItem[]> {
+    const searchParams = new URLSearchParams()
+    if (params?.anio) searchParams.set('anio', String(params.anio))
+    if (params?.mes) searchParams.set('mes', String(params.mes))
+    if (params?.funcionarioId) searchParams.set('funcionarioId', params.funcionarioId)
+    const queryString = searchParams.toString() ? `?${searchParams.toString()}` : ''
+    return this.get<NovedadItem[]>(`/api/novedades${queryString}`)
+  }
+
+  static async createNovedad(input: RegistrarNovedadInput): Promise<NovedadItem> {
+    return this.post<NovedadItem>('/api/novedades', input)
+  }
+
+  static async deleteNovedad(id: string): Promise<void> {
+    return this.delete<void>(`/api/novedades/${id}`)
   }
 
   static async get<T>(path: string, options?: RequestInit): Promise<T> {

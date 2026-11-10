@@ -276,3 +276,122 @@ export interface PreviewPlantillaResponse {
   variables: string[]
 }
 
+
+export type TipoConcepto = 'HABER' | 'DESCUENTO';
+export type FormaCalculo = 'MONTO_FIJO' | 'PORCENTAJE' | 'SISTEMA';
+export type BaseCalculo = 'HABER_BASICO' | 'TOTAL_GANADO';
+
+export interface ConceptoItem {
+  id: string;
+  codigo: string;
+  nombre: string;
+  tipo: TipoConcepto;
+  formaCalculo: FormaCalculo;
+  valor: number | null;
+  base: BaseCalculo | null;
+  automatico: boolean;
+  esSistema: boolean;
+  orden: number;
+  activo: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CrearConceptoInput {
+  codigo: string;
+  nombre: string;
+  tipo: TipoConcepto;
+  formaCalculo: FormaCalculo;
+  valor?: number | null;
+  base?: BaseCalculo | null;
+  automatico: boolean;
+  orden: number;
+}
+
+export interface ActualizarConceptoInput {
+  nombre?: string;
+  formaCalculo?: FormaCalculo;
+  valor?: number | null;
+  base?: BaseCalculo | null;
+  automatico?: boolean;
+  orden?: number;
+  activo?: boolean;
+}
+
+export interface NovedadItem {
+  id: string;
+  anio: number;
+  mes: number;
+  funcionarioId: string;
+  conceptoId: string;
+  concepto: ConceptoItem;
+  monto: number;
+  descripcion: string | null;
+  registradoPor: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RegistrarNovedadInput {
+  anio: number;
+  mes: number;
+  funcionarioId: string;
+  conceptoId: string;
+  monto: number;
+  descripcion?: string | null;
+}
+
+export const FUNCIONARIOS_SEMILLA_PADRON: FuncionarioPadronItem[] = [
+  {
+    id: '11111111-1111-4111-8111-111111111101',
+    ci: '9000001',
+    ciExpedido: 'CB',
+    nombreCompleto: 'Lucía Vargas Rojas',
+    estado: 'EN_PRUEBA',
+    fechaIngreso: '2026-09-01',
+    diasPrueba: 90,
+    areaId: 'area-1',
+    areaNombre: 'Operaciones',
+    cargoId: 'cargo-1',
+    cargoNombre: 'Operador',
+  },
+  {
+    id: '11111111-1111-4111-8111-111111111102',
+    ci: '9000002',
+    ciExpedido: 'LP',
+    nombreCompleto: 'Carlos Mamani Flores',
+    estado: 'RATIFICADO',
+    fechaIngreso: '2026-08-01',
+    diasPrueba: 90,
+    areaId: 'area-2',
+    areaNombre: 'Administración',
+    cargoId: 'cargo-2',
+    cargoNombre: 'Asistente Administrativo',
+  },
+  {
+    id: '11111111-1111-4111-8111-111111111103',
+    ci: '9000003',
+    ciExpedido: 'SC',
+    nombreCompleto: 'Daniela Mendoza Vargas',
+    estado: 'RATIFICADO',
+    fechaIngreso: '2026-07-15',
+    diasPrueba: 90,
+    areaId: 'area-3',
+    areaNombre: 'Sistemas',
+    cargoId: 'cargo-3',
+    cargoNombre: 'Desarrollador',
+  },
+  {
+    id: '11111111-1111-4111-8111-111111111104',
+    ci: '9000004',
+    ciExpedido: 'LP',
+    nombreCompleto: 'Rodrigo Quispe Choque',
+    estado: 'RATIFICADO',
+    fechaIngreso: '2026-06-01',
+    diasPrueba: 90,
+    areaId: 'area-1',
+    areaNombre: 'Operaciones',
+    cargoId: 'cargo-1',
+    cargoNombre: 'Supervisor de Operaciones',
+  },
+];

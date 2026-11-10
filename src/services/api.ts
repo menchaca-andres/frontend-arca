@@ -11,6 +11,8 @@ import type {
   FichaFuncionario,
   FuncionarioResumen,
   LoginResponse,
+  SaldoVacaciones,
+  SolicitudVacacion,
   RegistrarFuncionarioInput,
   Rol,
   UsuarioItem,
@@ -115,9 +117,7 @@ export class ApiService {
     return this.patch<Cargo>(`/api/v1/personal/cargos/${id}`, input)
   }
 
-  static async getUsuarios(
-    params: { rol?: Rol; activo?: boolean } = {},
-  ): Promise<UsuarioItem[]> {
+  static async getUsuarios(params: { rol?: Rol; activo?: boolean } = {}): Promise<UsuarioItem[]> {
     const query = new URLSearchParams()
     if (params.rol) query.set('rol', params.rol)
     if (params.activo !== undefined) query.set('activo', String(params.activo))
@@ -143,6 +143,30 @@ export class ApiService {
 
   static async getFuncionarioFicha(id: string): Promise<FichaFuncionario> {
     return this.get<FichaFuncionario>(`/api/v1/personal/funcionarios/${id}`)
+  }
+
+  static async getSaldoVacaciones(funcionarioId: string): Promise<SaldoVacaciones> {
+    return this.get<SaldoVacaciones>(`/api/v1/vacaciones/saldo/${funcionarioId}`)
+  }
+
+  static async getSolicitudesVacaciones(): Promise<SolicitudVacacion[]> {
+    return this.get<SolicitudVacacion[]>('/api/v1/vacaciones/solicitudes')
+  }
+
+  static async contarDiasVacaciones(desde: string, hasta: string): Promise<number> {
+    const query = new URLSearchParams({ desde, hasta })
+    const response = await this.get<{ diasHabiles: number }>(
+      `/api/v1/vacaciones/dias-habiles?${query.toString()}`,
+    )
+    return response.diasHabiles
+  }
+
+  static async solicitarVacaciones(input: {
+    funcionarioId?: string
+    fechaInicio: string
+    fechaFin: string
+  }): Promise<SolicitudVacacion> {
+    return this.post<SolicitudVacacion>('/api/v1/vacaciones/solicitudes', input)
   }
 
   static async registrarFuncionario(input: RegistrarFuncionarioInput): Promise<FichaFuncionario> {

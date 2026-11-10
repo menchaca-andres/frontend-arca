@@ -132,19 +132,37 @@ export interface FichaFuncionario {
   fechaBaja: string | null
   motivoBaja?: MotivoBaja | null
   detalleBaja?: string | null
-  asignacionVigente: {
-    id: string
-    cargoId: string
-    cargoNombre: string
-    areaId: string
-    areaNombre: string
-    remuneracion: number
-    vigenteDesde: string
-    vigenteHasta: string | null
-    motivo: string
-  } | null
+  asignacionVigente: AsignacionFuncionario | null
+  historialAsignaciones: AsignacionFuncionario[]
   createdAt: string
   updatedAt: string
+}
+
+export type MotivoAsignacion = 'INGRESO' | 'ASCENSO' | 'TRASLADO' | 'INCREMENTO' | 'CORRECCION'
+
+export interface AsignacionFuncionario {
+  id: string
+  cargoId: string
+  cargoNombre: string
+  areaId: string
+  areaNombre: string
+  remuneracion: number
+  vigenteDesde: string
+  vigenteHasta: string | null
+  motivo: MotivoAsignacion
+}
+
+export interface CambiarAsignacionInput {
+  cargoId?: string
+  remuneracion?: number
+  vigenteDesde: string
+  motivo: Exclude<MotivoAsignacion, 'INGRESO'>
+}
+
+export interface ActualizarContactoInput {
+  correo?: string | null
+  telefono?: string | null
+  direccion?: string | null
 }
 
 export interface FuncionarioResumen {
@@ -155,6 +173,33 @@ export interface FuncionarioResumen {
   estado: EstadoFuncionario
   fechaIngreso?: string
   diasPrueba?: number
+}
+
+export interface FuncionarioPadronItem extends FuncionarioResumen {
+  fechaIngreso: string
+  diasPrueba: number
+  areaId: string | null
+  areaNombre: string | null
+  cargoId: string | null
+  cargoNombre: string | null
+}
+
+export type FiltroEstadoPadron = EstadoFuncionario | 'TODOS'
+
+export interface FiltrosPadron {
+  q?: string
+  areaId?: string
+  cargoId?: string
+  estado?: FiltroEstadoPadron
+  page?: number
+  pageSize?: number
+}
+
+export interface Paginated<T> {
+  data: T[]
+  page: number
+  pageSize: number
+  total: number
 }
 
 export interface SaldoVacaciones {

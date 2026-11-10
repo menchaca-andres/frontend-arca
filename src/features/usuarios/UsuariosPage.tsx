@@ -64,7 +64,7 @@ export function UsuariosPage() {
   const cargarFuncionarios = useCallback(async () => {
     try {
       setCargandoFuncionarios(true)
-      const data = await ApiService.getFuncionarios()
+      const data = await ApiService.getFuncionariosParaSelector()
       setFuncionarios(data)
     } catch {
       // Ignorar error si aún no hay funcionarios o endpoint en desarrollo

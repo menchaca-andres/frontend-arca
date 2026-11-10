@@ -1,5 +1,14 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { CheckCircle2, Clock, Plus, RefreshCw, Search, UserX } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import {
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Plus,
+  RefreshCw,
+  Search,
+  UserX,
+} from 'lucide-react'
 import {
   Button,
   Card,
@@ -16,15 +25,34 @@ import {
   useToast,
 } from '../../components'
 import { ApiService } from '../../services/api'
-import type { FichaFuncionario, FuncionarioResumen, PruebaPorVencerItem } from '../../types'
+import type {
+  Area,
+  Cargo,
+  FichaFuncionario,
+  FiltroEstadoPadron,
+  FuncionarioPadronItem,
+  FuncionarioResumen,
+  Paginated,
+  PruebaPorVencerItem,
+} from '../../types'
 import { formatDate } from '../../utils/formatters'
 import { useAuth } from '../auth/useAuth'
 import {
+  CambiarAsignacionModal,
   DarDeBajaModal,
+  EditarContactoModal,
   FichaFuncionarioModal,
   RatificarFuncionarioModal,
   RegistrarFuncionarioModal,
 } from './components'
+
+const PAGE_SIZE = 20
+const PAGINA_VACIA: Paginated<FuncionarioPadronItem> = {
+  data: [],
+  page: 1,
+  pageSize: PAGE_SIZE,
+  total: 0,
+}
 
 const FILTROS_ESTADO = [
   { value: 'ACTIVOS', label: 'Personal Activo (En prueba y ratificados)' },
@@ -54,11 +82,23 @@ export function PersonalPage() {
   const [isBajaOpen, setIsBajaOpen] = useState(false)
   const [funcionarioParaBaja, setFuncionarioParaBaja] = useState<FichaFuncionario | null>(null)
 
-  // Lista de funcionarios
-  const [funcionarios, setFuncionarios] = useState<FuncionarioResumen[]>([])
+  // Modales HU-10
+  const [funcionarioParaCambio, setFuncionarioParaCambio] = useState<FichaFuncionario | null>(null)
+  const [funcionarioParaContacto, setFuncionarioParaContacto] = useState<FichaFuncionario | null>(
+    null,
+  )
+
+  // HU-09: Padrón paginado con búsqueda y filtros en el servidor (CA-01, CA-02)
+  const [pagina, setPagina] = useState<Paginated<FuncionarioPadronItem>>(PAGINA_VACIA)
+  const [page, setPage] = useState(1)
   const [cargandoLista, setCargandoLista] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
+  const [busqueda, setBusqueda] = useState('')
   const [estadoFiltro, setEstadoFiltro] = useState('ACTIVOS')
+  const [areaFiltro, setAreaFiltro] = useState('')
+  const [cargoFiltro, setCargoFiltro] = useState('')
+  const [areas, setAreas] = useState<Area[]>([])
+  const [cargos, setCargos] = useState<Cargo[]>([])
 
   // HU-11 CA-04: Aviso con funcionarios cuyo periodo de prueba termina en los próximos 7 días
   const [pruebasPorVencer, setPruebasPorVencer] = useState<PruebaPorVencerItem[]>([])
@@ -84,31 +124,49 @@ export function PersonalPage() {
     [toast],
   )
 
-  // Carga de funcionarios según filtro
-  const cargarFuncionarios = useCallback(
-    async (filtro = estadoFiltro) => {
-      setCargandoLista(true)
-      try {
-        const estadoParam = filtro === 'ACTIVOS' ? undefined : filtro
-        const data = await ApiService.getFuncionarios({ estado: estadoParam })
-        setFuncionarios(data)
-      } catch {
-        // Fallback local si la BD aún no tiene funcionarios creados
-        setFuncionarios([
-          {
-            id: '11111111-1111-4111-8111-111111111103',
-            ci: '9000003',
-            ciExpedido: 'LP',
-            nombreCompleto: 'Daniela Mendoza Vargas',
-            estado: 'EN_PRUEBA',
-          },
-        ])
-      } finally {
-        setCargandoLista(false)
-      }
-    },
-    [estadoFiltro],
-  )
+  const cargarFuncionarios = useCallback(async () => {
+    if (esFuncionario) return
+    setCargandoLista(true)
+    try {
+      const data = await ApiService.getFuncionarios({
+        q: busqueda || undefined,
+        areaId: areaFiltro || undefined,
+        cargoId: cargoFiltro || undefined,
+        estado: estadoFiltro === 'ACTIVOS' ? undefined : (estadoFiltro as FiltroEstadoPadron),
+        page,
+        pageSize: PAGE_SIZE,
+      })
+      setPagina(data)
+    } catch (err) {
+      setPagina(PAGINA_VACIA)
+      toast.error(err instanceof Error ? err.message : 'No se pudo cargar el padrón', 'Error')
+    } finally {
+      setCargandoLista(false)
+    }
+  }, [esFuncionario, busqueda, areaFiltro, cargoFiltro, estadoFiltro, page, toast])
+
+  // La búsqueda se envía al servidor cuando se deja de escribir
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setBusqueda(searchTerm.trim())
+      setPage(1)
+    }, 350)
+    return () => clearTimeout(timer)
+  }, [searchTerm])
+
+  useEffect(() => {
+    if (esFuncionario) return
+    ApiService.getAreas()
+      .then(setAreas)
+      .catch(() => setAreas([]))
+  }, [esFuncionario])
+
+  useEffect(() => {
+    if (esFuncionario) return
+    ApiService.getCargos(areaFiltro ? { areaId: areaFiltro } : {})
+      .then(setCargos)
+      .catch(() => setCargos([]))
+  }, [esFuncionario, areaFiltro])
 
   // Cargar avisos de periodo de prueba por vencer (HU-11 CA-04)
   const cargarPruebasPorVencer = useCallback(async () => {
@@ -122,8 +180,8 @@ export function PersonalPage() {
   }, [puedeGestionar])
 
   useEffect(() => {
-    void cargarFuncionarios(estadoFiltro)
-  }, [cargarFuncionarios, estadoFiltro])
+    void cargarFuncionarios()
+  }, [cargarFuncionarios])
 
   useEffect(() => {
     void cargarPruebasPorVencer()
@@ -139,17 +197,22 @@ export function PersonalPage() {
   const handleAltaExitosa = (nuevaFicha: FichaFuncionario) => {
     setFichaSeleccionada(nuevaFicha)
     setIsFichaOpen(true)
-    setFuncionarios((prev) => [
-      {
-        id: nuevaFicha.id,
-        ci: nuevaFicha.ci,
-        ciExpedido: nuevaFicha.ciExpedido,
-        nombreCompleto: `${nuevaFicha.nombres} ${nuevaFicha.apellidos}`,
-        estado: nuevaFicha.estado,
-      },
-      ...prev.filter((f) => f.id !== nuevaFicha.id),
-    ])
+    void cargarFuncionarios()
     void cargarPruebasPorVencer()
+  }
+
+  // Tras ratificar, dar de baja o cambiar datos se refresca la ficha abierta y el padrón
+  const handleFichaActualizada = (fichaActualizada: FichaFuncionario) => {
+    if (fichaSeleccionada?.id === fichaActualizada.id) {
+      setFichaSeleccionada(fichaActualizada)
+    }
+    void cargarFuncionarios()
+    void cargarPruebasPorVencer()
+  }
+
+  const volverAFicha = (ficha: FichaFuncionario) => {
+    setFichaSeleccionada(ficha)
+    setIsFichaOpen(true)
   }
 
   // Abrir modal de ratificación (HU-11)
@@ -178,38 +241,15 @@ export function PersonalPage() {
     }
   }
 
-  const handleRatificacionExitosa = (fichaActualizada: FichaFuncionario) => {
-    setFuncionarios((prev) =>
-      prev.map((f) =>
-        f.id === fichaActualizada.id ? { ...f, estado: fichaActualizada.estado } : f,
-      ),
-    )
-    if (fichaSeleccionada?.id === fichaActualizada.id) {
-      setFichaSeleccionada(fichaActualizada)
-    }
-    void cargarPruebasPorVencer()
+  const cambiarFiltro = (aplicar: () => void) => {
+    aplicar()
+    setPage(1)
   }
 
-  const handleBajaExitosa = (fichaActualizada: FichaFuncionario) => {
-    setFuncionarios((prev) =>
-      prev.map((f) =>
-        f.id === fichaActualizada.id ? { ...f, estado: fichaActualizada.estado } : f,
-      ),
-    )
-    if (fichaSeleccionada?.id === fichaActualizada.id) {
-      setFichaSeleccionada(fichaActualizada)
-    }
-    void cargarPruebasPorVencer()
-    void cargarFuncionarios(estadoFiltro)
-  }
-
-  const filtrados = useMemo(() => {
-    const term = searchTerm.toLowerCase().trim()
-    if (!term) return funcionarios
-    return funcionarios.filter(
-      (f) => f.nombreCompleto.toLowerCase().includes(term) || f.ci.toLowerCase().includes(term),
-    )
-  }, [funcionarios, searchTerm])
+  const funcionarios = pagina.data
+  const totalPaginas = Math.max(1, Math.ceil(pagina.total / pagina.pageSize))
+  const desde = pagina.total === 0 ? 0 : (pagina.page - 1) * pagina.pageSize + 1
+  const hasta = Math.min(pagina.page * pagina.pageSize, pagina.total)
 
   return (
     <div className="module-view-ds">
@@ -229,7 +269,7 @@ export function PersonalPage() {
               variant="outline"
               leftIcon={<RefreshCw size={16} />}
               onClick={() => {
-                void cargarFuncionarios(estadoFiltro)
+                void cargarFuncionarios()
                 void cargarPruebasPorVencer()
               }}
               disabled={cargandoLista}
@@ -349,11 +389,37 @@ export function PersonalPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+            {/* HU-09 CA-02: Filtros por área y cargo */}
+            <div style={{ minWidth: '180px' }}>
+              <Select
+                value={areaFiltro}
+                onChange={(e) =>
+                  cambiarFiltro(() => {
+                    setAreaFiltro(e.target.value)
+                    setCargoFiltro('')
+                  })
+                }
+                options={[
+                  { value: '', label: 'Todas las áreas' },
+                  ...areas.map((a) => ({ value: a.id, label: a.nombre })),
+                ]}
+              />
+            </div>
+            <div style={{ minWidth: '180px' }}>
+              <Select
+                value={cargoFiltro}
+                onChange={(e) => cambiarFiltro(() => setCargoFiltro(e.target.value))}
+                options={[
+                  { value: '', label: 'Todos los cargos' },
+                  ...cargos.map((c) => ({ value: c.id, label: c.nombre })),
+                ]}
+              />
+            </div>
             {/* HU-12 CA-07: Selector de filtro por estado */}
             <div style={{ minWidth: '280px' }}>
               <Select
                 value={estadoFiltro}
-                onChange={(e) => setEstadoFiltro(e.target.value)}
+                onChange={(e) => cambiarFiltro(() => setEstadoFiltro(e.target.value))}
                 options={FILTROS_ESTADO}
               />
             </div>
@@ -364,7 +430,7 @@ export function PersonalPage() {
           <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
             Cargando padrón de funcionarios...
           </div>
-        ) : filtrados.length === 0 ? (
+        ) : funcionarios.length === 0 ? (
           <EmptyState
             title="Sin resultados"
             description="No se encontraron funcionarios registrados con ese criterio."
@@ -375,12 +441,14 @@ export function PersonalPage() {
               <TableRow>
                 <TableHead>CI</TableHead>
                 <TableHead>Nombre Completo</TableHead>
+                <TableHead>Área</TableHead>
+                <TableHead>Cargo</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtrados.map((f) => (
+              {funcionarios.map((f) => (
                 <TableRow key={f.id}>
                   <TableCell className="font-mono">
                     {f.ci}{' '}
@@ -391,6 +459,8 @@ export function PersonalPage() {
                   <TableCell>
                     <strong>{f.nombreCompleto}</strong>
                   </TableCell>
+                  <TableCell>{f.areaNombre ?? '—'}</TableCell>
+                  <TableCell>{f.cargoNombre ?? '—'}</TableCell>
                   <TableCell>
                     <StatusBadge status={f.estado} />
                   </TableCell>
@@ -436,6 +506,47 @@ export function PersonalPage() {
             </TableBody>
           </Table>
         )}
+
+        {/* HU-09 CA-01: Paginación de 20 en 20 */}
+        {!esFuncionario && pagina.total > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '0.75rem 1rem',
+              fontSize: '0.85rem',
+              color: '#64748b',
+            }}
+          >
+            <span>
+              Mostrando {desde}–{hasta} de {pagina.total} funcionarios
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Button
+                variant="outline"
+                size="sm"
+                leftIcon={<ChevronLeft size={14} />}
+                onClick={() => setPage((p) => p - 1)}
+                disabled={cargandoLista || pagina.page <= 1}
+              >
+                Anterior
+              </Button>
+              <span>
+                Página {pagina.page} de {totalPaginas}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                rightIcon={<ChevronRight size={14} />}
+                onClick={() => setPage((p) => p + 1)}
+                disabled={cargandoLista || pagina.page >= totalPaginas}
+              >
+                Siguiente
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
 
       {/* Modal de Registro de Funcionario (HU-08) */}
@@ -462,6 +573,36 @@ export function PersonalPage() {
           setIsFichaOpen(false)
           iniciarBaja(ficha)
         }}
+        onCambiarAsignacion={(ficha) => {
+          setIsFichaOpen(false)
+          setFuncionarioParaCambio(ficha)
+        }}
+        onEditarContacto={(ficha) => {
+          setIsFichaOpen(false)
+          setFuncionarioParaContacto(ficha)
+        }}
+      />
+
+      {/* Modales de HU-10; la key reinicia el formulario para cada funcionario */}
+      <CambiarAsignacionModal
+        key={`cambio-${funcionarioParaCambio?.id ?? ''}`}
+        funcionario={funcionarioParaCambio}
+        isOpen={funcionarioParaCambio !== null}
+        onClose={() => setFuncionarioParaCambio(null)}
+        onSuccess={(ficha) => {
+          handleFichaActualizada(ficha)
+          volverAFicha(ficha)
+        }}
+      />
+      <EditarContactoModal
+        key={`contacto-${funcionarioParaContacto?.id ?? ''}`}
+        funcionario={funcionarioParaContacto}
+        isOpen={funcionarioParaContacto !== null}
+        onClose={() => setFuncionarioParaContacto(null)}
+        onSuccess={(ficha) => {
+          handleFichaActualizada(ficha)
+          volverAFicha(ficha)
+        }}
       />
 
       {/* Modal de Ratificación de Funcionario (HU-11) */}
@@ -472,7 +613,7 @@ export function PersonalPage() {
           setIsRatificarOpen(false)
           setFuncionarioParaRatificar(null)
         }}
-        onSuccess={handleRatificacionExitosa}
+        onSuccess={handleFichaActualizada}
       />
 
       {/* Modal de Dar de Baja a Funcionario (HU-12) */}
@@ -483,7 +624,7 @@ export function PersonalPage() {
           setIsBajaOpen(false)
           setFuncionarioParaBaja(null)
         }}
-        onSuccess={handleBajaExitosa}
+        onSuccess={handleFichaActualizada}
       />
     </div>
   )

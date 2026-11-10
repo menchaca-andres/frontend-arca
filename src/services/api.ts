@@ -1,4 +1,24 @@
-import type { ApiErrorPayload, LoginResponse, UsuarioSesion } from '../types'
+import type {
+  ApiErrorPayload,
+  Area,
+  AreaInput,
+  CambiarEstadoInput,
+  CambiarRolInput,
+  Cargo,
+  CargoInput,
+  CrearUsuarioInput,
+  CrearUsuarioResponse,
+  DarDeBajaInput,
+  FichaFuncionario,
+  FuncionarioResumen,
+  LoginResponse,
+  PruebaPorVencerItem,
+  RatificarFuncionarioInput,
+  RegistrarFuncionarioInput,
+  Rol,
+  UsuarioItem,
+  UsuarioSesion,
+} from '../types'
 
 const GATEWAY_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:8080').replace(/\/+$/, '')
 const TOKEN_KEY = 'arca.token'
@@ -59,6 +79,93 @@ export class ApiService {
     funcionarioId: string | null
   }> {
     return this.request('/api/auth/me')
+  }
+
+  static async getAreas(includeInactive = false): Promise<Area[]> {
+    const suffix = includeInactive ? '?incluirInactivos=true' : ''
+    return this.get<Area[]>(`/api/v1/personal/areas${suffix}`)
+  }
+
+  static async createArea(input: AreaInput): Promise<Area> {
+    return this.post<Area>('/api/v1/personal/areas', input)
+  }
+
+  static async updateArea(
+    id: string,
+    input: Partial<AreaInput> & { activo?: boolean },
+  ): Promise<Area> {
+    return this.patch<Area>(`/api/v1/personal/areas/${id}`, input)
+  }
+
+  static async getCargos(
+    params: { includeInactive?: boolean; areaId?: string } = {},
+  ): Promise<Cargo[]> {
+    const query = new URLSearchParams()
+    if (params.includeInactive) query.set('incluirInactivos', 'true')
+    if (params.areaId) query.set('areaId', params.areaId)
+    const suffix = query.size > 0 ? `?${query.toString()}` : ''
+    return this.get<Cargo[]>(`/api/v1/personal/cargos${suffix}`)
+  }
+
+  static async createCargo(input: CargoInput): Promise<Cargo> {
+    return this.post<Cargo>('/api/v1/personal/cargos', input)
+  }
+
+  static async updateCargo(
+    id: string,
+    input: Partial<Omit<CargoInput, 'areaId'>> & { activo?: boolean },
+  ): Promise<Cargo> {
+    return this.patch<Cargo>(`/api/v1/personal/cargos/${id}`, input)
+  }
+
+  static async getUsuarios(params: { rol?: Rol; activo?: boolean } = {}): Promise<UsuarioItem[]> {
+    const query = new URLSearchParams()
+    if (params.rol) query.set('rol', params.rol)
+    if (params.activo !== undefined) query.set('activo', String(params.activo))
+    const suffix = query.size > 0 ? `?${query.toString()}` : ''
+    return this.get<UsuarioItem[]>(`/api/usuarios${suffix}`)
+  }
+
+  static async createUsuario(input: CrearUsuarioInput): Promise<CrearUsuarioResponse> {
+    return this.post<CrearUsuarioResponse>('/api/usuarios', input)
+  }
+
+  static async updateUsuarioRol(id: string, input: CambiarRolInput): Promise<UsuarioItem> {
+    return this.patch<UsuarioItem>(`/api/usuarios/${id}/rol`, input)
+  }
+
+  static async updateUsuarioEstado(id: string, input: CambiarEstadoInput): Promise<UsuarioItem> {
+    return this.patch<UsuarioItem>(`/api/usuarios/${id}/estado`, input)
+  }
+
+  static async getFuncionarios(params?: { estado?: string }): Promise<FuncionarioResumen[]> {
+    const query = new URLSearchParams()
+    if (params?.estado) query.set('estado', params.estado)
+    const suffix = query.size > 0 ? `?${query.toString()}` : ''
+    return this.get<FuncionarioResumen[]>(`/api/v1/personal/funcionarios${suffix}`)
+  }
+
+  static async getPruebaPorVencer(): Promise<PruebaPorVencerItem[]> {
+    return this.get<PruebaPorVencerItem[]>('/api/v1/personal/funcionarios/prueba-por-vencer')
+  }
+
+  static async getFuncionarioFicha(id: string): Promise<FichaFuncionario> {
+    return this.get<FichaFuncionario>(`/api/v1/personal/funcionarios/${id}`)
+  }
+
+  static async registrarFuncionario(input: RegistrarFuncionarioInput): Promise<FichaFuncionario> {
+    return this.post<FichaFuncionario>('/api/v1/personal/funcionarios', input)
+  }
+
+  static async ratificarFuncionario(
+    id: string,
+    input: RatificarFuncionarioInput = {},
+  ): Promise<FichaFuncionario> {
+    return this.post<FichaFuncionario>(`/api/v1/personal/funcionarios/${id}/ratificacion`, input)
+  }
+
+  static async darDeBajaFuncionario(id: string, input: DarDeBajaInput): Promise<FichaFuncionario> {
+    return this.post<FichaFuncionario>(`/api/v1/personal/funcionarios/${id}/baja`, input)
   }
 
   static async get<T>(path: string, options?: RequestInit): Promise<T> {

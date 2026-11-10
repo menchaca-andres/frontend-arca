@@ -40,6 +40,7 @@ export function HomePage() {
 
   if (!usuario) return null
 
+  const esFuncionario = usuario.rol === 'FUNCIONARIO'
   const navItems = getNavItemsForRole(usuario.rol).filter((item) => item.id !== 'dashboard')
 
   // Datos simulados de demostración que reflejan la semilla de desarrollo
@@ -113,49 +114,99 @@ export function HomePage() {
 
       {/* Grid de métricas clave */}
       <section className="stats-grid-ds" aria-label="Métricas clave">
-        <Card className="stat-card">
-          <div className="stat-icon-wrapper brand">
-            <Users size={22} />
-          </div>
-          <div className="stat-content">
-            <span className="stat-label">Funcionarios Registrados</span>
-            <strong className="stat-value">5</strong>
-            <span className="stat-footnote">3 áreas operativas</span>
-          </div>
-        </Card>
+        {esFuncionario ? (
+          <>
+            <Card className="stat-card">
+              <div className="stat-icon-wrapper warning">
+                <Calendar size={22} />
+              </div>
+              <div className="stat-content">
+                <span className="stat-label">Mi Saldo de Vacaciones</span>
+                <strong className="stat-value">15 días</strong>
+                <span className="stat-footnote">Días hábiles disponibles</span>
+              </div>
+            </Card>
 
-        <Card className="stat-card">
-          <div className="stat-icon-wrapper info">
-            <DollarSign size={22} />
-          </div>
-          <div className="stat-content">
-            <span className="stat-label">Presupuesto Mensual</span>
-            <strong className="stat-value">{formatCurrency(38500)}</strong>
-            <span className="stat-footnote">Moneda nacional (Bs)</span>
-          </div>
-        </Card>
+            <Card className="stat-card">
+              <div className="stat-icon-wrapper success">
+                <FileCheck size={22} />
+              </div>
+              <div className="stat-content">
+                <span className="stat-label">Mis Boletas</span>
+                <strong className="stat-value">1 emitida</strong>
+                <span className="stat-footnote">Octubre 2026</span>
+              </div>
+            </Card>
 
-        <Card className="stat-card">
-          <div className="stat-icon-wrapper warning">
-            <Calendar size={22} />
-          </div>
-          <div className="stat-content">
-            <span className="stat-label">Gestión Vacaciones</span>
-            <strong className="stat-value">15 días</strong>
-            <span className="stat-footnote">Por año completado</span>
-          </div>
-        </Card>
+            <Card className="stat-card">
+              <div className="stat-icon-wrapper brand">
+                <FileCheck size={22} />
+              </div>
+              <div className="stat-content">
+                <span className="stat-label">Mi Contrato</span>
+                <strong className="stat-value">Vigente</strong>
+                <span className="stat-footnote">PDF disponible</span>
+              </div>
+            </Card>
 
-        <Card className="stat-card">
-          <div className="stat-icon-wrapper success">
-            <FileCheck size={22} />
-          </div>
-          <div className="stat-content">
-            <span className="stat-label">Contratos y Boletas</span>
-            <strong className="stat-value">PDF Inmutable</strong>
-            <span className="stat-footnote">Integración con Gotenberg</span>
-          </div>
-        </Card>
+            <Card className="stat-card">
+              <div className="stat-icon-wrapper info">
+                <Bell size={22} />
+              </div>
+              <div className="stat-content">
+                <span className="stat-label">Mis Solicitudes</span>
+                <strong className="stat-value">1 pendiente</strong>
+                <span className="stat-footnote">Esperando revisión</span>
+              </div>
+            </Card>
+          </>
+        ) : (
+          <>
+            <Card className="stat-card">
+              <div className="stat-icon-wrapper brand">
+                <Users size={22} />
+              </div>
+              <div className="stat-content">
+                <span className="stat-label">Funcionarios Registrados</span>
+                <strong className="stat-value">5</strong>
+                <span className="stat-footnote">3 áreas operativas</span>
+              </div>
+            </Card>
+
+            <Card className="stat-card">
+              <div className="stat-icon-wrapper info">
+                <DollarSign size={22} />
+              </div>
+              <div className="stat-content">
+                <span className="stat-label">Presupuesto Mensual</span>
+                <strong className="stat-value">{formatCurrency(38500)}</strong>
+                <span className="stat-footnote">Moneda nacional (Bs)</span>
+              </div>
+            </Card>
+
+            <Card className="stat-card">
+              <div className="stat-icon-wrapper warning">
+                <Calendar size={22} />
+              </div>
+              <div className="stat-content">
+                <span className="stat-label">Gestión Vacaciones</span>
+                <strong className="stat-value">15 días</strong>
+                <span className="stat-footnote">Por año completado</span>
+              </div>
+            </Card>
+
+            <Card className="stat-card">
+              <div className="stat-icon-wrapper success">
+                <FileCheck size={22} />
+              </div>
+              <div className="stat-content">
+                <span className="stat-label">Contratos y Boletas</span>
+                <strong className="stat-value">PDF Inmutable</strong>
+                <span className="stat-footnote">Integración con Gotenberg</span>
+              </div>
+            </Card>
+          </>
+        )}
       </section>
 
       {/* Módulos disponibles según el rol */}
@@ -202,121 +253,126 @@ export function HomePage() {
       </section>
 
       {/* Muestra interactiva del Design System (CA-02, CA-06, CA-07) */}
-      <section className="section-block-ds">
-        <Card
-          title="Componentes del Design System ARCA (CA-02)"
-          subtitle="Verificación de diseño consistente, formatos de moneda en Bs, fechas dd/mm/aaaa y componentes reutilizables."
-          action={
-            <div className="action-buttons-group">
-              <Button
-                variant="outline"
-                size="sm"
-                leftIcon={<Bell size={16} />}
-                onClick={() =>
-                  toast.success('¡Notificación Toast funcionando correctamente!', 'Éxito')
-                }
-              >
-                Probar Toast
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                leftIcon={<Plus size={16} />}
-                onClick={() => setIsModalOpen(true)}
-              >
-                Abrir Modal
-              </Button>
-            </div>
-          }
-        >
-          {/* Barra de filtros de la tabla */}
-          <div className="table-controls-ds">
-            <div className="search-filter-box">
-              <Input
-                placeholder="Buscar por nombre o cargo..."
-                value={filterQuery}
-                onChange={(e) => setFilterQuery(e.target.value)}
-              />
-            </div>
-            <div className="filter-actions-ds">
-              <Button
-                variant={showEmptyState ? 'primary' : 'outline'}
-                size="sm"
-                onClick={() => setShowEmptyState((prev) => !prev)}
-              >
-                {showEmptyState ? 'Ver Tabla con Datos' : 'Ver Estado Vacío'}
-              </Button>
-            </div>
-          </div>
-
-          {/* Tabla o Estado Vacío */}
-          {showEmptyState ? (
-            <EmptyState
-              title="No se encontraron registros"
-              description="Actualmente no hay funcionarios que coincidan con los criterios de búsqueda seleccionados."
-              action={
-                <Button variant="secondary" size="sm" onClick={() => setShowEmptyState(false)}>
-                  Restablecer vista
+      {!esFuncionario && (
+        <section className="section-block-ds">
+          <Card
+            title="Componentes del Design System ARCA (CA-02)"
+            subtitle="Verificación de diseño consistente, formatos de moneda en Bs, fechas dd/mm/aaaa y componentes reutilizables."
+            action={
+              <div className="action-buttons-group">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  leftIcon={<Bell size={16} />}
+                  onClick={() =>
+                    toast.success('¡Notificación Toast funcionando correctamente!', 'Éxito')
+                  }
+                >
+                  Probar Toast
                 </Button>
-              }
-            />
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Funcionario</TableHead>
-                  <TableHead>CI</TableHead>
-                  <TableHead>Cargo / Área</TableHead>
-                  <TableHead>Haber Básico (Bs)</TableHead>
-                  <TableHead>Fecha Ingreso</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead className="text-right">Acción</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredData.length === 0 ? (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  leftIcon={<Plus size={16} />}
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  Abrir Modal
+                </Button>
+              </div>
+            }
+          >
+            {/* Barra de filtros de la tabla */}
+            <div className="table-controls-ds">
+              <div className="search-filter-box">
+                <Input
+                  placeholder="Buscar por nombre o cargo..."
+                  value={filterQuery}
+                  onChange={(e) => setFilterQuery(e.target.value)}
+                />
+              </div>
+              <div className="filter-actions-ds">
+                <Button
+                  variant={showEmptyState ? 'primary' : 'outline'}
+                  size="sm"
+                  onClick={() => setShowEmptyState((prev) => !prev)}
+                >
+                  {showEmptyState ? 'Ver Tabla con Datos' : 'Ver Estado Vacío'}
+                </Button>
+              </div>
+            </div>
+
+            {/* Tabla o Estado Vacío */}
+            {showEmptyState ? (
+              <EmptyState
+                title="No se encontraron registros"
+                description="Actualmente no hay funcionarios que coincidan con los criterios de búsqueda seleccionados."
+                action={
+                  <Button variant="secondary" size="sm" onClick={() => setShowEmptyState(false)}>
+                    Restablecer vista
+                  </Button>
+                }
+              />
+            ) : (
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-6 text-muted">
-                      No hay coincidencias para &quot;{filterQuery}&quot;
-                    </TableCell>
+                    <TableHead>Funcionario</TableHead>
+                    <TableHead>CI</TableHead>
+                    <TableHead>Cargo / Área</TableHead>
+                    <TableHead>Haber Básico (Bs)</TableHead>
+                    <TableHead>Fecha Ingreso</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead className="text-right">Acción</TableHead>
                   </TableRow>
-                ) : (
-                  filteredData.map((f) => (
-                    <TableRow key={f.id}>
-                      <TableCell>
-                        <strong>
-                          {f.nombres} {f.apellidos}
-                        </strong>
-                      </TableCell>
-                      <TableCell>{f.ci}</TableCell>
-                      <TableCell>
-                        <div>{f.cargo}</div>
-                        <span className="text-xs text-muted">{f.area}</span>
-                      </TableCell>
-                      <TableCell className="font-mono">{formatCurrency(f.haberBasico)}</TableCell>
-                      <TableCell>{formatDate(f.fechaIngreso)}</TableCell>
-                      <TableCell>
-                        <StatusBadge status={f.estado} />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            toast.info(`Ficha seleccionada: ${f.nombres} ${f.apellidos}`, 'Detalle')
-                          }
-                        >
-                          Ver
-                        </Button>
+                </TableHeader>
+                <TableBody>
+                  {filteredData.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-6 text-muted">
+                        No hay coincidencias para &quot;{filterQuery}&quot;
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          )}
-        </Card>
-      </section>
+                  ) : (
+                    filteredData.map((f) => (
+                      <TableRow key={f.id}>
+                        <TableCell>
+                          <strong>
+                            {f.nombres} {f.apellidos}
+                          </strong>
+                        </TableCell>
+                        <TableCell>{f.ci}</TableCell>
+                        <TableCell>
+                          <div>{f.cargo}</div>
+                          <span className="text-xs text-muted">{f.area}</span>
+                        </TableCell>
+                        <TableCell className="font-mono">{formatCurrency(f.haberBasico)}</TableCell>
+                        <TableCell>{formatDate(f.fechaIngreso)}</TableCell>
+                        <TableCell>
+                          <StatusBadge status={f.estado} />
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              toast.info(
+                                `Ficha seleccionada: ${f.nombres} ${f.apellidos}`,
+                                'Detalle',
+                              )
+                            }
+                          >
+                            Ver
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            )}
+          </Card>
+        </section>
+      )}
 
       {/* Modal de Demostración */}
       <Modal

@@ -1,5 +1,14 @@
 import type { ElementType } from 'react'
-import { CalendarRange, FileText, LayoutDashboard, Receipt, ShieldCheck, Users } from 'lucide-react'
+import {
+  Building2,
+  CalendarRange,
+  FileText,
+  LayoutDashboard,
+  Receipt,
+  ShieldCheck,
+  UserCog,
+  Users,
+} from 'lucide-react'
 import type { Rol } from '../types'
 
 export interface NavItemConfig {
@@ -27,6 +36,14 @@ export const NAVIGATION_ITEMS: NavItemConfig[] = [
     getLabel: (rol) => (rol === 'FUNCIONARIO' ? 'Mi Ficha' : 'Personal'),
     allowedRoles: ['ADMIN', 'RRHH', 'DIRECCION', 'FUNCIONARIO'],
     description: 'Padrón de funcionarios, áreas, cargos e historial laboral.',
+  },
+  {
+    id: 'catalogos',
+    path: '/personal/catalogos',
+    icon: Building2,
+    getLabel: () => 'Áreas y Cargos',
+    allowedRoles: ['ADMIN', 'RRHH'],
+    description: 'Catálogos maestros de áreas y cargos para clasificar al personal.',
   },
   {
     id: 'vacaciones',
@@ -59,6 +76,14 @@ export const NAVIGATION_ITEMS: NavItemConfig[] = [
     getLabel: () => 'Auditoría',
     allowedRoles: ['ADMIN'],
     description: 'Registro de operaciones y trazabilidad de seguridad.',
+  },
+  {
+    id: 'usuarios',
+    path: '/usuarios',
+    icon: UserCog,
+    getLabel: () => 'Usuarios',
+    allowedRoles: ['ADMIN'],
+    description: 'Gestión de cuentas de usuario, roles y accesos.',
   },
 ]
 

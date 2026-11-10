@@ -1,7 +1,9 @@
 import type {
+  ActualizarContactoInput,
   ApiErrorPayload,
   Area,
   AreaInput,
+  CambiarAsignacionInput,
   CambiarEstadoInput,
   CambiarRolInput,
   Cargo,
@@ -10,8 +12,10 @@ import type {
   CrearUsuarioResponse,
   DarDeBajaInput,
   FichaFuncionario,
-  FuncionarioResumen,
+  FiltrosPadron,
+  FuncionarioPadronItem,
   LoginResponse,
+  Paginated,
   PruebaPorVencerItem,
   RatificarFuncionarioInput,
   RegistrarFuncionarioInput,
@@ -140,11 +144,21 @@ export class ApiService {
     return this.patch<UsuarioItem>(`/api/usuarios/${id}/estado`, input)
   }
 
-  static async getFuncionarios(params?: { estado?: string }): Promise<FuncionarioResumen[]> {
+  static async getFuncionarios(
+    filtros: FiltrosPadron = {},
+  ): Promise<Paginated<FuncionarioPadronItem>> {
     const query = new URLSearchParams()
-    if (params?.estado) query.set('estado', params.estado)
+    for (const [clave, valor] of Object.entries(filtros)) {
+      if (valor !== undefined && valor !== '') query.set(clave, String(valor))
+    }
     const suffix = query.size > 0 ? `?${query.toString()}` : ''
-    return this.get<FuncionarioResumen[]>(`/api/v1/personal/funcionarios${suffix}`)
+    return this.get<Paginated<FuncionarioPadronItem>>(`/api/v1/personal/funcionarios${suffix}`)
+  }
+
+  // Selectores: los primeros 100 activos del padrón
+  static async getFuncionariosParaSelector(): Promise<FuncionarioPadronItem[]> {
+    const pagina = await this.getFuncionarios({ pageSize: 100 })
+    return pagina.data
   }
 
   static async getPruebaPorVencer(): Promise<PruebaPorVencerItem[]> {
@@ -188,6 +202,20 @@ export class ApiService {
     input: RatificarFuncionarioInput = {},
   ): Promise<FichaFuncionario> {
     return this.post<FichaFuncionario>(`/api/v1/personal/funcionarios/${id}/ratificacion`, input)
+  }
+
+  static async cambiarAsignacion(
+    id: string,
+    input: CambiarAsignacionInput,
+  ): Promise<FichaFuncionario> {
+    return this.post<FichaFuncionario>(`/api/v1/personal/funcionarios/${id}/asignaciones`, input)
+  }
+
+  static async actualizarContacto(
+    id: string,
+    input: ActualizarContactoInput,
+  ): Promise<FichaFuncionario> {
+    return this.patch<FichaFuncionario>(`/api/v1/personal/funcionarios/${id}/contacto`, input)
   }
 
   static async darDeBajaFuncionario(id: string, input: DarDeBajaInput): Promise<FichaFuncionario> {

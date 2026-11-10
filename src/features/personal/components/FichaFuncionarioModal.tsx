@@ -1,4 +1,4 @@
-import { CheckCircle2, UserX } from 'lucide-react'
+import { Briefcase, CheckCircle2, Mail, UserX } from 'lucide-react'
 import { Button, Modal, StatusBadge } from '../../../components'
 import type { FichaFuncionario } from '../../../types'
 import { formatCurrency, formatDate } from '../../../utils/formatters'
@@ -10,7 +10,27 @@ interface FichaFuncionarioModalProps {
   puedeGestionar?: boolean
   onRatificar?: (ficha: FichaFuncionario) => void
   onDarDeBaja?: (ficha: FichaFuncionario) => void
+  onCambiarAsignacion?: (ficha: FichaFuncionario) => void
+  onEditarContacto?: (ficha: FichaFuncionario) => void
 }
+
+const MOTIVO_LABEL: Record<string, string> = {
+  INGRESO: 'Ingreso',
+  ASCENSO: 'Ascenso',
+  TRASLADO: 'Traslado',
+  INCREMENTO: 'Incremento salarial',
+  CORRECCION: 'Corrección',
+}
+
+const tituloSeccion = {
+  margin: '0 0 0.5rem',
+  fontSize: '0.9rem',
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+  color: '#475569',
+  borderBottom: '1px solid #e2e8f0',
+  paddingBottom: '0.25rem',
+} as const
 
 export function FichaFuncionarioModal({
   ficha,
@@ -19,6 +39,8 @@ export function FichaFuncionarioModal({
   puedeGestionar = false,
   onRatificar,
   onDarDeBaja,
+  onCambiarAsignacion,
+  onEditarContacto,
 }: FichaFuncionarioModalProps) {
   if (!ficha) return null
 
@@ -37,7 +59,26 @@ export function FichaFuncionarioModal({
       size="lg"
       footer={
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            {/* HU-10: CA-05 No se modifica a un funcionario de baja */}
+            {puedeGestionar && ficha.estado !== 'BAJA' && onCambiarAsignacion && asignacion && (
+              <Button
+                variant="outline"
+                leftIcon={<Briefcase size={16} />}
+                onClick={() => onCambiarAsignacion(ficha)}
+              >
+                Cambiar asignación
+              </Button>
+            )}
+            {puedeGestionar && ficha.estado !== 'BAJA' && onEditarContacto && (
+              <Button
+                variant="outline"
+                leftIcon={<Mail size={16} />}
+                onClick={() => onEditarContacto(ficha)}
+              >
+                Editar contacto
+              </Button>
+            )}
             {puedeGestionar && ficha.estado === 'EN_PRUEBA' && onRatificar && (
               <Button
                 variant="primary"
@@ -225,6 +266,52 @@ export function FichaFuncionarioModal({
             </div>
           ) : (
             <p style={{ color: '#64748b', fontStyle: 'italic' }}>Sin asignación registrada.</p>
+          )}
+        </div>
+
+        {/* HU-09 CA-03: Historial de asignaciones como línea de tiempo */}
+        <div>
+          <h4 style={tituloSeccion}>Historial de Asignaciones</h4>
+          {ficha.historialAsignaciones.length === 0 ? (
+            <p style={{ color: '#64748b', fontStyle: 'italic' }}>Sin historial registrado.</p>
+          ) : (
+            <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+              {ficha.historialAsignaciones.map((item, i) => {
+                const vigente = item.vigenteHasta === null
+                const ultimo = i === ficha.historialAsignaciones.length - 1
+                return (
+                  <li key={item.id} style={{ display: 'flex', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <span
+                        style={{
+                          width: '0.75rem',
+                          height: '0.75rem',
+                          marginTop: '0.3rem',
+                          borderRadius: '9999px',
+                          backgroundColor: vigente ? '#16a34a' : '#94a3b8',
+                          flexShrink: 0,
+                        }}
+                      />
+                      {!ultimo && (
+                        <span style={{ flex: 1, width: '2px', backgroundColor: '#e2e8f0' }} />
+                      )}
+                    </div>
+                    <div style={{ paddingBottom: ultimo ? 0 : '1rem', fontSize: '0.9rem' }}>
+                      <div style={{ color: '#64748b', fontSize: '0.8rem' }}>
+                        {formatDate(item.vigenteDesde)} —{' '}
+                        {vigente ? 'actual' : formatDate(item.vigenteHasta)} ·{' '}
+                        {MOTIVO_LABEL[item.motivo] ?? item.motivo}
+                      </div>
+                      <div>
+                        <strong>{item.cargoNombre}</strong>{' '}
+                        <span style={{ color: '#64748b' }}>({item.areaNombre})</span>
+                      </div>
+                      <div className="font-mono">{formatCurrency(item.remuneracion)}</div>
+                    </div>
+                  </li>
+                )
+              })}
+            </ol>
           )}
         </div>
       </div>

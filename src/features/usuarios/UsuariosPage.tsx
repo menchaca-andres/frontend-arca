@@ -64,7 +64,7 @@ export function UsuariosPage() {
   const cargarFuncionarios = useCallback(async () => {
     try {
       setCargandoFuncionarios(true)
-      const data = await ApiService.getFuncionarios()
+      const data = await ApiService.getFuncionariosParaSelector()
       setFuncionarios(data)
     } catch {
       // Ignorar error si aún no hay funcionarios o endpoint en desarrollo
@@ -373,9 +373,7 @@ export function UsuariosPage() {
           <Select
             label="Rol del Sistema"
             value={formAlta.rol}
-            onChange={(e) =>
-              setFormAlta((prev) => ({ ...prev, rol: e.target.value as Rol }))
-            }
+            onChange={(e) => setFormAlta((prev) => ({ ...prev, rol: e.target.value as Rol }))}
             options={ROLES.map((r) => ({ value: r, label: r }))}
           />
 
@@ -406,7 +404,8 @@ export function UsuariosPage() {
 
           <div className="rounded-md bg-neutral-50 p-3 text-xs text-neutral-600">
             <span className="font-semibold text-neutral-800">Nota de seguridad: </span>
-            Se generará automáticamente una contraseña temporal robusta que se mostrará en pantalla una sola vez.
+            Se generará automáticamente una contraseña temporal robusta que se mostrará en pantalla
+            una sola vez.
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
@@ -490,7 +489,8 @@ export function UsuariosPage() {
             <div className="text-sm">
               <p className="font-semibold">¡Importante!</p>
               <p className="text-xs text-amber-800 mt-0.5">
-                Esta contraseña temporal se muestra una sola vez y no volverá a ser accesible. Copiala y entregásela al funcionario de forma segura.
+                Esta contraseña temporal se muestra una sola vez y no volverá a ser accesible.
+                Copiala y entregásela al funcionario de forma segura.
               </p>
             </div>
           </div>
@@ -512,21 +512,14 @@ export function UsuariosPage() {
               <div className="font-mono text-base font-bold bg-neutral-900 text-emerald-400 p-2.5 rounded border border-neutral-700 flex-1 select-all">
                 {modalCredencial?.passwordTemporal}
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={copiarPassword}
-                className="shrink-0"
-              >
+              <Button type="button" variant="outline" onClick={copiarPassword} className="shrink-0">
                 {copiado ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
               </Button>
             </div>
           </div>
 
           <div className="flex justify-end pt-4">
-            <Button onClick={() => setModalCredencial(null)}>
-              Entendido y Copiado
-            </Button>
+            <Button onClick={() => setModalCredencial(null)}>Entendido y Copiado</Button>
           </div>
         </div>
       </Modal>

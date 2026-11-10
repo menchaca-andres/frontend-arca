@@ -108,9 +108,7 @@ export function CatalogosPage() {
   const abrirArea = (area?: Area) => {
     setAreaEditando(area ?? null)
     setFormArea(
-      area
-        ? { codigo: area.codigo, nombre: area.nombre, activo: area.activo }
-        : { ...AREA_VACIA },
+      area ? { codigo: area.codigo, nombre: area.nombre, activo: area.activo } : { ...AREA_VACIA },
     )
     setModal('areas')
   }

@@ -71,7 +71,7 @@ export function VacacionesPage() {
 
   useEffect(() => {
     if (!puedeVerTodos) return
-    void ApiService.getFuncionarios()
+    void ApiService.getFuncionariosParaSelector()
       .then(setFuncionarios)
       .catch((error: unknown) => {
         toast.error(

@@ -100,7 +100,6 @@ export function ContratosPage() {
     <div className="module-view-ds">
       <header className="page-header-ds">
         <div>
-          <p className="eyebrow-ds">Módulo de Contratos (ms-contratos)</p>
           <h1 className="page-title-ds">Gestión y Archivo de Contratos</h1>
           <p className="page-subtitle-ds">
             Plantillas parametrizables versionadas (HU-17) y emisión de contratos formales.

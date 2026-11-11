@@ -218,7 +218,6 @@ export function VacacionesPage() {
     <div className="module-view-ds">
       <header className="page-header-ds">
         <div>
-          <p className="eyebrow-ds">Módulo de Vacaciones (ms-vacaciones)</p>
           <h1 className="page-title-ds">
             {esFuncionario ? 'Mis Vacaciones' : 'Gestión y Solicitudes de Vacación'}
           </h1>

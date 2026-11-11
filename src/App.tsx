@@ -11,88 +11,101 @@ import { ContratosPage } from './features/contratos'
 import { CatalogosPage, PersonalPage } from './features/personal'
 import { UsuariosPage } from './features/usuarios'
 import { VacacionesPage } from './features/vacaciones'
+import { useGlowPointer } from './utils/useGlowPointer'
 
 function App() {
+  useGlowPointer()
+
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <ToastProvider>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
+    <>
+      {/* Animated Liquid Glass Mesh Canvas */}
+      <div className="liquid-mesh-canvas" aria-hidden="true">
+        <div className="mesh-blob mesh-blob-1" />
+        <div className="mesh-blob mesh-blob-2" />
+        <div className="mesh-blob mesh-blob-3" />
+        <div className="mesh-blob mesh-blob-4" />
+      </div>
 
-            {/* Layout principal protegido para usuarios autenticados */}
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <AppLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<HomePage />} />
-              <Route
-                path="personal"
-                element={
-                  <ProtectedRoute allowedRoles={['ADMIN', 'RRHH', 'DIRECCION', 'FUNCIONARIO']}>
-                    <PersonalPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="personal/catalogos"
-                element={
-                  <ProtectedRoute allowedRoles={['ADMIN', 'RRHH']}>
-                    <CatalogosPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="vacaciones"
-                element={
-                  <ProtectedRoute allowedRoles={['RRHH', 'DIRECCION', 'FUNCIONARIO']}>
-                    <VacacionesPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="contratos"
-                element={
-                  <ProtectedRoute allowedRoles={['ADMIN', 'RRHH', 'DIRECCION']}>
-                    <ContratosPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="boletas"
-                element={
-                  <ProtectedRoute allowedRoles={['RRHH', 'DIRECCION', 'FUNCIONARIO']}>
-                    <BoletasPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="auditoria"
-                element={
-                  <ProtectedRoute allowedRoles={['ADMIN']}>
-                    <AuditoriaPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="usuarios"
-                element={
-                  <ProtectedRoute allowedRoles={['ADMIN']}>
-                    <UsuariosPage />
-                  </ProtectedRoute>
-                }
-              />
-            </Route>
+      <BrowserRouter>
+        <AuthProvider>
+          <ToastProvider>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
 
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </ToastProvider>
-      </AuthProvider>
-    </BrowserRouter>
+              {/* Layout principal protegido para usuarios autenticados */}
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<HomePage />} />
+                <Route
+                  path="personal"
+                  element={
+                    <ProtectedRoute allowedRoles={['ADMIN', 'RRHH', 'DIRECCION', 'FUNCIONARIO']}>
+                      <PersonalPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="personal/catalogos"
+                  element={
+                    <ProtectedRoute allowedRoles={['ADMIN', 'RRHH']}>
+                      <CatalogosPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="vacaciones"
+                  element={
+                    <ProtectedRoute allowedRoles={['RRHH', 'DIRECCION', 'FUNCIONARIO']}>
+                      <VacacionesPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="contratos"
+                  element={
+                    <ProtectedRoute allowedRoles={['ADMIN', 'RRHH', 'DIRECCION']}>
+                      <ContratosPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="boletas"
+                  element={
+                    <ProtectedRoute allowedRoles={['RRHH', 'DIRECCION', 'FUNCIONARIO']}>
+                      <BoletasPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="auditoria"
+                  element={
+                    <ProtectedRoute allowedRoles={['ADMIN']}>
+                      <AuditoriaPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="usuarios"
+                  element={
+                    <ProtectedRoute allowedRoles={['ADMIN']}>
+                      <UsuariosPage />
+                    </ProtectedRoute>
+                  }
+                />
+              </Route>
+
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </ToastProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </>
   )
 }
 

@@ -248,7 +248,6 @@ export function BoletasPage() {
     <div className="module-view-ds">
       <header className="page-header-ds">
         <div>
-          <p className="eyebrow-ds">Módulo de Boletas y Planillas (ms-boletas)</p>
           <h1 className="page-title-ds">
             {esFuncionario ? 'Mis Boletas de Pago' : 'Gestión de Planillas y Boletas'}
           </h1>

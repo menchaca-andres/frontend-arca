@@ -31,6 +31,7 @@ import type {
   RegistrarNovedadInput,
   Rol,
   SaldoVacaciones,
+  SolicitudPendiente,
   SolicitudVacacion,
   UsuarioItem,
   UsuarioSesion,
@@ -201,6 +202,18 @@ export class ApiService {
     fechaFin: string
   }): Promise<SolicitudVacacion> {
     return this.post<SolicitudVacacion>('/api/v1/vacaciones/solicitudes', input)
+  }
+
+  static async getSolicitudesPendientes(): Promise<SolicitudPendiente[]> {
+    return this.get<SolicitudPendiente[]>('/api/v1/vacaciones/solicitudes/pendientes')
+  }
+
+  static async aprobarSolicitudVacacion(id: string): Promise<SolicitudVacacion> {
+    return this.post<SolicitudVacacion>(`/api/v1/vacaciones/solicitudes/${id}/aprobar`, {})
+  }
+
+  static async rechazarSolicitudVacacion(id: string, motivo: string): Promise<SolicitudVacacion> {
+    return this.post<SolicitudVacacion>(`/api/v1/vacaciones/solicitudes/${id}/rechazar`, { motivo })
   }
 
   static async registrarFuncionario(input: RegistrarFuncionarioInput): Promise<FichaFuncionario> {

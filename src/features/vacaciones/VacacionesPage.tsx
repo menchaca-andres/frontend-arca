@@ -19,6 +19,7 @@ import { ApiService } from '../../services/api'
 import type { FuncionarioResumen, SaldoVacaciones, SolicitudVacacion } from '../../types'
 import { formatDate } from '../../utils/formatters'
 import { useAuth } from '../auth/useAuth'
+import { BandejaSolicitudesCard } from './components'
 
 function fechaEnLaPaz(diasDesdeHoy = 0): string {
   const partes = new Intl.DateTimeFormat('en-CA', {
@@ -68,6 +69,7 @@ export function VacacionesPage() {
   const [diasEstimados, setDiasEstimados] = useState<number | null>(null)
   const [cargandoDias, setCargandoDias] = useState(false)
   const [enviando, setEnviando] = useState(false)
+  const [refreshToken, setRefreshToken] = useState(0)
 
   useEffect(() => {
     if (!puedeVerTodos) return
@@ -90,6 +92,7 @@ export function VacacionesPage() {
 
   const actualizarDatos = async () => {
     setSolicitudes(null)
+    setRefreshToken((prev) => prev + 1)
     try {
       const [lista, saldoFuncionario] = await cargarDatos()
       setSolicitudes(lista)
@@ -339,6 +342,14 @@ export function VacacionesPage() {
         </>
       )}
 
+      {esRRHH && (
+        <BandejaSolicitudesCard
+          refreshToken={refreshToken}
+          funcionarioIdActual={usuario?.funcionarioId}
+          onResolved={() => void actualizarDatos()}
+        />
+      )}
+
       <Card
         title={esFuncionario ? 'Mis Solicitudes' : 'Historial de Solicitudes'}
         action={
@@ -382,6 +393,15 @@ export function VacacionesPage() {
                   <TableCell className="font-mono">{solicitud.diasHabiles} días</TableCell>
                   <TableCell>
                     <StatusBadge status={solicitud.estado} />
+                    {solicitud.estado === 'RECHAZADA' && solicitud.motivoRechazo && (
+                      <p
+                        className="form-helper-ds mt-1 text-xs"
+                        style={{ margin: '4px 0 0', maxWidth: 240 }}
+                        title={solicitud.motivoRechazo}
+                      >
+                        <strong>Motivo:</strong> {solicitud.motivoRechazo}
+                      </p>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

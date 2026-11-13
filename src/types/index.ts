@@ -223,8 +223,16 @@ export interface SolicitudVacacion {
   fechaFin: string
   diasHabiles: number
   estado: 'PENDIENTE' | 'APROBADA' | 'RECHAZADA'
+  motivoRechazo?: string | null
   registradoPor: string
+  resueltoPor?: string | null
+  fechaResolucion?: string | null
   createdAt: string
+}
+
+/** HU-15 CA-01: solicitud de la bandeja con el saldo actual del funcionario (null si no se pudo calcular). */
+export interface SolicitudPendiente extends SolicitudVacacion {
+  saldo: SaldoVacaciones | null
 }
 
 export interface PruebaPorVencerItem extends FuncionarioResumen {

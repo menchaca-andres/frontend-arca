@@ -1,4 +1,5 @@
 import type {
+  AbrirPeriodoInput,
   ActualizarContactoInput,
   ActualizarPlantillaInput,
   ActualizarConceptoInput,
@@ -19,6 +20,7 @@ import type {
   CrearUsuarioResponse,
   DarDeBajaInput,
   DetalleContratoItem,
+  DetallePlanillaResponse,
   FichaFuncionario,
   FiltrosContratos,
   FiltrosPadron,
@@ -28,6 +30,7 @@ import type {
   LoginResponse,
   NovedadItem,
   Paginated,
+  PeriodoItem,
   PlantillaItem,
   PlantillaVersionItem,
   PreviewContratoInput,
@@ -399,6 +402,23 @@ export class ApiService {
 
   static async deleteNovedad(id: string): Promise<void> {
     return this.delete<void>(`/api/novedades/${id}`)
+  }
+
+  // --- HU-21: Periodos y Planilla ---
+  static async getPeriodos(): Promise<PeriodoItem[]> {
+    return this.get<PeriodoItem[]>('/api/periodos')
+  }
+
+  static async abrirPeriodo(input: AbrirPeriodoInput): Promise<PeriodoItem> {
+    return this.post<PeriodoItem>('/api/periodos', input)
+  }
+
+  static async getPeriodoDetalle(id: string): Promise<DetallePlanillaResponse> {
+    return this.get<DetallePlanillaResponse>(`/api/periodos/${id}`)
+  }
+
+  static async calcularPlanilla(id: string): Promise<DetallePlanillaResponse> {
+    return this.post<DetallePlanillaResponse>(`/api/periodos/${id}/calculo`)
   }
 
   static async get<T>(path: string, options?: RequestInit): Promise<T> {

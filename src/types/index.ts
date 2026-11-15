@@ -235,6 +235,60 @@ export interface SolicitudPendiente extends SolicitudVacacion {
   saldo: SaldoVacaciones | null
 }
 
+/** HU-16: tipos para Kardex por gestión y Calendario mensual */
+export interface SolicitudKardexItem {
+  id: string
+  funcionarioId: string
+  funcionarioNombre: string
+  fechaInicio: string
+  fechaFin: string
+  diasHabiles: number
+  estado: 'PENDIENTE' | 'APROBADA' | 'RECHAZADA'
+  motivoRechazo?: string | null
+  registradoPor: string
+  resueltoPor?: string | null
+  fechaResolucion?: string | null
+  createdAt: string
+}
+
+export interface GestionKardex {
+  numero: number
+  periodoInicio: string
+  periodoFin: string
+  cumplida: boolean
+  diasGanados: number
+  diasUsados: number
+  diasReservados: number
+  diasDisponibles: number
+  solicitudes: SolicitudKardexItem[]
+}
+
+export interface KardexVacaciones {
+  funcionarioId: string
+  funcionarioNombre: string
+  fechaIngreso: string
+  gestionesCumplidas: number
+  diasGanadosTotal: number
+  diasUsadosTotal: number
+  diasReservadosTotal: number
+  diasDisponiblesTotal: number
+  gestiones: GestionKardex[]
+}
+
+export interface FeriadoMesItem {
+  fecha: string
+  descripcion: string
+}
+
+export interface CalendarioVacaciones {
+  mes: string
+  desde: string
+  hasta: string
+  totalAprobadas: number
+  solicitudes: SolicitudKardexItem[]
+  feriados: FeriadoMesItem[]
+}
+
 export interface PruebaPorVencerItem extends FuncionarioResumen {
   fechaIngreso: string
   diasPrueba: number

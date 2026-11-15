@@ -388,6 +388,28 @@ export interface ContratoItem {
   generadoPor: string
   createdAt: string
   updatedAt: string
+  plantillaVersion?: {
+    id: string
+    plantillaId: string
+    version: number
+    plantilla?: {
+      id: string
+      nombre: string
+      tipo: TipoContrato
+    }
+  }
+}
+
+export interface FiltrosContratos {
+  funcionarioId?: string
+  plantillaId?: string
+  estado?: EstadoContrato | 'TODOS'
+  desde?: string
+  hasta?: string
+}
+
+export interface DetalleContratoItem extends ContratoItem {
+  historialVersiones: ContratoItem[]
 }
 
 

@@ -18,7 +18,9 @@ import type {
   CrearUsuarioInput,
   CrearUsuarioResponse,
   DarDeBajaInput,
+  DetalleContratoItem,
   FichaFuncionario,
+  FiltrosContratos,
   FiltrosPadron,
   FuncionarioPadronItem,
   GenerarContratoInput,
@@ -312,8 +314,20 @@ export class ApiService {
     return this.get<ContratoItem>(`/api/contratos/${id}`)
   }
 
-  static async getContratos(): Promise<ContratoItem[]> {
-    return this.get<ContratoItem[]>('/api/contratos')
+  static async getContratoDetalle(id: string): Promise<DetalleContratoItem> {
+    return this.get<DetalleContratoItem>(`/api/contratos/${id}`)
+  }
+
+  static async getContratos(filtros: FiltrosContratos = {}): Promise<ContratoItem[]> {
+    const params = new URLSearchParams()
+    if (filtros.funcionarioId) params.set('funcionarioId', filtros.funcionarioId)
+    if (filtros.plantillaId) params.set('plantillaId', filtros.plantillaId)
+    if (filtros.estado && filtros.estado !== 'TODOS') params.set('estado', filtros.estado)
+    if (filtros.desde) params.set('desde', filtros.desde)
+    if (filtros.hasta) params.set('hasta', filtros.hasta)
+
+    const query = params.toString() ? `?${params.toString()}` : ''
+    return this.get<ContratoItem[]>(`/api/contratos${query}`)
   }
 
   static async descargarContratoPdf(id: string, numero?: string): Promise<void> {

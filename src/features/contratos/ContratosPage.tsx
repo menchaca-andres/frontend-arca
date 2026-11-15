@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Download, FileCheck, Plus, RefreshCw, ShieldCheck } from 'lucide-react'
+import { Download, Eye, FileCheck, Plus, RefreshCw, ShieldCheck, X } from 'lucide-react'
 import {
   Button,
   Card,
   EmptyState,
+  Input,
+  Select,
   StatusBadge,
   Table,
   TableBody,
@@ -14,9 +16,10 @@ import {
   useToast,
 } from '../../components'
 import { ApiError, ApiService } from '../../services/api'
-import type { ContratoItem, PlantillaItem } from '../../types'
+import type { ContratoItem, EstadoContrato, FuncionarioPadronItem, PlantillaItem } from '../../types'
 import { useAuth } from '../auth/useAuth'
 import {
+  DetalleContratoModal,
   EditorPlantillaModal,
   GenerarContratoModal,
   HistorialVersionesModal,
@@ -26,9 +29,12 @@ export function ContratosPage() {
   const { usuario } = useAuth()
   const toast = useToast()
   const puedeGestionar = usuario?.rol === 'ADMIN' || usuario?.rol === 'RRHH'
+  const esFuncionario = usuario?.rol === 'FUNCIONARIO'
 
-  // Tab activo: 'plantillas' (HU-17) o 'contratos' (HU-18/19)
-  const [tabActivo, setTabActivo] = useState<'plantillas' | 'contratos'>('plantillas')
+  // Tab activo: 'plantillas' (HU-17) o 'contratos' (HU-18/19). Funcionarios van directo a contratos.
+  const [tabActivo, setTabActivo] = useState<'plantillas' | 'contratos'>(
+    esFuncionario ? 'contratos' : 'plantillas',
+  )
 
   // Estado Plantillas (HU-17)
   const [plantillas, setPlantillas] = useState<PlantillaItem[]>([])
@@ -37,23 +43,84 @@ export function ContratosPage() {
   const [plantillaSeleccionada, setPlantillaSeleccionada] = useState<PlantillaItem | null>(null)
   const [plantillaParaHistorial, setPlantillaParaHistorial] = useState<PlantillaItem | null>(null)
 
-  // Estado Contratos Emitidos (HU-18)
+  // Estado Contratos Emitidos (HU-18 / HU-19)
   const [isGenerarOpen, setIsGenerarOpen] = useState(false)
   const [contratosEmitidos, setContratosEmitidos] = useState<ContratoItem[]>([])
   const [cargandoContratos, setCargandoContratos] = useState(false)
   const [descargandoId, setDescargandoId] = useState<string | null>(null)
+  const [contratoParaDetalleId, setContratoParaDetalleId] = useState<string | null>(null)
+
+  // Filtros HU-19 CA-01
+  const [filtroFuncionarioId, setFiltroFuncionarioId] = useState('')
+  const [filtroPlantillaId, setFiltroPlantillaId] = useState('')
+  const [filtroEstado, setFiltroEstado] = useState<string>('TODOS')
+  const [filtroDesde, setFiltroDesde] = useState('')
+  const [filtroHasta, setFiltroHasta] = useState('')
+  const [funcionariosFiltro, setFuncionariosFiltro] = useState<FuncionarioPadronItem[]>([])
 
   const cargarContratos = useCallback(async () => {
     setCargandoContratos(true)
     try {
-      const data = await ApiService.getContratos()
+      const data = await ApiService.getContratos({
+        funcionarioId: filtroFuncionarioId || undefined,
+        plantillaId: filtroPlantillaId || undefined,
+        estado: filtroEstado !== 'TODOS' ? (filtroEstado as EstadoContrato) : undefined,
+        desde: filtroDesde || undefined,
+        hasta: filtroHasta || undefined,
+      })
       setContratosEmitidos(data)
     } catch (err) {
       console.error('Error al cargar contratos emitidos', err)
     } finally {
       setCargandoContratos(false)
     }
-  }, [])
+  }, [filtroFuncionarioId, filtroPlantillaId, filtroEstado, filtroDesde, filtroHasta])
+
+  // Cargar funcionarios para selector de filtros de RRHH
+  useEffect(() => {
+    if (puedeGestionar) {
+      void ApiService.getFuncionariosParaSelector()
+        .then((data) => setFuncionariosFiltro(data))
+        .catch(() => {})
+    }
+  }, [puedeGestionar])
+
+  const handleLimpiarFiltros = () => {
+    setFiltroFuncionarioId('')
+    setFiltroPlantillaId('')
+    setFiltroEstado('TODOS')
+    setFiltroDesde('')
+    setFiltroHasta('')
+  }
+
+  const hayFiltrosActivos =
+    Boolean(filtroFuncionarioId) ||
+    Boolean(filtroPlantillaId) ||
+    filtroEstado !== 'TODOS' ||
+    Boolean(filtroDesde) ||
+    Boolean(filtroHasta)
+
+  const opcionesFuncionariosFiltro = [
+    { value: '', label: 'Todos los funcionarios' },
+    ...funcionariosFiltro.map((f) => ({
+      value: f.id,
+      label: `${f.nombreCompleto} (CI: ${f.ci})`,
+    })),
+  ]
+
+  const opcionesPlantillasFiltro = [
+    { value: '', label: 'Todas las plantillas' },
+    ...plantillas.map((p) => ({
+      value: p.id,
+      label: p.nombre,
+    })),
+  ]
+
+  const opcionesEstadoFiltro = [
+    { value: 'TODOS', label: 'Todos los estados' },
+    { value: 'VIGENTE', label: 'VIGENTE' },
+    { value: 'REEMPLAZADO', label: 'REEMPLAZADO' },
+  ]
 
   const handleContratoEmitido = (nuevo: ContratoItem) => {
     setContratosEmitidos((prev) => {
@@ -157,9 +224,13 @@ export function ContratosPage() {
     <div className="module-view-ds">
       <header className="page-header-ds">
         <div>
-          <h1 className="page-title-ds">Gestión y Archivo de Contratos</h1>
+          <h1 className="page-title-ds">
+            {esFuncionario ? 'Mis Contratos Laborales' : 'Gestión y Archivo de Contratos'}
+          </h1>
           <p className="page-subtitle-ds">
-            Plantillas parametrizables versionadas (HU-17) y emisión de contratos formales.
+            {esFuncionario
+              ? 'Consulte y descargue sus contratos laborales emitidos por ARCA con verificación de integridad (HU-19).'
+              : 'Plantillas parametrizables versionadas (HU-17), emisión (HU-18) y consulta de contratos (HU-19).'}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -212,24 +283,26 @@ export function ContratosPage() {
         </div>
       </header>
 
-      {/* Tabs de navegación interna estilo Apple */}
-      <nav className="segmented-control-ds" aria-label="Secciones de Contratos">
-        <button
-          type="button"
-          onClick={() => setTabActivo('plantillas')}
-          className={`segmented-tab-ds ${tabActivo === 'plantillas' ? 'is-active' : ''}`}
-        >
-          Plantillas de Contrato
-        </button>
+      {/* Tabs de navegación interna estilo Apple (solo para administradores / RRHH) */}
+      {!esFuncionario && (
+        <nav className="segmented-control-ds" aria-label="Secciones de Contratos">
+          <button
+            type="button"
+            onClick={() => setTabActivo('plantillas')}
+            className={`segmented-tab-ds ${tabActivo === 'plantillas' ? 'is-active' : ''}`}
+          >
+            Plantillas de Contrato
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setTabActivo('contratos')}
-          className={`segmented-tab-ds ${tabActivo === 'contratos' ? 'is-active' : ''}`}
-        >
-          Contratos Emitidos
-        </button>
-      </nav>
+          <button
+            type="button"
+            onClick={() => setTabActivo('contratos')}
+            className={`segmented-tab-ds ${tabActivo === 'contratos' ? 'is-active' : ''}`}
+          >
+            Contratos Emitidos
+          </button>
+        </nav>
+      )}
 
       {tabActivo === 'plantillas' ? (
         <Card>
@@ -301,7 +374,72 @@ export function ContratosPage() {
           )}
         </Card>
       ) : (
-        <Card title="Contratos Emitidos (HU-18 / HU-19)">
+        <Card title={esFuncionario ? 'Mis Contratos Emitidos' : 'Contratos Emitidos (HU-18 / HU-19)'}>
+          {/* Barra de Filtros para RRHH (CA-01) */}
+          {puedeGestionar && (
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                gap: '0.75rem',
+                marginBottom: '1.25rem',
+                padding: '1rem',
+                backgroundColor: '#f8fafc',
+                borderRadius: '12px',
+                border: '1px solid #e2e8f0',
+                alignItems: 'end',
+              }}
+            >
+              <Select
+                label="Funcionario"
+                options={opcionesFuncionariosFiltro}
+                value={filtroFuncionarioId}
+                onChange={(e) => setFiltroFuncionarioId(e.target.value)}
+              />
+
+              <Select
+                label="Plantilla"
+                options={opcionesPlantillasFiltro}
+                value={filtroPlantillaId}
+                onChange={(e) => setFiltroPlantillaId(e.target.value)}
+              />
+
+              <Select
+                label="Estado"
+                options={opcionesEstadoFiltro}
+                value={filtroEstado}
+                onChange={(e) => setFiltroEstado(e.target.value)}
+              />
+
+              <Input
+                label="Fecha Desde"
+                type="date"
+                value={filtroDesde}
+                onChange={(e) => setFiltroDesde(e.target.value)}
+              />
+
+              <Input
+                label="Fecha Hasta"
+                type="date"
+                value={filtroHasta}
+                onChange={(e) => setFiltroHasta(e.target.value)}
+              />
+
+              <div style={{ display: 'flex', alignItems: 'center', height: '38px' }}>
+                {hayFiltrosActivos && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    leftIcon={<X size={14} />}
+                    onClick={handleLimpiarFiltros}
+                  >
+                    Limpiar
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+
           {cargandoContratos ? (
             <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
               Cargando contratos emitidos...
@@ -309,10 +447,26 @@ export function ContratosPage() {
           ) : contratosEmitidos.length === 0 ? (
             <div style={{ padding: '2rem 1rem' }}>
               <EmptyState
-                title="Sin contratos emitidos en el sistema"
-                description="Seleccione un funcionario y una plantilla activa para emitir un contrato formal con datos en vivo de ms-personal (HU-18)."
+                title={
+                  hayFiltrosActivos
+                    ? 'Sin resultados para los filtros seleccionados'
+                    : esFuncionario
+                    ? 'Aún no tiene contratos laborales emitidos'
+                    : 'Sin contratos emitidos en el sistema'
+                }
+                description={
+                  hayFiltrosActivos
+                    ? 'Intente ajustar o limpiar los filtros de búsqueda.'
+                    : esFuncionario
+                    ? 'Sus contratos laborales formalizados por Recursos Humanos aparecerán listados aquí.'
+                    : 'Seleccione un funcionario y una plantilla activa para emitir un contrato formal con datos en vivo de ms-personal (HU-18).'
+                }
                 action={
-                  puedeGestionar ? (
+                  hayFiltrosActivos ? (
+                    <Button variant="outline" size="sm" onClick={handleLimpiarFiltros}>
+                      Limpiar Filtros
+                    </Button>
+                  ) : puedeGestionar ? (
                     <Button
                       variant="primary"
                       leftIcon={<FileCheck size={16} />}
@@ -377,15 +531,27 @@ export function ContratosPage() {
                       })}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        leftIcon={<Download size={14} />}
-                        onClick={() => handleDescargarContrato(c)}
-                        disabled={descargandoId === c.id}
-                      >
-                        {descargandoId === c.id ? 'Descargando...' : 'Descargar PDF'}
-                      </Button>
+                      <div style={{ display: 'inline-flex', gap: '0.5rem' }}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          leftIcon={<Eye size={14} />}
+                          onClick={() => setContratoParaDetalleId(c.id)}
+                          title="Ver ficha completa e historial de versiones (CA-04)"
+                        >
+                          Detalle
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          leftIcon={<Download size={14} />}
+                          onClick={() => handleDescargarContrato(c)}
+                          disabled={descargandoId === c.id}
+                          title="Descargar PDF verificado con SHA-256 (CA-03)"
+                        >
+                          {descargandoId === c.id ? 'Descargando...' : 'Descargar PDF'}
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -394,6 +560,13 @@ export function ContratosPage() {
           )}
         </Card>
       )}
+
+      {/* Modal Detalle de Contrato e Historial de Versiones (HU-19: CA-03, CA-04) */}
+      <DetalleContratoModal
+        isOpen={Boolean(contratoParaDetalleId)}
+        contratoId={contratoParaDetalleId}
+        onClose={() => setContratoParaDetalleId(null)}
+      />
 
       {/* Modal Asistente de Generación de Contrato (HU-18: CA-01 a CA-08) */}
       <GenerarContratoModal

@@ -5,6 +5,7 @@ import type {
   ApiErrorPayload,
   Area,
   AreaInput,
+  CalendarioVacaciones,
   CambiarAsignacionInput,
   CambiarEstadoInput,
   CambiarRolInput,
@@ -19,6 +20,7 @@ import type {
   FichaFuncionario,
   FiltrosPadron,
   FuncionarioPadronItem,
+  KardexVacaciones,
   LoginResponse,
   NovedadItem,
   Paginated,
@@ -214,6 +216,23 @@ export class ApiService {
 
   static async rechazarSolicitudVacacion(id: string, motivo: string): Promise<SolicitudVacacion> {
     return this.post<SolicitudVacacion>(`/api/v1/vacaciones/solicitudes/${id}/rechazar`, { motivo })
+  }
+
+  // Historial (Kardex) y Calendario (HU-16)
+  static async getHistorialVacaciones(
+    funcionarioId: string,
+    filtros?: { estado?: string; anio?: number },
+  ): Promise<KardexVacaciones> {
+    const query = new URLSearchParams()
+    if (filtros?.estado) query.set('estado', filtros.estado)
+    if (filtros?.anio) query.set('anio', String(filtros.anio))
+    const suffix = query.size > 0 ? `?${query.toString()}` : ''
+    return this.get<KardexVacaciones>(`/api/v1/vacaciones/historial/${funcionarioId}${suffix}`)
+  }
+
+  static async getCalendarioVacaciones(mes?: string): Promise<CalendarioVacaciones> {
+    const suffix = mes ? `?mes=${mes}` : ''
+    return this.get<CalendarioVacaciones>(`/api/v1/vacaciones/calendario${suffix}`)
   }
 
   static async registrarFuncionario(input: RegistrarFuncionarioInput): Promise<FichaFuncionario> {

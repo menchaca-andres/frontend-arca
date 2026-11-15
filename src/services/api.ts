@@ -12,6 +12,7 @@ import type {
   Cargo,
   CargoInput,
   ConceptoItem,
+  ContratoItem,
   CrearConceptoInput,
   CrearPlantillaInput,
   CrearUsuarioInput,
@@ -20,12 +21,14 @@ import type {
   FichaFuncionario,
   FiltrosPadron,
   FuncionarioPadronItem,
+  GenerarContratoInput,
   KardexVacaciones,
   LoginResponse,
   NovedadItem,
   Paginated,
   PlantillaItem,
   PlantillaVersionItem,
+  PreviewContratoInput,
   PreviewPlantillaResponse,
   PruebaPorVencerItem,
   RatificarFuncionarioInput,
@@ -37,6 +40,7 @@ import type {
   SolicitudVacacion,
   UsuarioItem,
   UsuarioSesion,
+  VistaPreviaContrato,
 } from '../types'
 
 const GATEWAY_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:8080').replace(/\/+$/, '')
@@ -293,6 +297,48 @@ export class ApiService {
     datos?: Record<string, unknown>,
   ): Promise<PreviewPlantillaResponse> {
     return this.post<PreviewPlantillaResponse>('/api/plantillas/preview', { contenido, datos })
+  }
+
+  // Emisión y Archivo de Contratos (HU-18 / HU-19)
+  static async previewContrato(input: PreviewContratoInput): Promise<VistaPreviaContrato> {
+    return this.post<VistaPreviaContrato>('/api/contratos/preview', input)
+  }
+
+  static async generarContrato(input: GenerarContratoInput): Promise<ContratoItem> {
+    return this.post<ContratoItem>('/api/contratos', input)
+  }
+
+  static async getContrato(id: string): Promise<ContratoItem> {
+    return this.get<ContratoItem>(`/api/contratos/${id}`)
+  }
+
+  static async getContratos(): Promise<ContratoItem[]> {
+    return this.get<ContratoItem[]>('/api/contratos')
+  }
+
+  static async descargarContratoPdf(id: string, numero?: string): Promise<void> {
+    const token = this.getToken()
+    const headers = new Headers()
+    if (token) headers.set('Authorization', `Bearer ${token}`)
+
+    const response = await fetch(`${GATEWAY_ORIGIN}/api/contratos/${id}/pdf`, {
+      method: 'GET',
+      headers,
+    })
+
+    if (!response.ok) {
+      throw new ApiError('Error al descargar el PDF del contrato', 'DOWNLOAD_ERROR', response.status)
+    }
+
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `Contrato-${numero || id}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
   }
 
   static async getConceptos(includeInactive = true): Promise<ConceptoItem[]> {

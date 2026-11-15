@@ -338,6 +338,59 @@ export interface PreviewPlantillaResponse {
   variables: string[]
 }
 
+// Contratos de Funcionarios (HU-18 / HU-19)
+export type EstadoContrato = 'VIGENTE' | 'REEMPLAZADO' | 'ANULADO'
+
+export interface PreviewContratoInput {
+  funcionarioId: string
+  plantillaId?: string
+}
+
+export interface GenerarContratoInput {
+  funcionarioId: string
+  plantillaId?: string
+}
+
+export interface VistaPreviaContrato {
+  plantilla: {
+    id: string
+    nombre: string
+    tipo: TipoContrato
+    version: number
+  }
+  funcionario: {
+    id: string
+    nombres: string
+    apellidos: string
+    documentoIdentidad: string
+    fechaIngreso: string
+    cargo: string
+    area: string
+    remuneracion?: { monto: number; moneda: string }
+    diasPrueba?: number
+    estado: string
+  }
+  contexto: Record<string, unknown>
+  contenidoRenderizado: string
+  fechaEstimadaEmision: string
+}
+
+export interface ContratoItem {
+  id: string
+  numero: string
+  plantillaVersionId: string
+  funcionarioId: string
+  version: number
+  estado: EstadoContrato
+  datos: Record<string, unknown>
+  contenidoRenderizado: string
+  hashSha256: string
+  generadoPor: string
+  createdAt: string
+  updatedAt: string
+}
+
+
 
 export type TipoConcepto = 'HABER' | 'DESCUENTO';
 export type FormaCalculo = 'MONTO_FIJO' | 'PORCENTAJE' | 'SISTEMA';

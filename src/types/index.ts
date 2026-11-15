@@ -532,3 +532,73 @@ export const FUNCIONARIOS_SEMILLA_PADRON: FuncionarioPadronItem[] = [
     cargoNombre: 'Supervisor de Operaciones',
   },
 ];
+
+// --- HU-21: Planilla del Período y Boletas ---
+
+export interface ResumenPeriodoItem {
+  totalGanado: number;
+  totalDescuentos: number;
+  totalLiquido: number;
+  cantidadBoletas: number;
+  cantidadAlertas: number;
+}
+
+export interface PeriodoItem {
+  id: string;
+  anio: number;
+  mes: number;
+  estado: 'BORRADOR' | 'EMITIDO';
+  fechaCalculo: string | null;
+  fechaEmision: string | null;
+  emitidoPor: string | null;
+  resumen?: ResumenPeriodoItem;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AbrirPeriodoInput {
+  anio: number;
+  mes: number;
+}
+
+export interface BoletaDetalleItem {
+  id: string;
+  conceptoId: string;
+  conceptoCodigo: string;
+  conceptoNombre: string;
+  tipo: 'HABER' | 'DESCUENTO';
+  baseMonto: number | null;
+  porcentaje: number | null;
+  monto: number;
+  orden: number;
+}
+
+export interface BoletaPlanillaItem {
+  id: string;
+  periodoId: string;
+  funcionarioId: string;
+  numero: string | null;
+  version: number;
+  estado: 'BORRADOR' | 'EMITIDA' | 'RECTIFICADA';
+  datosFuncionario: {
+    nombres: string;
+    apellidos: string;
+    documentoIdentidad: string;
+    cargo: string;
+    area: string;
+    remuneracion: number;
+  };
+  diasTrabajados: number;
+  totalGanado: number;
+  totalDescuentos: number;
+  liquidoPagable: number;
+  tieneAlerta: boolean;
+  detalles?: BoletaDetalleItem[];
+}
+
+export interface DetallePlanillaResponse {
+  periodo: PeriodoItem;
+  resumen: ResumenPeriodoItem;
+  boletas: BoletaPlanillaItem[];
+}
+

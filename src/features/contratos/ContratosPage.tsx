@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { FileText, Plus, RefreshCw } from 'lucide-react'
+import { Download, FileCheck, Plus, RefreshCw, ShieldCheck } from 'lucide-react'
 import {
   Button,
   Card,
@@ -11,14 +11,20 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  useToast,
 } from '../../components'
-import { ApiService } from '../../services/api'
-import type { PlantillaItem } from '../../types'
+import { ApiError, ApiService } from '../../services/api'
+import type { ContratoItem, PlantillaItem } from '../../types'
 import { useAuth } from '../auth/useAuth'
-import { EditorPlantillaModal, HistorialVersionesModal } from './components'
+import {
+  EditorPlantillaModal,
+  GenerarContratoModal,
+  HistorialVersionesModal,
+} from './components'
 
 export function ContratosPage() {
   const { usuario } = useAuth()
+  const toast = useToast()
   const puedeGestionar = usuario?.rol === 'ADMIN' || usuario?.rol === 'RRHH'
 
   // Tab activo: 'plantillas' (HU-17) o 'contratos' (HU-18/19)
@@ -30,6 +36,51 @@ export function ContratosPage() {
   const [isEditorOpen, setIsEditorOpen] = useState(false)
   const [plantillaSeleccionada, setPlantillaSeleccionada] = useState<PlantillaItem | null>(null)
   const [plantillaParaHistorial, setPlantillaParaHistorial] = useState<PlantillaItem | null>(null)
+
+  // Estado Contratos Emitidos (HU-18)
+  const [isGenerarOpen, setIsGenerarOpen] = useState(false)
+  const [contratosEmitidos, setContratosEmitidos] = useState<ContratoItem[]>([])
+  const [cargandoContratos, setCargandoContratos] = useState(false)
+  const [descargandoId, setDescargandoId] = useState<string | null>(null)
+
+  const cargarContratos = useCallback(async () => {
+    setCargandoContratos(true)
+    try {
+      const data = await ApiService.getContratos()
+      setContratosEmitidos(data)
+    } catch (err) {
+      console.error('Error al cargar contratos emitidos', err)
+    } finally {
+      setCargandoContratos(false)
+    }
+  }, [])
+
+  const handleContratoEmitido = (nuevo: ContratoItem) => {
+    setContratosEmitidos((prev) => {
+      // Si ya existía un contrato anterior del mismo funcionario, se marca como REEMPLAZADO
+      const actualizados = prev.map((c) =>
+        c.funcionarioId === nuevo.funcionarioId && c.id !== nuevo.id
+          ? { ...c, estado: 'REEMPLAZADO' as const }
+          : c,
+      )
+      return [nuevo, ...actualizados]
+    })
+    setTabActivo('contratos')
+    void cargarContratos()
+  }
+
+  const handleDescargarContrato = async (c: ContratoItem) => {
+    setDescargandoId(c.id)
+    try {
+      await ApiService.descargarContratoPdf(c.id, c.numero)
+      toast.success(`Descargando Contrato-${c.numero}.pdf`)
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : 'Error al descargar PDF'
+      toast.error(msg)
+    } finally {
+      setDescargandoId(null)
+    }
+  }
 
   const cargarPlantillas = useCallback(async () => {
     setCargandoPlantillas(true)
@@ -68,11 +119,17 @@ export function ContratosPage() {
     }
   }, [])
 
+  // Cargar catálogo de plantillas siempre para tenerlas disponibles en el modal
   useEffect(() => {
-    if (tabActivo === 'plantillas') {
-      void cargarPlantillas()
+    void cargarPlantillas()
+  }, [cargarPlantillas])
+
+  // Cargar contratos de base de datos cuando se activa la pestaña de contratos
+  useEffect(() => {
+    if (tabActivo === 'contratos') {
+      void cargarContratos()
     }
-  }, [tabActivo, cargarPlantillas])
+  }, [tabActivo, cargarContratos])
 
   const handleCrearNueva = () => {
     setPlantillaSeleccionada(null)
@@ -106,7 +163,7 @@ export function ContratosPage() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          {tabActivo === 'plantillas' && (
+          {tabActivo === 'plantillas' ? (
             <>
               <Button
                 variant="outline"
@@ -117,8 +174,37 @@ export function ContratosPage() {
                 Actualizar
               </Button>
               {puedeGestionar && (
-                <Button variant="primary" leftIcon={<Plus size={18} />} onClick={handleCrearNueva}>
-                  Nueva Plantilla
+                <>
+                  <Button
+                    variant="secondary"
+                    leftIcon={<FileCheck size={16} />}
+                    onClick={() => setIsGenerarOpen(true)}
+                  >
+                    Generar Contrato
+                  </Button>
+                  <Button variant="primary" leftIcon={<Plus size={18} />} onClick={handleCrearNueva}>
+                    Nueva Plantilla
+                  </Button>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                leftIcon={<RefreshCw size={16} />}
+                onClick={cargarContratos}
+                disabled={cargandoContratos}
+              >
+                Actualizar
+              </Button>
+              {puedeGestionar && (
+                <Button
+                  variant="primary"
+                  leftIcon={<FileCheck size={16} />}
+                  onClick={() => setIsGenerarOpen(true)}
+                >
+                  Generar Contrato
                 </Button>
               )}
             </>
@@ -215,17 +301,107 @@ export function ContratosPage() {
           )}
         </Card>
       ) : (
-        <Card title="Contratos Emitidos">
-          <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
-            <FileText size={32} style={{ margin: '0 auto 0.75rem', opacity: 0.5 }} />
-            <h3 style={{ margin: '0 0 0.5rem', color: '#1e293b' }}>Módulo de Emisión y Archivo</h3>
-            <p style={{ margin: 0, fontSize: '0.9rem' }}>
-              La emisión y descarga de contratos en PDF con Gotenberg se implementa en las historias
-              HU-18 y HU-19 del Sprint 3.
-            </p>
-          </div>
+        <Card title="Contratos Emitidos (HU-18 / HU-19)">
+          {cargandoContratos ? (
+            <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
+              Cargando contratos emitidos...
+            </div>
+          ) : contratosEmitidos.length === 0 ? (
+            <div style={{ padding: '2rem 1rem' }}>
+              <EmptyState
+                title="Sin contratos emitidos en el sistema"
+                description="Seleccione un funcionario y una plantilla activa para emitir un contrato formal con datos en vivo de ms-personal (HU-18)."
+                action={
+                  puedeGestionar ? (
+                    <Button
+                      variant="primary"
+                      leftIcon={<FileCheck size={16} />}
+                      onClick={() => setIsGenerarOpen(true)}
+                    >
+                      Generar Contrato
+                    </Button>
+                  ) : undefined
+                }
+              />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Número Correlativo</TableHead>
+                  <TableHead>Versión</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Huella Criptográfica SHA-256</TableHead>
+                  <TableHead>Fecha Emisión</TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {contratosEmitidos.map((c) => (
+                  <TableRow key={c.id}>
+                    <TableCell className="font-mono">
+                      <strong style={{ color: '#1e293b' }}>{c.numero}</strong>
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-mono" style={{ fontWeight: 600, color: '#2563eb' }}>
+                        v{c.version}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={c.estado} />
+                    </TableCell>
+                    <TableCell>
+                      <div
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.4rem',
+                          backgroundColor: '#f1f5f9',
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          fontFamily: 'monospace',
+                          fontSize: '0.78rem',
+                          color: '#334155',
+                        }}
+                        title={c.hashSha256}
+                      >
+                        <ShieldCheck size={14} style={{ color: '#0284c7' }} />
+                        <span>{c.hashSha256.substring(0, 16)}...</span>
+                      </div>
+                    </TableCell>
+                    <TableCell style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                      {new Date(c.createdAt).toLocaleDateString('es-BO', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        leftIcon={<Download size={14} />}
+                        onClick={() => handleDescargarContrato(c)}
+                        disabled={descargandoId === c.id}
+                      >
+                        {descargandoId === c.id ? 'Descargando...' : 'Descargar PDF'}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </Card>
       )}
+
+      {/* Modal Asistente de Generación de Contrato (HU-18: CA-01 a CA-08) */}
+      <GenerarContratoModal
+        isOpen={isGenerarOpen}
+        plantillasDisponibles={plantillas}
+        onClose={() => setIsGenerarOpen(false)}
+        onSuccess={handleContratoEmitido}
+      />
 
       {/* Modal Editor / Creador de Plantilla (CA-01, CA-02, CA-03, CA-07) */}
       <EditorPlantillaModal

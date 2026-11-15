@@ -19,7 +19,7 @@ import { ApiService } from '../../services/api'
 import type { FuncionarioResumen, SaldoVacaciones, SolicitudVacacion } from '../../types'
 import { formatDate } from '../../utils/formatters'
 import { useAuth } from '../auth/useAuth'
-import { BandejaSolicitudesCard } from './components'
+import { BandejaSolicitudesCard, CalendarioView, KardexView } from './components'
 
 function fechaEnLaPaz(diasDesdeHoy = 0): string {
   const partes = new Intl.DateTimeFormat('en-CA', {
@@ -70,6 +70,7 @@ export function VacacionesPage() {
   const [cargandoDias, setCargandoDias] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const [refreshToken, setRefreshToken] = useState(0)
+  const [tabActivo, setTabActivo] = useState<'solicitudes' | 'kardex' | 'calendario'>('solicitudes')
 
   useEffect(() => {
     if (!puedeVerTodos) return
@@ -251,29 +252,60 @@ export function VacacionesPage() {
         </div>
       </header>
 
-      {puedeVerTodos && (
-        <Card className="mb-4">
-          <label className="form-label-ds" htmlFor="vacaciones-funcionario">
-            Funcionario
-          </label>
-          <select
-            id="vacaciones-funcionario"
-            className="input-ds"
-            value={funcionarioId}
-            onChange={(event) => {
-              setSolicitudes(null)
-              setFuncionarioId(event.target.value)
-            }}
+      {/* Navegación Segmentada estilo Apple (HU-16) */}
+      <nav className="segmented-control-ds mb-4" aria-label="Secciones de Vacaciones">
+        <button
+          type="button"
+          onClick={() => setTabActivo('solicitudes')}
+          className={`segmented-tab-ds ${tabActivo === 'solicitudes' ? 'is-active' : ''}`}
+        >
+          {esFuncionario ? 'Mis Solicitudes' : 'Solicitudes y Bandeja'}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setTabActivo('kardex')}
+          className={`segmented-tab-ds ${tabActivo === 'kardex' ? 'is-active' : ''}`}
+        >
+          {esFuncionario ? 'Mi Kardex' : 'Kardex por Gestión'}
+        </button>
+
+        {!esFuncionario && (
+          <button
+            type="button"
+            onClick={() => setTabActivo('calendario')}
+            className={`segmented-tab-ds ${tabActivo === 'calendario' ? 'is-active' : ''}`}
           >
-            <option value="">Selecciona un funcionario</option>
-            {funcionarios.map((funcionario) => (
-              <option key={funcionario.id} value={funcionario.id}>
-                {funcionario.nombreCompleto}
-              </option>
-            ))}
-          </select>
-        </Card>
-      )}
+            Calendario Corporativo
+          </button>
+        )}
+      </nav>
+
+      {tabActivo === 'solicitudes' && (
+        <>
+          {puedeVerTodos && (
+            <Card className="mb-4">
+              <label className="form-label-ds" htmlFor="vacaciones-funcionario">
+                Funcionario
+              </label>
+              <select
+                id="vacaciones-funcionario"
+                className="input-ds"
+                value={funcionarioId}
+                onChange={(event) => {
+                  setSolicitudes(null)
+                  setFuncionarioId(event.target.value)
+                }}
+              >
+                <option value="">Selecciona un funcionario</option>
+                {funcionarios.map((funcionario) => (
+                  <option key={funcionario.id} value={funcionario.id}>
+                    {funcionario.nombreCompleto}
+                  </option>
+                ))}
+              </select>
+            </Card>
+          )}
 
       {saldo && (
         <>
@@ -409,6 +441,21 @@ export function VacacionesPage() {
           </Table>
         )}
       </Card>
+      </>
+      )}
+
+      {/* TAB 2: KARDEX POR GESTIÓN (HU-16) */}
+      {tabActivo === 'kardex' && (
+        <KardexView
+          funcionarioId={funcionarioId}
+          esRRHH={puedeVerTodos}
+          funcionarios={funcionarios}
+          onCambiarFuncionario={setFuncionarioId}
+        />
+      )}
+
+      {/* TAB 3: CALENDARIO CORPORATIVO (HU-16) */}
+      {tabActivo === 'calendario' && !esFuncionario && <CalendarioView />}
 
       <Modal
         isOpen={isModalOpen}

@@ -6,6 +6,7 @@ import type {
   ApiErrorPayload,
   Area,
   AreaInput,
+  BoletaPlanillaItem,
   CalendarioVacaciones,
   CambiarAsignacionInput,
   CambiarEstadoInput,
@@ -37,6 +38,7 @@ import type {
   PreviewPlantillaResponse,
   PruebaPorVencerItem,
   RatificarFuncionarioInput,
+  RectificarBoletaInput,
   RegistrarFuncionarioInput,
   RegistrarNovedadInput,
   Rol,
@@ -419,6 +421,19 @@ export class ApiService {
 
   static async calcularPlanilla(id: string): Promise<DetallePlanillaResponse> {
     return this.post<DetallePlanillaResponse>(`/api/periodos/${id}/calculo`)
+  }
+
+  // --- HU-22: Emisión Inmutable y Rectificación ---
+  static async emitirPeriodo(id: string): Promise<DetallePlanillaResponse> {
+    return this.post<DetallePlanillaResponse>(`/api/periodos/${id}/emision`)
+  }
+
+  static async rectificarBoleta(id: string, input: RectificarBoletaInput): Promise<BoletaPlanillaItem> {
+    return this.post<BoletaPlanillaItem>(`/api/boletas/${id}/rectificacion`, input)
+  }
+
+  static async getBoletaById(id: string): Promise<BoletaPlanillaItem> {
+    return this.get<BoletaPlanillaItem>(`/api/boletas/${id}`)
   }
 
   static async get<T>(path: string, options?: RequestInit): Promise<T> {

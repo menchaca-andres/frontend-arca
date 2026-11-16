@@ -593,6 +593,10 @@ export interface BoletaPlanillaItem {
   totalDescuentos: number;
   liquidoPagable: number;
   tieneAlerta: boolean;
+  hashSha256?: string | null;
+  boletaOriginalId?: string | null;
+  motivoRectificacion?: string | null;
+  emitidaEn?: string | null;
   detalles?: BoletaDetalleItem[];
 }
 
@@ -600,5 +604,9 @@ export interface DetallePlanillaResponse {
   periodo: PeriodoItem;
   resumen: ResumenPeriodoItem;
   boletas: BoletaPlanillaItem[];
+}
+
+export interface RectificarBoletaInput {
+  motivo: string;
 }
 

@@ -1,4 +1,4 @@
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, ShieldCheck } from 'lucide-react'
 import {
   Badge,
   Button,
@@ -23,13 +23,26 @@ interface DetalleBoletaModalProps {
 export function DetalleBoletaModal({ isOpen, onClose, boleta }: DetalleBoletaModalProps) {
   if (!boleta) return null
 
-  const { datosFuncionario, diasTrabajados, totalGanado, totalDescuentos, liquidoPagable, tieneAlerta, detalles = [] } = boleta
+  const {
+    datosFuncionario,
+    diasTrabajados,
+    totalGanado,
+    totalDescuentos,
+    liquidoPagable,
+    tieneAlerta,
+    detalles = [],
+    numero,
+    version = 1,
+    estado,
+    hashSha256,
+    motivoRectificacion,
+  } = boleta
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Desglose de Boleta — ${datosFuncionario?.nombres ?? ''} ${datosFuncionario?.apellidos ?? ''} (CA-05)`}
+      title={`Boleta ${numero ? `${numero} (v${version})` : 'Borrador'} — ${datosFuncionario?.nombres ?? ''} ${datosFuncionario?.apellidos ?? ''}`}
       size="xl"
       footer={
         <div className="modal-actions-right">
@@ -66,7 +79,29 @@ export function DetalleBoletaModal({ isOpen, onClose, boleta }: DetalleBoletaMod
           </div>
         )}
 
-        {/* Ficha rápida del funcionario y prorrateo (CA-03) */}
+        {/* Trazabilidad de Rectificación (HU-22 CA-05) */}
+        {version > 1 && (
+          <div
+            style={{
+              padding: '0.85rem 1.25rem',
+              backgroundColor: '#fff1f2',
+              border: '1px solid #fecdd3',
+              borderRadius: '8px',
+              color: '#9f1239',
+              fontSize: '0.875rem',
+            }}
+          >
+            <strong style={{ display: 'block', fontSize: '0.95rem', marginBottom: '2px' }}>
+              Boleta Rectificatoria — Versión {version} (CA-05)
+            </strong>
+            <span>
+              Esta boleta sustituye formalmente a la versión anterior. Motivo registrado:{' '}
+              <em>"{motivoRectificacion ?? 'Rectificación formal autorizada'}"</em>.
+            </span>
+          </div>
+        )}
+
+        {/* Ficha rápida del funcionario y correlativo (CA-03) */}
         <Card>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
             <div>
@@ -84,11 +119,11 @@ export function DetalleBoletaModal({ isOpen, onClose, boleta }: DetalleBoletaMod
             </div>
 
             <div>
-              <span className="stat-label">Sueldo Contratado</span>
-              <strong className="block font-mono text-slate-800">
-                {formatCurrency(datosFuncionario?.remuneracion ?? 0)}
-              </strong>
-              <span className="text-xs text-slate-500">Base mensual (30 días)</span>
+              <span className="stat-label">Correlativo Oficial</span>
+              <strong className="block font-mono text-slate-800">{numero ?? 'Sin emitir'}</strong>
+              <span className="text-xs text-slate-500">
+                Estado: <Badge variant={estado === 'EMITIDA' ? 'success' : estado === 'RECTIFICADA' ? 'neutral' : 'warning'}>{estado}</Badge>
+              </span>
             </div>
 
             <div>
@@ -101,6 +136,32 @@ export function DetalleBoletaModal({ isOpen, onClose, boleta }: DetalleBoletaMod
               </span>
             </div>
           </div>
+
+          {/* Huella Criptográfica SHA-256 (CA-03, CA-04) */}
+          {hashSha256 && (
+            <div
+              style={{
+                marginTop: '1rem',
+                padding: '0.75rem 1rem',
+                backgroundColor: '#f8fafc',
+                borderRadius: '6px',
+                border: '1px solid #e2e8f0',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+              }}
+            >
+              <ShieldCheck size={20} className="text-teal flex-shrink-0" />
+              <div style={{ overflow: 'hidden' }}>
+                <span className="stat-label" style={{ marginBottom: 0 }}>
+                  Huella Criptográfica Inmutable (SHA-256)
+                </span>
+                <span className="font-mono text-xs text-slate-700 block truncate" title={hashSha256}>
+                  {hashSha256}
+                </span>
+              </div>
+            </div>
+          )}
         </Card>
 
         {/* Detalle línea por línea (CA-04, CA-05) */}

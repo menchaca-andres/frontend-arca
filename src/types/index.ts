@@ -668,3 +668,74 @@ export interface PaginatedAuditoriaResponse {
   total: number;
 }
 
+// HU-25 Dashboard Ejecutivo
+export interface DashboardPersonalStats {
+  activos: number;
+  enPrueba: number;
+  bajasMes: number;
+  funcionariosPorArea: Array<{ area: string; cantidad: number }>;
+  periodosPruebaPorVencer: Array<{
+    id: string;
+    nombreCompleto: string;
+    ci: string;
+    diasRestantes: number;
+    fechaVencimiento: string;
+  }>;
+  cumplenGestionMes: Array<{
+    id: string;
+    nombres: string;
+    apellidos: string;
+    ci: string;
+    aniosCumplidos: number;
+    fechaIngreso: string;
+  }>;
+}
+
+export interface DashboardVacacionesStats {
+  solicitudesPendientes: number;
+  alertas: Array<{
+    id: string;
+    funcionarioId: string;
+    funcionarioNombre: string;
+    diasHabiles: number;
+    fechaInicio: string;
+    fechaFin: string;
+    createdAt: string;
+  }>;
+}
+
+export interface PeriodoMasaSalarialItem {
+  periodoId: string;
+  anio: number;
+  mes: number;
+  periodoNombre: string;
+  masaSalarial: number;
+  liquidoTotal: number;
+  totalBoletas: number;
+}
+
+export interface DashboardBoletasStats {
+  masaSalarialUltimoPeriodo: {
+    periodoId: string;
+    anio: number;
+    mes: number;
+    periodoNombre: string;
+    monto: number;
+    moneda: string;
+    totalBoletas: number;
+  } | null;
+  historialMasaSalarial: PeriodoMasaSalarialItem[];
+}
+
+export interface DashboardResponse {
+  personal: DashboardPersonalStats | null;
+  vacaciones: DashboardVacacionesStats | null;
+  boletas: DashboardBoletasStats | null;
+  servicios: {
+    personal: 'OK' | 'ERROR';
+    vacaciones: 'OK' | 'ERROR';
+    boletas: 'OK' | 'ERROR';
+  };
+  timestamp: string;
+}
+

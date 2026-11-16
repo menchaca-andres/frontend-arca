@@ -19,6 +19,7 @@ import type {
   CrearPlantillaInput,
   CrearUsuarioInput,
   CrearUsuarioResponse,
+  DashboardResponse,
   DarDeBajaInput,
   DetalleContratoItem,
   DetallePlanillaResponse,
@@ -498,6 +499,10 @@ export class ApiService {
 
   static async getEventoAuditoriaById(id: string): Promise<EventoAuditoriaItem> {
     return this.get<EventoAuditoriaItem>(`/api/v1/auditoria/${id}`)
+  }
+
+  static async getDashboard(): Promise<DashboardResponse> {
+    return this.get<DashboardResponse>('/api/dashboard')
   }
 
   static async get<T>(path: string, options?: RequestInit): Promise<T> {

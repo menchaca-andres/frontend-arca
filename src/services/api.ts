@@ -28,6 +28,7 @@ import type {
   FuncionarioPadronItem,
   GenerarContratoInput,
   KardexVacaciones,
+  ListadoBoletasResponse,
   LoginResponse,
   NovedadItem,
   Paginated,
@@ -423,7 +424,7 @@ export class ApiService {
     return this.post<DetallePlanillaResponse>(`/api/periodos/${id}/calculo`)
   }
 
-  // --- HU-22: Emisión Inmutable y Rectificación ---
+  // --- HU-22 y HU-23: Emisión Inmutable, Rectificación y Consulta/Descarga de Boletas ---
   static async emitirPeriodo(id: string): Promise<DetallePlanillaResponse> {
     return this.post<DetallePlanillaResponse>(`/api/periodos/${id}/emision`)
   }
@@ -432,8 +433,50 @@ export class ApiService {
     return this.post<BoletaPlanillaItem>(`/api/boletas/${id}/rectificacion`, input)
   }
 
+  static async getBoletas(params?: {
+    periodoId?: string
+    funcionarioId?: string
+    estado?: string
+  }): Promise<ListadoBoletasResponse> {
+    const searchParams = new URLSearchParams()
+    if (params?.periodoId) searchParams.set('periodoId', params.periodoId)
+    if (params?.funcionarioId) searchParams.set('funcionarioId', params.funcionarioId)
+    if (params?.estado) searchParams.set('estado', params.estado)
+    const qs = searchParams.toString() ? `?${searchParams.toString()}` : ''
+    return this.get<ListadoBoletasResponse>(`/api/boletas${qs}`)
+  }
+
   static async getBoletaById(id: string): Promise<BoletaPlanillaItem> {
     return this.get<BoletaPlanillaItem>(`/api/boletas/${id}`)
+  }
+
+  static async descargarBoletaPdf(id: string, numero?: string | null): Promise<string | null> {
+    const token = this.getToken()
+    const headers = new Headers()
+    if (token) headers.set('Authorization', `Bearer ${token}`)
+
+    const response = await fetch(`${GATEWAY_ORIGIN}/api/boletas/${id}/pdf`, {
+      method: 'GET',
+      headers,
+    })
+
+    if (!response.ok) {
+      throw new ApiError('Error al descargar el PDF de la boleta de pago', 'DOWNLOAD_ERROR', response.status)
+    }
+
+    const sha256 = response.headers.get('x-boleta-sha256') ?? response.headers.get('X-Boleta-SHA256')
+
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `Boleta-${numero || id}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+
+    return sha256
   }
 
   static async get<T>(path: string, options?: RequestInit): Promise<T> {

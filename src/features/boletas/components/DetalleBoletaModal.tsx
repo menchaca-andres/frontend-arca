@@ -1,4 +1,4 @@
-import { AlertTriangle, ShieldCheck } from 'lucide-react'
+import { AlertTriangle, Download, ExternalLink, ShieldCheck } from 'lucide-react'
 import {
   Badge,
   Button,
@@ -18,9 +18,17 @@ interface DetalleBoletaModalProps {
   isOpen: boolean
   onClose: () => void
   boleta: BoletaPlanillaItem | null
+  onVerVersionVigente?: (id: string) => void
+  onDescargarPdf?: (boleta: BoletaPlanillaItem) => void
 }
 
-export function DetalleBoletaModal({ isOpen, onClose, boleta }: DetalleBoletaModalProps) {
+export function DetalleBoletaModal({
+  isOpen,
+  onClose,
+  boleta,
+  onVerVersionVigente,
+  onDescargarPdf,
+}: DetalleBoletaModalProps) {
   if (!boleta) return null
 
   const {
@@ -36,6 +44,8 @@ export function DetalleBoletaModal({ isOpen, onClose, boleta }: DetalleBoletaMod
     estado,
     hashSha256,
     motivoRectificacion,
+    versionVigente,
+    historialVersiones,
   } = boleta
 
   return (
@@ -45,7 +55,16 @@ export function DetalleBoletaModal({ isOpen, onClose, boleta }: DetalleBoletaMod
       title={`Boleta ${numero ? `${numero} (v${version})` : 'Borrador'} — ${datosFuncionario?.nombres ?? ''} ${datosFuncionario?.apellidos ?? ''}`}
       size="xl"
       footer={
-        <div className="modal-actions-right">
+        <div className="modal-actions-right" style={{ display: 'flex', gap: '0.5rem' }}>
+          {estado === 'EMITIDA' && onDescargarPdf && (
+            <Button
+              variant="outline"
+              leftIcon={<Download size={14} />}
+              onClick={() => onDescargarPdf(boleta)}
+            >
+              Descargar PDF
+            </Button>
+          )}
           <Button variant="outline" onClick={onClose}>
             Cerrar
           </Button>
@@ -53,6 +72,44 @@ export function DetalleBoletaModal({ isOpen, onClose, boleta }: DetalleBoletaMod
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {/* Banner de Enlace a Versión Vigente (HU-23 CA-03) */}
+        {estado === 'RECTIFICADA' && versionVigente && (
+          <div
+            style={{
+              padding: '0.85rem 1.25rem',
+              backgroundColor: '#eff6ff',
+              border: '1px solid #bfdbfe',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '1rem',
+              color: '#1e40af',
+              fontSize: '0.875rem',
+            }}
+          >
+            <div>
+              <strong style={{ display: 'block', fontSize: '0.95rem' }}>
+                Boleta Rectificada — Reemplazada por Versión {versionVigente.version} (CA-03)
+              </strong>
+              <span>
+                Esta boleta es un comprobante histórico. La versión formal vigente es la{' '}
+                <strong>{versionVigente.numero ?? `v${versionVigente.version}`}</strong> con líquido pagable de {formatCurrency(versionVigente.liquidoPagable)}.
+              </span>
+            </div>
+            {onVerVersionVigente && (
+              <Button
+                variant="outline"
+                size="sm"
+                leftIcon={<ExternalLink size={13} />}
+                onClick={() => onVerVersionVigente(versionVigente.id)}
+              >
+                Ver Vigente
+              </Button>
+            )}
+          </div>
+        )}
+
         {/* Alerta de líquido negativo (CA-06) */}
         {tieneAlerta && (
           <div
@@ -237,6 +294,52 @@ export function DetalleBoletaModal({ isOpen, onClose, boleta }: DetalleBoletaMod
             </div>
           </div>
         </Card>
+
+        {/* Historial de Versiones (HU-23 CA-03) */}
+        {historialVersiones && historialVersiones.length > 1 && (
+          <Card title="Historial de Versiones de la Boleta (CA-03)">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Versión</TableHead>
+                  <TableHead>N° Boleta</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead>Motivo de Rectificación</TableHead>
+                  <TableHead className="text-right">Acción</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {historialVersiones.map((h) => (
+                  <TableRow key={h.id}>
+                    <TableCell className="font-bold">v{h.version}</TableCell>
+                    <TableCell className="font-mono font-bold text-slate-800">{h.numero ?? 'S/N'}</TableCell>
+                    <TableCell>
+                      <Badge variant={h.estado === 'EMITIDA' ? 'success' : h.estado === 'RECTIFICADA' ? 'neutral' : 'warning'}>
+                        {h.estado}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-xs text-slate-600">
+                      {h.motivoRectificacion ?? (h.version === 1 ? 'Emisión inicial' : '—')}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {h.id !== boleta.id && onVerVersionVigente ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onVerVersionVigente(h.id)}
+                        >
+                          Ver Boleta
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-slate-400 font-semibold">Viendo actual</span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+        )}
       </div>
     </Modal>
   )

@@ -598,6 +598,32 @@ export interface BoletaPlanillaItem {
   motivoRectificacion?: string | null;
   emitidaEn?: string | null;
   detalles?: BoletaDetalleItem[];
+  periodo?: PeriodoItem;
+  versionVigente?: {
+    id: string;
+    numero: string | null;
+    version: number;
+    estado: 'BORRADOR' | 'EMITIDA' | 'RECTIFICADA';
+    liquidoPagable: number;
+  } | null;
+  historialVersiones?: Array<{
+    id: string;
+    numero: string | null;
+    version: number;
+    estado: 'BORRADOR' | 'EMITIDA' | 'RECTIFICADA';
+    motivoRectificacion: string | null;
+    createdAt?: string;
+  }>;
+}
+
+export interface ListadoBoletasResponse {
+  boletas: BoletaPlanillaItem[];
+  resumen: {
+    totalGanado: number;
+    totalDescuentos: number;
+    totalLiquido: number;
+    cantidadBoletas: number;
+  };
 }
 
 export interface DetallePlanillaResponse {

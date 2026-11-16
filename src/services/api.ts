@@ -22,7 +22,9 @@ import type {
   DarDeBajaInput,
   DetalleContratoItem,
   DetallePlanillaResponse,
+  EventoAuditoriaItem,
   FichaFuncionario,
+  FiltrosAuditoria,
   FiltrosContratos,
   FiltrosPadron,
   FuncionarioPadronItem,
@@ -32,6 +34,7 @@ import type {
   LoginResponse,
   NovedadItem,
   Paginated,
+  PaginatedAuditoriaResponse,
   PeriodoItem,
   PlantillaItem,
   PlantillaVersionItem,
@@ -477,6 +480,24 @@ export class ApiService {
     document.body.removeChild(a)
 
     return sha256
+  }
+
+  static async getEventosAuditoria(filtros?: FiltrosAuditoria): Promise<PaginatedAuditoriaResponse> {
+    const searchParams = new URLSearchParams()
+    if (filtros?.usuarioId) searchParams.set('usuarioId', filtros.usuarioId)
+    if (filtros?.servicio) searchParams.set('servicio', filtros.servicio)
+    if (filtros?.desde) searchParams.set('desde', filtros.desde)
+    if (filtros?.hasta) searchParams.set('hasta', filtros.hasta)
+    if (filtros?.resultado) searchParams.set('resultado', filtros.resultado)
+    if (filtros?.metodo) searchParams.set('metodo', filtros.metodo)
+    if (filtros?.page) searchParams.set('page', String(filtros.page))
+    if (filtros?.pageSize) searchParams.set('pageSize', String(filtros.pageSize))
+    const qs = searchParams.toString() ? `?${searchParams.toString()}` : ''
+    return this.get<PaginatedAuditoriaResponse>(`/api/v1/auditoria${qs}`)
+  }
+
+  static async getEventoAuditoriaById(id: string): Promise<EventoAuditoriaItem> {
+    return this.get<EventoAuditoriaItem>(`/api/v1/auditoria/${id}`)
   }
 
   static async get<T>(path: string, options?: RequestInit): Promise<T> {

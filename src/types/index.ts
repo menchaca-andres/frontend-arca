@@ -636,3 +636,35 @@ export interface RectificarBoletaInput {
   motivo: string;
 }
 
+export interface EventoAuditoriaItem {
+  id: string;
+  fecha: string;
+  usuarioId: string | null;
+  rol: Rol | string | null;
+  metodo: string;
+  ruta: string;
+  servicio: string;
+  recursoId: string | null;
+  statusCode: number;
+  ip: string | null;
+  requestId: string;
+}
+
+export interface FiltrosAuditoria {
+  usuarioId?: string;
+  servicio?: string;
+  desde?: string;
+  hasta?: string;
+  resultado?: 'EXITO' | 'ERROR';
+  metodo?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface PaginatedAuditoriaResponse {
+  data: EventoAuditoriaItem[];
+  page: number;
+  pageSize: number;
+  total: number;
+}
+

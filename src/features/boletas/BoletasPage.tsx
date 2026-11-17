@@ -1510,8 +1510,8 @@ export function BoletasPage() {
                             </Button>
                           )}
 
-                          {/* Botón Rectificar (HU-22 CA-05) */}
-                          {puedeGestionar && b.estado === 'EMITIDA' && (
+                          {/* Botón Rectificar ocultado temporalmente */}
+                          {false && puedeGestionar && b.estado === 'EMITIDA' && (
                             <Button
                               variant="outline"
                               size="sm"

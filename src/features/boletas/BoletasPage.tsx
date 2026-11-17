@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   AlertCircle,
   AlertTriangle,
@@ -108,6 +108,14 @@ export function BoletasPage() {
   const [calculandoPlanilla, setCalculandoPlanilla] = useState(false)
   const [emitiendoPlanilla, setEmitiendoPlanilla] = useState(false)
 
+  // Referencias para evitar re-render loops y almacenar cálculos de la sesión
+  const periodosRef = useRef<PeriodoItem[]>(periodos)
+  useEffect(() => {
+    periodosRef.current = periodos
+  }, [periodos])
+
+  const planillasCacheRef = useRef<Record<string, DetallePlanillaResponse>>({})
+
   // Modales
   const [isAbrirPeriodoOpen, setIsAbrirPeriodoOpen] = useState(false)
   const [boletaParaDetalle, setBoletaParaDetalle] = useState<BoletaPlanillaItem | null>(null)
@@ -178,27 +186,124 @@ export function BoletasPage() {
   // Cargar Detalle de Planilla del período seleccionado (HU-21, HU-22)
   const cargarPlanillaPeriodo = useCallback(async (id: string) => {
     if (!id) return
+    // Si ya existe en caché de sesión un cálculo o emisión previo para este período, usarlo directamente
+    if (planillasCacheRef.current[id]) {
+      setDetallePlanilla(planillasCacheRef.current[id])
+      return
+    }
+
     setCargandoPlanilla(true)
     try {
       const data = await ApiService.getPeriodoDetalle(id)
+      planillasCacheRef.current[id] = data
       setDetallePlanilla(data)
     } catch {
       // Fallback de demostración según el período
-      const p = periodos.find((item) => item.id === id) || PERIODOS_SEMILLA[0]
-      if (p.id === 'per-2026-11' || (p.estado === 'BORRADOR' && p.id !== 'per-2026-10')) {
-        setDetallePlanilla({
+      const p = periodosRef.current.find((item) => item.id === id) || PERIODOS_SEMILLA[0]
+      if (p.fechaCalculo && p.resumen && p.resumen.cantidadBoletas > 0) {
+        // Si el período ya fue calculado en el padrón
+        const detalleExistente: DetallePlanillaResponse = {
           periodo: p,
-          resumen: {
-            totalGanado: 0,
-            totalDescuentos: 0,
-            totalLiquido: 0,
-            cantidadBoletas: 0,
-            cantidadAlertas: 0,
-          },
-          boletas: [],
-        })
-      } else {
-        setDetallePlanilla({
+          resumen: p.resumen,
+          boletas: [
+            {
+              id: `b-${p.id}-1`,
+              periodoId: p.id,
+              funcionarioId: '11111111-1111-4111-8111-111111111102',
+              numero: p.estado === 'EMITIDO' ? `BP-${p.anio}${String(p.mes).padStart(2, '0')}-0001` : null,
+              version: 1,
+              estado: p.estado === 'EMITIDO' ? 'EMITIDA' : 'BORRADOR',
+              datosFuncionario: {
+                nombres: 'Carlos',
+                apellidos: 'Mamani Flores',
+                documentoIdentidad: '9000002',
+                cargo: 'Asistente Administrativo',
+                area: 'Administración',
+                remuneracion: 8500,
+              },
+              diasTrabajados: 30,
+              totalGanado: 8500,
+              totalDescuentos: 1080.35,
+              liquidoPagable: 7419.65,
+              tieneAlerta: false,
+              hashSha256: p.estado === 'EMITIDO' ? '9f83acde92348571029384756102938475610293847561029384756102938475' : null,
+              detalles: [
+                {
+                  id: 'd-1',
+                  conceptoId: 'c-1',
+                  conceptoCodigo: 'HABER_BASICO',
+                  conceptoNombre: 'Haber básico',
+                  tipo: 'HABER',
+                  baseMonto: 8500,
+                  porcentaje: null,
+                  monto: 8500,
+                  orden: 1,
+                },
+                {
+                  id: 'd-2',
+                  conceptoId: 'c-2',
+                  conceptoCodigo: 'APORTE_LABORAL',
+                  conceptoNombre: 'Aporte laboral AFP (12.71%)',
+                  tipo: 'DESCUENTO',
+                  baseMonto: 8500,
+                  porcentaje: 12.71,
+                  monto: 1080.35,
+                  orden: 100,
+                },
+              ],
+            },
+            {
+              id: `b-${p.id}-2`,
+              periodoId: p.id,
+              funcionarioId: '11111111-1111-4111-8111-111111111103',
+              numero: p.estado === 'EMITIDO' ? `BP-${p.anio}${String(p.mes).padStart(2, '0')}-0002` : null,
+              version: 1,
+              estado: p.estado === 'EMITIDO' ? 'EMITIDA' : 'BORRADOR',
+              datosFuncionario: {
+                nombres: 'Daniela',
+                apellidos: 'Mendoza Vargas',
+                documentoIdentidad: '9000003',
+                cargo: 'Desarrollador',
+                area: 'Sistemas',
+                remuneracion: 7200,
+              },
+              diasTrabajados: 30,
+              totalGanado: 7200,
+              totalDescuentos: 915.12,
+              liquidoPagable: 6284.88,
+              tieneAlerta: false,
+              hashSha256: p.estado === 'EMITIDO' ? '8e71bade82736451029384756102938475610293847561029384756102938476' : null,
+              detalles: [
+                {
+                  id: 'd-3',
+                  conceptoId: 'c-1',
+                  conceptoCodigo: 'HABER_BASICO',
+                  conceptoNombre: 'Haber básico',
+                  tipo: 'HABER',
+                  baseMonto: 7200,
+                  porcentaje: null,
+                  monto: 7200,
+                  orden: 1,
+                },
+                {
+                  id: 'd-4',
+                  conceptoId: 'c-2',
+                  conceptoCodigo: 'APORTE_LABORAL',
+                  conceptoNombre: 'Aporte laboral AFP (12.71%)',
+                  tipo: 'DESCUENTO',
+                  baseMonto: 7200,
+                  porcentaje: 12.71,
+                  monto: 915.12,
+                  orden: 100,
+                },
+              ],
+            },
+          ],
+        }
+        planillasCacheRef.current[id] = detalleExistente
+        setDetallePlanilla(detalleExistente)
+      } else if (p.id === 'per-2026-10' || p.estado === 'EMITIDO') {
+        const detalleOctubre: DetallePlanillaResponse = {
           periodo: p,
           resumen: {
             totalGanado: 24700.0,
@@ -347,12 +452,27 @@ export function BoletasPage() {
               ],
             },
           ],
+        }
+        planillasCacheRef.current[id] = detalleOctubre
+        setDetallePlanilla(detalleOctubre)
+      } else {
+        // Período no calculado aún
+        setDetallePlanilla({
+          periodo: p,
+          resumen: {
+            totalGanado: 0,
+            totalDescuentos: 0,
+            totalLiquido: 0,
+            cantidadBoletas: 0,
+            cantidadAlertas: 0,
+          },
+          boletas: [],
         })
       }
     } finally {
       setCargandoPlanilla(false)
     }
-  }, [periodos])
+  }, [])
 
   // Cargar Conceptos (HU-20)
   const cargarConceptos = useCallback(async () => {
@@ -506,14 +626,26 @@ export function BoletasPage() {
     setCalculandoPlanilla(true)
     try {
       const resultado = await ApiService.calcularPlanilla(periodoSeleccionadoId)
+      planillasCacheRef.current[periodoSeleccionadoId] = resultado
       setDetallePlanilla(resultado)
-      cargarPeriodos()
+      setPeriodos((prev) =>
+        prev.map((item) =>
+          item.id === periodoSeleccionadoId
+            ? {
+                ...item,
+                ...resultado.periodo,
+                fechaCalculo: resultado.periodo?.fechaCalculo || new Date().toISOString(),
+                resumen: resultado.resumen,
+              }
+            : item,
+        ),
+      )
       toast.success(
         `Planilla calculada exitosamente (${resultado.resumen.cantidadBoletas} funcionarios procesados, ${resultado.resumen.cantidadAlertas} alertas)`,
         'Cálculo Exitoso (HU-21)',
       )
-    } catch (err: unknown) {
-      const p = periodos.find((item) => item.id === periodoSeleccionadoId) ?? periodos[0]
+    } catch {
+      const p = periodosRef.current.find((item) => item.id === periodoSeleccionadoId) ?? periodosRef.current[0]
       const boletasCalculadas: BoletaPlanillaItem[] = [
         {
           id: `b-${p.id}-1`,
@@ -620,12 +752,14 @@ export function BoletasPage() {
         fechaCalculo: new Date().toISOString(),
         resumen: resumenCalculado,
       }
-      setDetallePlanilla({
+      const resultadoCalculado: DetallePlanillaResponse = {
         periodo: pCalculado,
         resumen: resumenCalculado,
         boletas: boletasCalculadas,
-      })
-      setPeriodos((prev) => prev.map((item) => item.id === p.id ? pCalculado : item))
+      }
+      planillasCacheRef.current[periodoSeleccionadoId] = resultadoCalculado
+      setDetallePlanilla(resultadoCalculado)
+      setPeriodos((prev) => prev.map((item) => (item.id === p.id ? pCalculado : item)))
       toast.success(
         'Planilla calculada exitosamente (2 funcionarios procesados, 0 alertas)',
         'Cálculo Exitoso (HU-21)',
@@ -654,8 +788,11 @@ export function BoletasPage() {
     setEmitiendoPlanilla(true)
     try {
       const resultado = await ApiService.emitirPeriodo(periodoSeleccionadoId)
+      planillasCacheRef.current[periodoSeleccionadoId] = resultado
       setDetallePlanilla(resultado)
-      await cargarPeriodos()
+      setPeriodos((prev) =>
+        prev.map((p) => (p.id === periodoSeleccionadoId ? { ...p, ...resultado.periodo, resumen: resultado.resumen } : p)),
+      )
       toast.success(
         `Período emitido exitosamente. Se generaron ${resultado.resumen.cantidadBoletas} boletas inmutables con hash SHA-256`,
         'Emisión Formal Exitosa (HU-22)',
@@ -673,12 +810,14 @@ export function BoletasPage() {
           estado: 'EMITIDO' as const,
           fechaEmision: new Date().toISOString(),
         }
-        setDetallePlanilla({
+        const detalleEmitido: DetallePlanillaResponse = {
           ...detallePlanilla,
           periodo: periodoEmitido,
           boletas: boletasEmitidasSim,
-        })
-        setPeriodos((prev) => prev.map((p) => p.id === periodoActual.id ? periodoEmitido : p))
+        }
+        planillasCacheRef.current[periodoActual.id] = detalleEmitido
+        setDetallePlanilla(detalleEmitido)
+        setPeriodos((prev) => prev.map((p) => (p.id === periodoActual.id ? periodoEmitido : p)))
         toast.success(
           `Período emitido exitosamente. Se generaron ${boletasEmitidasSim.length} boletas inmutables con hash SHA-256`,
           'Emisión Formal Exitosa (HU-22)',
@@ -822,6 +961,7 @@ export function BoletasPage() {
                 variant="outline"
                 leftIcon={<RefreshCw size={16} />}
                 onClick={() => {
+                  delete planillasCacheRef.current[periodoSeleccionadoId]
                   cargarPeriodos()
                   cargarPlanillaPeriodo(periodoSeleccionadoId)
                 }}

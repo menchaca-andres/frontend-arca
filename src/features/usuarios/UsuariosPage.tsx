@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Check, Copy, Plus, RefreshCw, ShieldAlert, UserCheck, UserX } from 'lucide-react'
+import { Check, Copy, Plus, RefreshCw, ShieldAlert } from 'lucide-react'
 import {
   Badge,
   Button,
@@ -64,7 +64,7 @@ export function UsuariosPage() {
   const cargarFuncionarios = useCallback(async () => {
     try {
       setCargandoFuncionarios(true)
-      const data = await ApiService.getFuncionarios()
+      const data = await ApiService.getFuncionariosParaSelector()
       setFuncionarios(data)
     } catch {
       // Ignorar error si aún no hay funcionarios o endpoint en desarrollo
@@ -342,7 +342,7 @@ export function UsuariosPage() {
                                 : 'Activar cuenta'
                           }
                         >
-                          {u.activo ? <UserX size={14} /> : <UserCheck size={14} />}
+                          {u.activo ? 'Desactivar' : 'Activar'}
                         </Button>
                       </div>
                     </TableCell>

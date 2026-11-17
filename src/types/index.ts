@@ -132,19 +132,37 @@ export interface FichaFuncionario {
   fechaBaja: string | null
   motivoBaja?: MotivoBaja | null
   detalleBaja?: string | null
-  asignacionVigente: {
-    id: string
-    cargoId: string
-    cargoNombre: string
-    areaId: string
-    areaNombre: string
-    remuneracion: number
-    vigenteDesde: string
-    vigenteHasta: string | null
-    motivo: string
-  } | null
+  asignacionVigente: AsignacionFuncionario | null
+  historialAsignaciones: AsignacionFuncionario[]
   createdAt: string
   updatedAt: string
+}
+
+export type MotivoAsignacion = 'INGRESO' | 'ASCENSO' | 'TRASLADO' | 'INCREMENTO' | 'CORRECCION'
+
+export interface AsignacionFuncionario {
+  id: string
+  cargoId: string
+  cargoNombre: string
+  areaId: string
+  areaNombre: string
+  remuneracion: number
+  vigenteDesde: string
+  vigenteHasta: string | null
+  motivo: MotivoAsignacion
+}
+
+export interface CambiarAsignacionInput {
+  cargoId?: string
+  remuneracion?: number
+  vigenteDesde: string
+  motivo: Exclude<MotivoAsignacion, 'INGRESO'>
+}
+
+export interface ActualizarContactoInput {
+  correo?: string | null
+  telefono?: string | null
+  direccion?: string | null
 }
 
 export interface FuncionarioResumen {
@@ -157,6 +175,120 @@ export interface FuncionarioResumen {
   diasPrueba?: number
 }
 
+export interface FuncionarioPadronItem extends FuncionarioResumen {
+  fechaIngreso: string
+  diasPrueba: number
+  areaId: string | null
+  areaNombre: string | null
+  cargoId: string | null
+  cargoNombre: string | null
+}
+
+export type FiltroEstadoPadron = EstadoFuncionario | 'TODOS'
+
+export interface FiltrosPadron {
+  q?: string
+  areaId?: string
+  cargoId?: string
+  estado?: FiltroEstadoPadron
+  page?: number
+  pageSize?: number
+}
+
+export interface Paginated<T> {
+  data: T[]
+  page: number
+  pageSize: number
+  total: number
+}
+
+export interface SaldoVacaciones {
+  funcionarioId: string
+  funcionario: string
+  elegible: boolean
+  motivo: string | null
+  gestiones: number
+  diasGanados: number
+  diasUsados: number
+  diasReservados: number
+  diasDisponibles: number
+  fechaProximaGestion: string
+}
+
+export interface SolicitudVacacion {
+  id: string
+  funcionarioId: string
+  funcionarioNombre: string
+  fechaInicio: string
+  fechaFin: string
+  diasHabiles: number
+  estado: 'PENDIENTE' | 'APROBADA' | 'RECHAZADA'
+  motivoRechazo?: string | null
+  registradoPor: string
+  resueltoPor?: string | null
+  fechaResolucion?: string | null
+  createdAt: string
+}
+
+/** HU-15 CA-01: solicitud de la bandeja con el saldo actual del funcionario (null si no se pudo calcular). */
+export interface SolicitudPendiente extends SolicitudVacacion {
+  saldo: SaldoVacaciones | null
+}
+
+/** HU-16: tipos para Kardex por gestión y Calendario mensual */
+export interface SolicitudKardexItem {
+  id: string
+  funcionarioId: string
+  funcionarioNombre: string
+  fechaInicio: string
+  fechaFin: string
+  diasHabiles: number
+  estado: 'PENDIENTE' | 'APROBADA' | 'RECHAZADA'
+  motivoRechazo?: string | null
+  registradoPor: string
+  resueltoPor?: string | null
+  fechaResolucion?: string | null
+  createdAt: string
+}
+
+export interface GestionKardex {
+  numero: number
+  periodoInicio: string
+  periodoFin: string
+  cumplida: boolean
+  diasGanados: number
+  diasUsados: number
+  diasReservados: number
+  diasDisponibles: number
+  solicitudes: SolicitudKardexItem[]
+}
+
+export interface KardexVacaciones {
+  funcionarioId: string
+  funcionarioNombre: string
+  fechaIngreso: string
+  gestionesCumplidas: number
+  diasGanadosTotal: number
+  diasUsadosTotal: number
+  diasReservadosTotal: number
+  diasDisponiblesTotal: number
+  gestiones: GestionKardex[]
+}
+
+export interface FeriadoMesItem {
+  fecha: string
+  descripcion: string
+}
+
+export interface CalendarioVacaciones {
+  mes: string
+  desde: string
+  hasta: string
+  totalAprobadas: number
+  solicitudes: SolicitudKardexItem[]
+  feriados: FeriadoMesItem[]
+}
+
 export interface PruebaPorVencerItem extends FuncionarioResumen {
   fechaIngreso: string
   diasPrueba: number
@@ -164,3 +296,446 @@ export interface PruebaPorVencerItem extends FuncionarioResumen {
   diasRestantes: number
   listoParaRatificar: boolean
 }
+
+export type TipoContrato = 'INDEFINIDO' | 'PLAZO_FIJO'
+
+export interface PlantillaVersionItem {
+  id: string
+  version: number
+  contenido: string
+  variables: string[]
+  activa: boolean
+  creadoPor: string
+  createdAt: string
+}
+
+export interface PlantillaItem {
+  id: string
+  codigo: string
+  nombre: string
+  tipo: TipoContrato
+  activo: boolean
+  versionActiva: PlantillaVersionItem | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CrearPlantillaInput {
+  codigo: string
+  nombre: string
+  tipo: TipoContrato
+  contenido: string
+}
+
+export interface ActualizarPlantillaInput {
+  nombre?: string
+  tipo?: TipoContrato
+  contenido: string
+}
+
+export interface PreviewPlantillaResponse {
+  contenidoRenderizado: string
+  variables: string[]
+}
+
+// Contratos de Funcionarios (HU-18 / HU-19)
+export type EstadoContrato = 'VIGENTE' | 'REEMPLAZADO' | 'ANULADO'
+
+export interface PreviewContratoInput {
+  funcionarioId: string
+  plantillaId?: string
+}
+
+export interface GenerarContratoInput {
+  funcionarioId: string
+  plantillaId?: string
+}
+
+export interface VistaPreviaContrato {
+  plantilla: {
+    id: string
+    nombre: string
+    tipo: TipoContrato
+    version: number
+  }
+  funcionario: {
+    id: string
+    nombres: string
+    apellidos: string
+    documentoIdentidad: string
+    fechaIngreso: string
+    cargo: string
+    area: string
+    remuneracion?: { monto: number; moneda: string }
+    diasPrueba?: number
+    estado: string
+  }
+  contexto: Record<string, unknown>
+  contenidoRenderizado: string
+  fechaEstimadaEmision: string
+}
+
+export interface ContratoItem {
+  id: string
+  numero: string
+  plantillaVersionId: string
+  funcionarioId: string
+  version: number
+  estado: EstadoContrato
+  datos: Record<string, unknown>
+  contenidoRenderizado: string
+  hashSha256: string
+  generadoPor: string
+  createdAt: string
+  updatedAt: string
+  plantillaVersion?: {
+    id: string
+    plantillaId: string
+    version: number
+    plantilla?: {
+      id: string
+      nombre: string
+      tipo: TipoContrato
+    }
+  }
+}
+
+export interface FiltrosContratos {
+  funcionarioId?: string
+  plantillaId?: string
+  estado?: EstadoContrato | 'TODOS'
+  desde?: string
+  hasta?: string
+}
+
+export interface DetalleContratoItem extends ContratoItem {
+  historialVersiones: ContratoItem[]
+}
+
+
+
+export type TipoConcepto = 'HABER' | 'DESCUENTO';
+export type FormaCalculo = 'MONTO_FIJO' | 'PORCENTAJE' | 'SISTEMA';
+export type BaseCalculo = 'HABER_BASICO' | 'TOTAL_GANADO';
+
+export interface ConceptoItem {
+  id: string;
+  codigo: string;
+  nombre: string;
+  tipo: TipoConcepto;
+  formaCalculo: FormaCalculo;
+  valor: number | null;
+  base: BaseCalculo | null;
+  automatico: boolean;
+  esSistema: boolean;
+  orden: number;
+  activo: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CrearConceptoInput {
+  codigo: string;
+  nombre: string;
+  tipo: TipoConcepto;
+  formaCalculo: FormaCalculo;
+  valor?: number | null;
+  base?: BaseCalculo | null;
+  automatico: boolean;
+  orden: number;
+}
+
+export interface ActualizarConceptoInput {
+  nombre?: string;
+  formaCalculo?: FormaCalculo;
+  valor?: number | null;
+  base?: BaseCalculo | null;
+  automatico?: boolean;
+  orden?: number;
+  activo?: boolean;
+}
+
+export interface NovedadItem {
+  id: string;
+  anio: number;
+  mes: number;
+  funcionarioId: string;
+  conceptoId: string;
+  concepto: ConceptoItem;
+  monto: number;
+  descripcion: string | null;
+  registradoPor: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RegistrarNovedadInput {
+  anio: number;
+  mes: number;
+  funcionarioId: string;
+  conceptoId: string;
+  monto: number;
+  descripcion?: string | null;
+}
+
+export const FUNCIONARIOS_SEMILLA_PADRON: FuncionarioPadronItem[] = [
+  {
+    id: '11111111-1111-4111-8111-111111111101',
+    ci: '9000001',
+    ciExpedido: 'CB',
+    nombreCompleto: 'Lucía Vargas Rojas',
+    estado: 'EN_PRUEBA',
+    fechaIngreso: '2026-09-01',
+    diasPrueba: 90,
+    areaId: 'area-1',
+    areaNombre: 'Operaciones',
+    cargoId: 'cargo-1',
+    cargoNombre: 'Operador',
+  },
+  {
+    id: '11111111-1111-4111-8111-111111111102',
+    ci: '9000002',
+    ciExpedido: 'LP',
+    nombreCompleto: 'Carlos Mamani Flores',
+    estado: 'RATIFICADO',
+    fechaIngreso: '2026-08-01',
+    diasPrueba: 90,
+    areaId: 'area-2',
+    areaNombre: 'Administración',
+    cargoId: 'cargo-2',
+    cargoNombre: 'Asistente Administrativo',
+  },
+  {
+    id: '11111111-1111-4111-8111-111111111103',
+    ci: '9000003',
+    ciExpedido: 'SC',
+    nombreCompleto: 'Daniela Mendoza Vargas',
+    estado: 'RATIFICADO',
+    fechaIngreso: '2026-07-15',
+    diasPrueba: 90,
+    areaId: 'area-3',
+    areaNombre: 'Sistemas',
+    cargoId: 'cargo-3',
+    cargoNombre: 'Desarrollador',
+  },
+  {
+    id: '11111111-1111-4111-8111-111111111104',
+    ci: '9000004',
+    ciExpedido: 'LP',
+    nombreCompleto: 'Rodrigo Quispe Choque',
+    estado: 'RATIFICADO',
+    fechaIngreso: '2026-06-01',
+    diasPrueba: 90,
+    areaId: 'area-1',
+    areaNombre: 'Operaciones',
+    cargoId: 'cargo-1',
+    cargoNombre: 'Supervisor de Operaciones',
+  },
+];
+
+// --- HU-21: Planilla del Período y Boletas ---
+
+export interface ResumenPeriodoItem {
+  totalGanado: number;
+  totalDescuentos: number;
+  totalLiquido: number;
+  cantidadBoletas: number;
+  cantidadAlertas: number;
+}
+
+export interface PeriodoItem {
+  id: string;
+  anio: number;
+  mes: number;
+  estado: 'BORRADOR' | 'EMITIDO';
+  fechaCalculo: string | null;
+  fechaEmision: string | null;
+  emitidoPor: string | null;
+  resumen?: ResumenPeriodoItem;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AbrirPeriodoInput {
+  anio: number;
+  mes: number;
+}
+
+export interface BoletaDetalleItem {
+  id: string;
+  conceptoId: string;
+  conceptoCodigo: string;
+  conceptoNombre: string;
+  tipo: 'HABER' | 'DESCUENTO';
+  baseMonto: number | null;
+  porcentaje: number | null;
+  monto: number;
+  orden: number;
+}
+
+export interface BoletaPlanillaItem {
+  id: string;
+  periodoId: string;
+  funcionarioId: string;
+  numero: string | null;
+  version: number;
+  estado: 'BORRADOR' | 'EMITIDA' | 'RECTIFICADA';
+  datosFuncionario: {
+    nombres: string;
+    apellidos: string;
+    documentoIdentidad: string;
+    cargo: string;
+    area: string;
+    remuneracion: number;
+  };
+  diasTrabajados: number;
+  totalGanado: number;
+  totalDescuentos: number;
+  liquidoPagable: number;
+  tieneAlerta: boolean;
+  hashSha256?: string | null;
+  boletaOriginalId?: string | null;
+  motivoRectificacion?: string | null;
+  emitidaEn?: string | null;
+  detalles?: BoletaDetalleItem[];
+  periodo?: PeriodoItem;
+  versionVigente?: {
+    id: string;
+    numero: string | null;
+    version: number;
+    estado: 'BORRADOR' | 'EMITIDA' | 'RECTIFICADA';
+    liquidoPagable: number;
+  } | null;
+  historialVersiones?: Array<{
+    id: string;
+    numero: string | null;
+    version: number;
+    estado: 'BORRADOR' | 'EMITIDA' | 'RECTIFICADA';
+    motivoRectificacion: string | null;
+    createdAt?: string;
+  }>;
+}
+
+export interface ListadoBoletasResponse {
+  boletas: BoletaPlanillaItem[];
+  resumen: {
+    totalGanado: number;
+    totalDescuentos: number;
+    totalLiquido: number;
+    cantidadBoletas: number;
+  };
+}
+
+export interface DetallePlanillaResponse {
+  periodo: PeriodoItem;
+  resumen: ResumenPeriodoItem;
+  boletas: BoletaPlanillaItem[];
+}
+
+export interface RectificarBoletaInput {
+  motivo: string;
+}
+
+export interface EventoAuditoriaItem {
+  id: string;
+  fecha: string;
+  usuarioId: string | null;
+  rol: Rol | string | null;
+  metodo: string;
+  ruta: string;
+  servicio: string;
+  recursoId: string | null;
+  statusCode: number;
+  ip: string | null;
+  requestId: string;
+}
+
+export interface FiltrosAuditoria {
+  usuarioId?: string;
+  servicio?: string;
+  desde?: string;
+  hasta?: string;
+  resultado?: 'EXITO' | 'ERROR';
+  metodo?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface PaginatedAuditoriaResponse {
+  data: EventoAuditoriaItem[];
+  page: number;
+  pageSize: number;
+  total: number;
+}
+
+// HU-25 Dashboard Ejecutivo
+export interface DashboardPersonalStats {
+  activos: number;
+  enPrueba: number;
+  bajasMes: number;
+  funcionariosPorArea: Array<{ area: string; cantidad: number }>;
+  periodosPruebaPorVencer: Array<{
+    id: string;
+    nombreCompleto: string;
+    ci: string;
+    diasRestantes: number;
+    fechaVencimiento: string;
+  }>;
+  cumplenGestionMes: Array<{
+    id: string;
+    nombres: string;
+    apellidos: string;
+    ci: string;
+    aniosCumplidos: number;
+    fechaIngreso: string;
+  }>;
+}
+
+export interface DashboardVacacionesStats {
+  solicitudesPendientes: number;
+  alertas: Array<{
+    id: string;
+    funcionarioId: string;
+    funcionarioNombre: string;
+    diasHabiles: number;
+    fechaInicio: string;
+    fechaFin: string;
+    createdAt: string;
+  }>;
+}
+
+export interface PeriodoMasaSalarialItem {
+  periodoId: string;
+  anio: number;
+  mes: number;
+  periodoNombre: string;
+  masaSalarial: number;
+  liquidoTotal: number;
+  totalBoletas: number;
+}
+
+export interface DashboardBoletasStats {
+  masaSalarialUltimoPeriodo: {
+    periodoId: string;
+    anio: number;
+    mes: number;
+    periodoNombre: string;
+    monto: number;
+    moneda: string;
+    totalBoletas: number;
+  } | null;
+  historialMasaSalarial: PeriodoMasaSalarialItem[];
+}
+
+export interface DashboardResponse {
+  personal: DashboardPersonalStats | null;
+  vacaciones: DashboardVacacionesStats | null;
+  boletas: DashboardBoletasStats | null;
+  servicios: {
+    personal: 'OK' | 'ERROR';
+    vacaciones: 'OK' | 'ERROR';
+    boletas: 'OK' | 'ERROR';
+  };
+  timestamp: string;
+}
+

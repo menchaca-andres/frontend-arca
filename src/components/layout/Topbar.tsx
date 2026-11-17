@@ -1,5 +1,6 @@
 import { LogOut, Menu, User } from 'lucide-react'
 import { StatusBadge } from '../ui/Badge'
+import { ThemeToggle } from '../ui/ThemeToggle'
 import type { UsuarioSesion } from '../../types'
 
 export interface TopbarProps {
@@ -28,6 +29,8 @@ export function Topbar({ usuario, onLogout, onToggleMobileSidebar }: TopbarProps
       </div>
 
       <div className="topbar-right">
+        <ThemeToggle />
+
         <div className="topbar-user-badge">
           <div className="topbar-avatar" aria-hidden="true">
             <User size={16} />

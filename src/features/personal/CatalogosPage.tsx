@@ -118,16 +118,16 @@ export function CatalogosPage() {
     setFormCargo(
       cargo
         ? {
-            areaId: cargo.areaId,
-            nombre: cargo.nombre,
-            salarioMin: String(cargo.salarioMin),
-            salarioMax: String(cargo.salarioMax),
-            activo: cargo.activo,
-          }
+          areaId: cargo.areaId,
+          nombre: cargo.nombre,
+          salarioMin: String(cargo.salarioMin),
+          salarioMax: String(cargo.salarioMax),
+          activo: cargo.activo,
+        }
         : {
-            ...CARGO_VACIO,
-            areaId: areasActivas[0]?.id ?? '',
-          },
+          ...CARGO_VACIO,
+          areaId: areasActivas[0]?.id ?? '',
+        },
     )
     setModal('cargos')
   }
@@ -244,7 +244,6 @@ export function CatalogosPage() {
     <div className="module-view-ds">
       <header className="page-header-ds">
         <div>
-          <p className="eyebrow-ds">Módulo de Personal (ms-personal)</p>
           <h1 className="page-title-ds">Áreas y Cargos</h1>
           <p className="page-subtitle-ds">
             Catálogos maestros para clasificar funcionarios y asignaciones laborales.
@@ -261,22 +260,22 @@ export function CatalogosPage() {
 
       <Card>
         <div className="table-controls-ds">
-          <div className="search-filter-box" style={{ display: 'flex', gap: '0.5rem' }}>
-            <Button
-              variant={tab === 'areas' ? 'primary' : 'outline'}
-              size="sm"
+          <nav className="segmented-control-ds" style={{ marginBottom: 0 }} aria-label="Catálogo">
+            <button
+              type="button"
+              className={`segmented-tab-ds ${tab === 'areas' ? 'is-active' : ''}`}
               onClick={() => setTab('areas')}
             >
               Áreas
-            </Button>
-            <Button
-              variant={tab === 'cargos' ? 'primary' : 'outline'}
-              size="sm"
+            </button>
+            <button
+              type="button"
+              className={`segmented-tab-ds ${tab === 'cargos' ? 'is-active' : ''}`}
               onClick={() => setTab('cargos')}
             >
               Cargos
-            </Button>
-          </div>
+            </button>
+          </nav>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             {tab === 'cargos' && (
               <Select
@@ -500,12 +499,12 @@ export function CatalogosPage() {
             options={
               cargoEditando && !areasActivas.some((area) => area.id === cargoEditando.areaId)
                 ? [
-                    ...opcionesAreaActiva,
-                    {
-                      value: cargoEditando.areaId,
-                      label: nombreArea(cargoEditando),
-                    },
-                  ]
+                  ...opcionesAreaActiva,
+                  {
+                    value: cargoEditando.areaId,
+                    label: nombreArea(cargoEditando),
+                  },
+                ]
                 : opcionesAreaActiva
             }
             placeholder="Seleccionar área..."

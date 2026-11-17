@@ -51,6 +51,10 @@ const STATUS_CONFIG: Record<string, { label: string; variant: BadgeVariant }> = 
   PAGADA: { label: 'Pagada', variant: 'info' },
   ACTIVO: { label: 'Activo', variant: 'success' },
   INACTIVO: { label: 'Inactivo', variant: 'danger' },
+
+  // Tipos de contrato
+  INDEFINIDO: { label: 'Indefinido', variant: 'brand' },
+  PLAZO_FIJO: { label: 'Plazo Fijo', variant: 'info' },
 }
 
 export function StatusBadge({ status, size = 'sm', className = '' }: StatusBadgeProps) {

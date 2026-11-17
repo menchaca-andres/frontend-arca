@@ -1,23 +1,58 @@
 import type {
+  AbrirPeriodoInput,
+  ActualizarContactoInput,
+  ActualizarPlantillaInput,
+  ActualizarConceptoInput,
   ApiErrorPayload,
   Area,
   AreaInput,
+  BoletaPlanillaItem,
+  CalendarioVacaciones,
+  CambiarAsignacionInput,
   CambiarEstadoInput,
   CambiarRolInput,
   Cargo,
   CargoInput,
+  ConceptoItem,
+  ContratoItem,
+  CrearConceptoInput,
+  CrearPlantillaInput,
   CrearUsuarioInput,
   CrearUsuarioResponse,
+  DashboardResponse,
   DarDeBajaInput,
+  DetalleContratoItem,
+  DetallePlanillaResponse,
+  EventoAuditoriaItem,
   FichaFuncionario,
-  FuncionarioResumen,
+  FiltrosAuditoria,
+  FiltrosContratos,
+  FiltrosPadron,
+  FuncionarioPadronItem,
+  GenerarContratoInput,
+  KardexVacaciones,
+  ListadoBoletasResponse,
   LoginResponse,
+  NovedadItem,
+  Paginated,
+  PaginatedAuditoriaResponse,
+  PeriodoItem,
+  PlantillaItem,
+  PlantillaVersionItem,
+  PreviewContratoInput,
+  PreviewPlantillaResponse,
   PruebaPorVencerItem,
   RatificarFuncionarioInput,
+  RectificarBoletaInput,
   RegistrarFuncionarioInput,
+  RegistrarNovedadInput,
   Rol,
+  SaldoVacaciones,
+  SolicitudPendiente,
+  SolicitudVacacion,
   UsuarioItem,
   UsuarioSesion,
+  VistaPreviaContrato,
 } from '../types'
 
 const GATEWAY_ORIGIN = (import.meta.env.VITE_API_URL ?? 'http://localhost:8080').replace(/\/+$/, '')
@@ -138,11 +173,21 @@ export class ApiService {
     return this.patch<UsuarioItem>(`/api/usuarios/${id}/estado`, input)
   }
 
-  static async getFuncionarios(params?: { estado?: string }): Promise<FuncionarioResumen[]> {
+  static async getFuncionarios(
+    filtros: FiltrosPadron = {},
+  ): Promise<Paginated<FuncionarioPadronItem>> {
     const query = new URLSearchParams()
-    if (params?.estado) query.set('estado', params.estado)
+    for (const [clave, valor] of Object.entries(filtros)) {
+      if (valor !== undefined && valor !== '') query.set(clave, String(valor))
+    }
     const suffix = query.size > 0 ? `?${query.toString()}` : ''
-    return this.get<FuncionarioResumen[]>(`/api/v1/personal/funcionarios${suffix}`)
+    return this.get<Paginated<FuncionarioPadronItem>>(`/api/v1/personal/funcionarios${suffix}`)
+  }
+
+  // Selectores: los primeros 100 activos del padrón
+  static async getFuncionariosParaSelector(): Promise<FuncionarioPadronItem[]> {
+    const pagina = await this.getFuncionarios({ pageSize: 100 })
+    return pagina.data
   }
 
   static async getPruebaPorVencer(): Promise<PruebaPorVencerItem[]> {
@@ -151,6 +196,59 @@ export class ApiService {
 
   static async getFuncionarioFicha(id: string): Promise<FichaFuncionario> {
     return this.get<FichaFuncionario>(`/api/v1/personal/funcionarios/${id}`)
+  }
+
+  static async getSaldoVacaciones(funcionarioId: string): Promise<SaldoVacaciones> {
+    return this.get<SaldoVacaciones>(`/api/v1/vacaciones/saldo/${funcionarioId}`)
+  }
+
+  static async getSolicitudesVacaciones(): Promise<SolicitudVacacion[]> {
+    return this.get<SolicitudVacacion[]>('/api/v1/vacaciones/solicitudes')
+  }
+
+  static async contarDiasVacaciones(desde: string, hasta: string): Promise<number> {
+    const query = new URLSearchParams({ desde, hasta })
+    const response = await this.get<{ diasHabiles: number }>(
+      `/api/v1/vacaciones/dias-habiles?${query.toString()}`,
+    )
+    return response.diasHabiles
+  }
+
+  static async solicitarVacaciones(input: {
+    funcionarioId?: string
+    fechaInicio: string
+    fechaFin: string
+  }): Promise<SolicitudVacacion> {
+    return this.post<SolicitudVacacion>('/api/v1/vacaciones/solicitudes', input)
+  }
+
+  static async getSolicitudesPendientes(): Promise<SolicitudPendiente[]> {
+    return this.get<SolicitudPendiente[]>('/api/v1/vacaciones/solicitudes/pendientes')
+  }
+
+  static async aprobarSolicitudVacacion(id: string): Promise<SolicitudVacacion> {
+    return this.post<SolicitudVacacion>(`/api/v1/vacaciones/solicitudes/${id}/aprobar`, {})
+  }
+
+  static async rechazarSolicitudVacacion(id: string, motivo: string): Promise<SolicitudVacacion> {
+    return this.post<SolicitudVacacion>(`/api/v1/vacaciones/solicitudes/${id}/rechazar`, { motivo })
+  }
+
+  // Historial (Kardex) y Calendario (HU-16)
+  static async getHistorialVacaciones(
+    funcionarioId: string,
+    filtros?: { estado?: string; anio?: number },
+  ): Promise<KardexVacaciones> {
+    const query = new URLSearchParams()
+    if (filtros?.estado) query.set('estado', filtros.estado)
+    if (filtros?.anio) query.set('anio', String(filtros.anio))
+    const suffix = query.size > 0 ? `?${query.toString()}` : ''
+    return this.get<KardexVacaciones>(`/api/v1/vacaciones/historial/${funcionarioId}${suffix}`)
+  }
+
+  static async getCalendarioVacaciones(mes?: string): Promise<CalendarioVacaciones> {
+    const suffix = mes ? `?mes=${mes}` : ''
+    return this.get<CalendarioVacaciones>(`/api/v1/vacaciones/calendario${suffix}`)
   }
 
   static async registrarFuncionario(input: RegistrarFuncionarioInput): Promise<FichaFuncionario> {
@@ -164,8 +262,247 @@ export class ApiService {
     return this.post<FichaFuncionario>(`/api/v1/personal/funcionarios/${id}/ratificacion`, input)
   }
 
+  static async cambiarAsignacion(
+    id: string,
+    input: CambiarAsignacionInput,
+  ): Promise<FichaFuncionario> {
+    return this.post<FichaFuncionario>(`/api/v1/personal/funcionarios/${id}/asignaciones`, input)
+  }
+
+  static async actualizarContacto(
+    id: string,
+    input: ActualizarContactoInput,
+  ): Promise<FichaFuncionario> {
+    return this.patch<FichaFuncionario>(`/api/v1/personal/funcionarios/${id}/contacto`, input)
+  }
+
   static async darDeBajaFuncionario(id: string, input: DarDeBajaInput): Promise<FichaFuncionario> {
     return this.post<FichaFuncionario>(`/api/v1/personal/funcionarios/${id}/baja`, input)
+  }
+
+  // Plantillas de Contrato (HU-17)
+  static async getPlantillas(): Promise<PlantillaItem[]> {
+    return this.get<PlantillaItem[]>('/api/plantillas')
+  }
+
+  static async getPlantilla(id: string): Promise<PlantillaItem> {
+    return this.get<PlantillaItem>(`/api/plantillas/${id}`)
+  }
+
+  static async getPlantillaVersiones(id: string): Promise<PlantillaVersionItem[]> {
+    return this.get<PlantillaVersionItem[]>(`/api/plantillas/${id}/versiones`)
+  }
+
+  static async crearPlantilla(input: CrearPlantillaInput): Promise<PlantillaItem> {
+    return this.post<PlantillaItem>('/api/plantillas', input)
+  }
+
+  static async actualizarPlantilla(
+    id: string,
+    input: ActualizarPlantillaInput,
+  ): Promise<PlantillaItem> {
+    return this.put<PlantillaItem>(`/api/plantillas/${id}`, input)
+  }
+
+  static async previewPlantilla(
+    contenido: string,
+    datos?: Record<string, unknown>,
+  ): Promise<PreviewPlantillaResponse> {
+    return this.post<PreviewPlantillaResponse>('/api/plantillas/preview', { contenido, datos })
+  }
+
+  // Emisión y Archivo de Contratos (HU-18 / HU-19)
+  static async previewContrato(input: PreviewContratoInput): Promise<VistaPreviaContrato> {
+    return this.post<VistaPreviaContrato>('/api/contratos/preview', input)
+  }
+
+  static async generarContrato(input: GenerarContratoInput): Promise<ContratoItem> {
+    return this.post<ContratoItem>('/api/contratos', input)
+  }
+
+  static async getContrato(id: string): Promise<ContratoItem> {
+    return this.get<ContratoItem>(`/api/contratos/${id}`)
+  }
+
+  static async getContratoDetalle(id: string): Promise<DetalleContratoItem> {
+    return this.get<DetalleContratoItem>(`/api/contratos/${id}`)
+  }
+
+  static async getContratos(filtros: FiltrosContratos = {}): Promise<ContratoItem[]> {
+    const params = new URLSearchParams()
+    if (filtros.funcionarioId) params.set('funcionarioId', filtros.funcionarioId)
+    if (filtros.plantillaId) params.set('plantillaId', filtros.plantillaId)
+    if (filtros.estado && filtros.estado !== 'TODOS') params.set('estado', filtros.estado)
+    if (filtros.desde) params.set('desde', filtros.desde)
+    if (filtros.hasta) params.set('hasta', filtros.hasta)
+
+    const query = params.toString() ? `?${params.toString()}` : ''
+    return this.get<ContratoItem[]>(`/api/contratos${query}`)
+  }
+
+  static async descargarContratoPdf(id: string, numero?: string): Promise<void> {
+    const token = this.getToken()
+    const headers = new Headers()
+    if (token) headers.set('Authorization', `Bearer ${token}`)
+
+    const response = await fetch(`${GATEWAY_ORIGIN}/api/contratos/${id}/pdf`, {
+      method: 'GET',
+      headers,
+    })
+
+    if (!response.ok) {
+      throw new ApiError('Error al descargar el PDF del contrato', 'DOWNLOAD_ERROR', response.status)
+    }
+
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `Contrato-${numero || id}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+  }
+
+  static async getConceptos(includeInactive = true): Promise<ConceptoItem[]> {
+    const suffix = includeInactive ? '' : '?activo=true'
+    return this.get<ConceptoItem[]>(`/api/conceptos${suffix}`)
+  }
+
+  static async getConceptoById(id: string): Promise<ConceptoItem> {
+    return this.get<ConceptoItem>(`/api/conceptos/${id}`)
+  }
+
+  static async createConcepto(input: CrearConceptoInput): Promise<ConceptoItem> {
+    return this.post<ConceptoItem>('/api/conceptos', input)
+  }
+
+  static async updateConcepto(id: string, input: ActualizarConceptoInput): Promise<ConceptoItem> {
+    return this.put<ConceptoItem>(`/api/conceptos/${id}`, input)
+  }
+
+  static async deleteConcepto(
+    id: string,
+  ): Promise<{ eliminado: boolean; desactivado: boolean; mensaje: string }> {
+    return this.delete<{ eliminado: boolean; desactivado: boolean; mensaje: string }>(
+      `/api/conceptos/${id}`,
+    )
+  }
+
+  static async getNovedades(params?: {
+    anio?: number
+    mes?: number
+    funcionarioId?: string
+  }): Promise<NovedadItem[]> {
+    const searchParams = new URLSearchParams()
+    if (params?.anio) searchParams.set('anio', String(params.anio))
+    if (params?.mes) searchParams.set('mes', String(params.mes))
+    if (params?.funcionarioId) searchParams.set('funcionarioId', params.funcionarioId)
+    const queryString = searchParams.toString() ? `?${searchParams.toString()}` : ''
+    return this.get<NovedadItem[]>(`/api/novedades${queryString}`)
+  }
+
+  static async createNovedad(input: RegistrarNovedadInput): Promise<NovedadItem> {
+    return this.post<NovedadItem>('/api/novedades', input)
+  }
+
+  static async deleteNovedad(id: string): Promise<void> {
+    return this.delete<void>(`/api/novedades/${id}`)
+  }
+
+  // --- HU-21: Periodos y Planilla ---
+  static async getPeriodos(): Promise<PeriodoItem[]> {
+    return this.get<PeriodoItem[]>('/api/periodos')
+  }
+
+  static async abrirPeriodo(input: AbrirPeriodoInput): Promise<PeriodoItem> {
+    return this.post<PeriodoItem>('/api/periodos', input)
+  }
+
+  static async getPeriodoDetalle(id: string): Promise<DetallePlanillaResponse> {
+    return this.get<DetallePlanillaResponse>(`/api/periodos/${id}`)
+  }
+
+  static async calcularPlanilla(id: string): Promise<DetallePlanillaResponse> {
+    return this.post<DetallePlanillaResponse>(`/api/periodos/${id}/calculo`)
+  }
+
+  // --- HU-22 y HU-23: Emisión Inmutable, Rectificación y Consulta/Descarga de Boletas ---
+  static async emitirPeriodo(id: string): Promise<DetallePlanillaResponse> {
+    return this.post<DetallePlanillaResponse>(`/api/periodos/${id}/emision`)
+  }
+
+  static async rectificarBoleta(id: string, input: RectificarBoletaInput): Promise<BoletaPlanillaItem> {
+    return this.post<BoletaPlanillaItem>(`/api/boletas/${id}/rectificacion`, input)
+  }
+
+  static async getBoletas(params?: {
+    periodoId?: string
+    funcionarioId?: string
+    estado?: string
+  }): Promise<ListadoBoletasResponse> {
+    const searchParams = new URLSearchParams()
+    if (params?.periodoId) searchParams.set('periodoId', params.periodoId)
+    if (params?.funcionarioId) searchParams.set('funcionarioId', params.funcionarioId)
+    if (params?.estado) searchParams.set('estado', params.estado)
+    const qs = searchParams.toString() ? `?${searchParams.toString()}` : ''
+    return this.get<ListadoBoletasResponse>(`/api/boletas${qs}`)
+  }
+
+  static async getBoletaById(id: string): Promise<BoletaPlanillaItem> {
+    return this.get<BoletaPlanillaItem>(`/api/boletas/${id}`)
+  }
+
+  static async descargarBoletaPdf(id: string, numero?: string | null): Promise<string | null> {
+    const token = this.getToken()
+    const headers = new Headers()
+    if (token) headers.set('Authorization', `Bearer ${token}`)
+
+    const response = await fetch(`${GATEWAY_ORIGIN}/api/boletas/${id}/pdf`, {
+      method: 'GET',
+      headers,
+    })
+
+    if (!response.ok) {
+      throw new ApiError('Error al descargar el PDF de la boleta de pago', 'DOWNLOAD_ERROR', response.status)
+    }
+
+    const sha256 = response.headers.get('x-boleta-sha256') ?? response.headers.get('X-Boleta-SHA256')
+
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `Boleta-${numero || id}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+
+    return sha256
+  }
+
+  static async getEventosAuditoria(filtros?: FiltrosAuditoria): Promise<PaginatedAuditoriaResponse> {
+    const searchParams = new URLSearchParams()
+    if (filtros?.usuarioId) searchParams.set('usuarioId', filtros.usuarioId)
+    if (filtros?.servicio) searchParams.set('servicio', filtros.servicio)
+    if (filtros?.desde) searchParams.set('desde', filtros.desde)
+    if (filtros?.hasta) searchParams.set('hasta', filtros.hasta)
+    if (filtros?.resultado) searchParams.set('resultado', filtros.resultado)
+    if (filtros?.metodo) searchParams.set('metodo', filtros.metodo)
+    if (filtros?.page) searchParams.set('page', String(filtros.page))
+    if (filtros?.pageSize) searchParams.set('pageSize', String(filtros.pageSize))
+    const qs = searchParams.toString() ? `?${searchParams.toString()}` : ''
+    return this.get<PaginatedAuditoriaResponse>(`/api/v1/auditoria${qs}`)
+  }
+
+  static async getEventoAuditoriaById(id: string): Promise<EventoAuditoriaItem> {
+    return this.get<EventoAuditoriaItem>(`/api/v1/auditoria/${id}`)
+  }
+
+  static async getDashboard(): Promise<DashboardResponse> {
+    return this.get<DashboardResponse>('/api/dashboard')
   }
 
   static async get<T>(path: string, options?: RequestInit): Promise<T> {

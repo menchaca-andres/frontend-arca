@@ -8,7 +8,7 @@ export interface ModalProps {
   title?: ReactNode
   children: ReactNode
   footer?: ReactNode
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'sm' | 'md' | 'lg' | 'xl'
 }
 
 export function Modal({ isOpen, onClose, title, children, footer, size = 'md' }: ModalProps) {
@@ -43,7 +43,7 @@ export function Modal({ isOpen, onClose, title, children, footer, size = 'md' }:
             onClick={onClose}
             aria-label="Cerrar modal"
           >
-            <X size={20} />
+            <X size={15} strokeWidth={2.5} />
           </button>
         </header>
 

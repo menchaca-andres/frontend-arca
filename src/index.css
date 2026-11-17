@@ -2285,3 +2285,173 @@ ul {
   border-radius: var(--radius-pill);
   font-size: 0.72rem;
 }
+
+/* ============================================================
+   LIQUID GLASS THEME HARMONIZERS (Dark & Light Mode)
+   ============================================================ */
+
+.filter-panel-ds {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  background: var(--glass-bg-subtle);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  align-items: end;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.hash-badge-ds {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--glass-bg-subtle);
+  border: 1px solid var(--glass-border);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.hash-badge-ds:hover {
+  background: var(--glass-bg);
+  border-color: var(--arca-info-glow);
+}
+
+.hash-badge-ds .hash-icon {
+  color: var(--arca-info);
+  flex-shrink: 0;
+}
+
+.glass-alert-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--arca-warning-bg);
+  border: 1px solid rgba(255, 159, 10, 0.35);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-alert-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--arca-info-bg);
+  border: 1px solid rgba(10, 132, 255, 0.35);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-alert-success {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--arca-success-bg);
+  border: 1px solid rgba(52, 199, 89, 0.35);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-alert-danger {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--arca-danger-bg);
+  border: 1px solid rgba(255, 69, 58, 0.35);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-card-nested {
+  padding: 1rem 1.25rem;
+  background: var(--glass-bg-subtle);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-card-nested:hover {
+  background: var(--glass-bg);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ============================================================
+   PASSWORD TOGGLE & INPUT ICON RIGHT (Design System & Login)
+   ============================================================ */
+
+.input-icon-right {
+  position: absolute;
+  right: 12px;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-ds.with-right-icon {
+  padding-right: 42px;
+}
+
+.login-password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.login-password-wrapper input {
+  width: 100%;
+  padding-right: 44px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--text-tertiary) !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  transition: color 0.2s ease, transform 0.15s ease;
+  height: auto !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+
+.password-toggle-btn:hover {
+  color: var(--text-primary) !important;
+  transform: scale(1.1) !important;
+}
+
+.password-toggle-btn:active {
+  transform: scale(0.95) !important;
+}

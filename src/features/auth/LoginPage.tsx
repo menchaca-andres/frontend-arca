@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Eye, EyeOff } from 'lucide-react'
 import { ApiError } from '../../services/api'
 import { useAuth } from './useAuth'
 
@@ -15,6 +16,7 @@ export function LoginPage() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [mostrarPassword, setMostrarPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   if (usuario) {
@@ -56,15 +58,26 @@ export function LoginPage() {
           />
 
           <label htmlFor="password">Contraseña</label>
-          <input
-            id="password"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            disabled={cargando}
-          />
+          <div className="login-password-wrapper">
+            <input
+              id="password"
+              type={mostrarPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+              disabled={cargando}
+            />
+            <button
+              type="button"
+              className="password-toggle-btn"
+              onClick={() => setMostrarPassword((prev) => !prev)}
+              aria-label={mostrarPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+              tabIndex={-1}
+            >
+              {mostrarPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
 
           {error && (
             <p className="form-error" role="alert">
@@ -76,11 +89,6 @@ export function LoginPage() {
             {cargando ? 'Ingresando…' : 'Ingresar'}
           </button>
         </form>
-
-        <p className="login-hint">
-          Usuarios de demo: <code>admin@arca.bo</code>, <code>rrhh@arca.bo</code>,{' '}
-          <code>direccion@arca.bo</code> y <code>funcionario@arca.bo</code>.
-        </p>
       </section>
     </main>
   )

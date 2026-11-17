@@ -72,17 +72,17 @@ export function HistorialVersionesModal({
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b' }}>
+        <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
           {plantilla.nombre} · Cada edición genera una nueva versión inmutable según el modelo
           arquitectónico.
         </p>
 
         {cargando ? (
-          <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
+          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
             Cargando historial de versiones...
           </div>
         ) : versiones.length === 0 ? (
-          <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
+          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
             No se encontraron versiones registradas.
           </div>
         ) : (
@@ -93,10 +93,10 @@ export function HistorialVersionesModal({
                 <div
                   key={v.id}
                   style={{
-                    border: `1px solid ${v.activa ? '#3b82f6' : '#e2e8f0'}`,
-                    borderRadius: '0.5rem',
+                    border: `1px solid ${v.activa ? 'var(--arca-info)' : 'var(--glass-border)'}`,
+                    borderRadius: 'var(--radius-md)',
                     overflow: 'hidden',
-                    backgroundColor: v.activa ? '#f0f7ff' : '#ffffff',
+                    backgroundColor: v.activa ? 'var(--glass-bg-subtle)' : 'var(--glass-bg)',
                   }}
                 >
                   <div
@@ -107,10 +107,11 @@ export function HistorialVersionesModal({
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       cursor: 'pointer',
+                      color: 'var(--text-primary)',
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <strong style={{ fontSize: '1rem' }}>Versión {v.version}</strong>
+                      <strong style={{ fontSize: '1rem', color: 'var(--text-primary)' }}>Versión {v.version}</strong>
                       {v.activa ? (
                         <Badge variant="brand" size="sm">
                           Activa Actual
@@ -120,7 +121,7 @@ export function HistorialVersionesModal({
                           Archivada
                         </Badge>
                       )}
-                      <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                         <Clock size={12} style={{ display: 'inline', marginRight: '4px' }} />
                         {formatDate(v.createdAt)}
                       </span>
@@ -134,12 +135,12 @@ export function HistorialVersionesModal({
                     <div
                       style={{
                         padding: '1rem',
-                        borderTop: '1px solid #e2e8f0',
-                        backgroundColor: '#ffffff',
+                        borderTop: '1px solid var(--glass-border)',
+                        backgroundColor: 'var(--glass-bg-subtle)',
                       }}
                     >
                       <div style={{ marginBottom: '0.5rem' }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b' }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
                           Variables detectadas ({v.variables?.length ?? 0}):
                         </span>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem', marginTop: '0.25rem' }}>
@@ -149,7 +150,9 @@ export function HistorialVersionesModal({
                               style={{
                                 fontSize: '0.75rem',
                                 padding: '0.1rem 0.35rem',
-                                backgroundColor: '#f1f5f9',
+                                backgroundColor: 'var(--glass-bg)',
+                                border: '1px solid var(--glass-border)',
+                                color: 'var(--text-primary)',
                                 borderRadius: '0.25rem',
                               }}
                             >
@@ -162,10 +165,12 @@ export function HistorialVersionesModal({
                       <div
                         style={{
                           padding: '0.75rem',
-                          backgroundColor: '#f8fafc',
+                          backgroundColor: 'var(--glass-bg)',
+                          border: '1px solid var(--glass-border)',
                           borderRadius: '0.375rem',
                           fontFamily: 'monospace',
                           fontSize: '0.8rem',
+                          color: 'var(--text-primary)',
                           whiteSpace: 'pre-wrap',
                           maxHeight: '220px',
                           overflowY: 'auto',

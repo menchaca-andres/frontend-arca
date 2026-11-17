@@ -139,7 +139,7 @@ export function CalendarioView() {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <CalendarIcon size={24} style={{ color: 'var(--primary)' }} />
+            <CalendarIcon size={24} style={{ color: 'var(--arca-teal-accent)' }} />
             <div>
               <h2 className="page-title-ds" style={{ fontSize: '1.25rem', margin: 0 }}>
                 {nombreMes} {anioActual}
@@ -196,16 +196,16 @@ export function CalendarioView() {
             gap: '1.5rem',
             marginTop: '1rem',
             paddingTop: '0.75rem',
-            borderTop: '1px solid var(--border)',
+            borderTop: '1px solid var(--glass-border)',
             fontSize: '0.875rem',
           }}
         >
           <div>
-            <strong style={{ color: 'var(--text-muted)' }}>Vacaciones Aprobadas: </strong>
+            <strong style={{ color: 'var(--text-secondary)' }}>Vacaciones Aprobadas: </strong>
             <span className="font-mono">{datos?.totalAprobadas ?? 0}</span>
           </div>
           <div>
-            <strong style={{ color: 'var(--text-muted)' }}>Feriados Nacionales: </strong>
+            <strong style={{ color: 'var(--text-secondary)' }}>Feriados Nacionales: </strong>
             <span className="font-mono">{datos?.feriados.length ?? 0}</span>
           </div>
         </div>
@@ -226,7 +226,7 @@ export function CalendarioView() {
                 textAlign: 'center',
                 fontWeight: 600,
                 fontSize: '0.8rem',
-                color: 'var(--text-muted)',
+                color: 'var(--text-tertiary)',
                 marginBottom: '6px',
               }}
             >
@@ -270,12 +270,18 @@ export function CalendarioView() {
                       minHeight: 90,
                       padding: '6px',
                       borderRadius: 8,
-                      border: '1px solid var(--border)',
+                      border: `1px solid ${
+                        esFeriado
+                          ? 'rgba(255, 69, 58, 0.4)'
+                          : tieneVacaciones
+                            ? 'rgba(45, 212, 191, 0.4)'
+                            : 'var(--glass-border)'
+                      }`,
                       background: esFeriado
-                        ? 'rgba(239, 68, 68, 0.05)'
+                        ? 'var(--arca-danger-bg)'
                         : tieneVacaciones
-                          ? 'rgba(37, 99, 235, 0.04)'
-                          : 'var(--bg-card, #ffffff)',
+                          ? 'var(--arca-teal-50)'
+                          : 'var(--glass-bg-subtle)',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: 4,
@@ -293,14 +299,14 @@ export function CalendarioView() {
                         style={{
                           fontWeight: 700,
                           fontSize: '0.85rem',
-                          color: esFeriado ? 'var(--danger)' : 'var(--text)',
+                          color: esFeriado ? 'var(--arca-danger)' : 'var(--text-primary)',
                         }}
                       >
                         {celda.dia}
                       </span>
                       {esFeriado && (
                         <span title={celda.feriado} style={{ display: 'inline-flex' }}>
-                          <Flag size={12} style={{ color: 'var(--danger)' }} />
+                          <Flag size={12} style={{ color: 'var(--arca-danger)' }} />
                         </span>
                       )}
                     </div>
@@ -309,7 +315,7 @@ export function CalendarioView() {
                       <div
                         style={{
                           fontSize: '0.68rem',
-                          color: 'var(--danger)',
+                          color: 'var(--arca-danger)',
                           lineHeight: 1.1,
                           fontWeight: 600,
                           overflow: 'hidden',
@@ -330,7 +336,7 @@ export function CalendarioView() {
                           borderRadius: 4,
                           fontSize: '0.7rem',
                           fontWeight: 500,
-                          background: 'var(--primary, #2563eb)',
+                          background: 'linear-gradient(135deg, var(--arca-teal-solid), var(--arca-teal-accent))',
                           color: '#ffffff',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -389,7 +395,7 @@ export function CalendarioView() {
                     <Badge variant="success">APROBADA</Badge>
                   </TableCell>
                   <TableCell>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                       {sol.fechaResolucion ? formatDate(sol.fechaResolucion) : '—'}
                       {sol.resueltoPor && (
                         <div style={{ fontSize: '0.72rem', opacity: 0.8 }}>

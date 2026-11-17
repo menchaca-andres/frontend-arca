@@ -192,8 +192,8 @@ export function CambiarAsignacionModal({
         </div>
       }
     >
-      <div style={{ marginBottom: '1rem', color: '#64748b', fontSize: '0.9rem' }}>
-        <strong style={{ color: '#0f172a' }}>
+      <div style={{ marginBottom: '1rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+        <strong style={{ color: 'var(--text-primary)' }}>
           {funcionario.nombres} {funcionario.apellidos}
         </strong>{' '}
         · CI {funcionario.ci} {funcionario.ciExpedido}
@@ -204,7 +204,7 @@ export function CambiarAsignacionModal({
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
             <thead>
               <tr
-                style={{ textAlign: 'left', color: '#64748b', borderBottom: '1px solid #e2e8f0' }}
+                style={{ textAlign: 'left', color: 'var(--text-secondary)', borderBottom: '1px solid var(--glass-border)' }}
               >
                 <th style={{ padding: '0.5rem' }}>Dato</th>
                 <th style={{ padding: '0.5rem' }}>Antes</th>
@@ -214,17 +214,17 @@ export function CambiarAsignacionModal({
             </thead>
             <tbody>
               {filas.map((fila) => (
-                <tr key={fila.campo} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '0.5rem', color: '#64748b' }}>{fila.campo}</td>
-                  <td style={{ padding: '0.5rem' }}>{fila.antes}</td>
-                  <td style={{ color: '#94a3b8' }}>
+                <tr key={fila.campo} style={{ borderBottom: '1px solid var(--glass-border-dark)' }}>
+                  <td style={{ padding: '0.5rem', color: 'var(--text-secondary)' }}>{fila.campo}</td>
+                  <td style={{ padding: '0.5rem', color: 'var(--text-primary)' }}>{fila.antes}</td>
+                  <td style={{ color: 'var(--text-tertiary)' }}>
                     <ArrowRight size={14} />
                   </td>
                   <td
                     style={{
                       padding: '0.5rem',
                       fontWeight: fila.cambia ? 600 : 400,
-                      color: fila.cambia ? '#1d4ed8' : '#0f172a',
+                      color: fila.cambia ? 'var(--arca-info)' : 'var(--text-primary)',
                     }}
                   >
                     {fila.despues}
@@ -233,7 +233,7 @@ export function CambiarAsignacionModal({
               ))}
             </tbody>
           </table>
-          <p style={{ margin: 0, fontSize: '0.85rem', color: '#64748b' }}>
+          <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
             Motivo: <strong>{MOTIVOS.find((m) => m.value === motivo)?.label}</strong>. La asignación
             actual no se edita: se cierra el {formatDate(sumarDias(vigenteDesde, -1))} y queda en el
             historial.

@@ -98,42 +98,30 @@ export function RatificarFuncionarioModal({
         <div
           style={{
             padding: '0.85rem',
-            backgroundColor: '#f8fafc',
-            borderRadius: '0.5rem',
-            border: '1px solid #e2e8f0',
+            backgroundColor: 'var(--glass-bg-subtle)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--glass-border)',
           }}
         >
-          <div style={{ fontWeight: 600, color: '#0f172a' }}>
+          <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
             {funcionario.nombres} {funcionario.apellidos}
           </div>
-          <div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem' }}>
+          <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
             CI:{' '}
-            <strong className="font-mono">
+            <strong className="font-mono" style={{ color: 'var(--text-primary)' }}>
               {funcionario.ci} {funcionario.ciExpedido}
             </strong>{' '}
             · Ingreso: {formatDate(funcionario.fechaIngreso)}
           </div>
-          <div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem' }}>
+          <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
             Periodo de prueba: <strong>{funcionario.diasPrueba} días</strong> (Conclusión:{' '}
             <strong className="font-mono">{formatDate(finPrueba)}</strong>)
           </div>
         </div>
 
         {!pruebaConcluida && (
-          <div
-            style={{
-              display: 'flex',
-              gap: '0.5rem',
-              padding: '0.75rem',
-              backgroundColor: '#fffbeb',
-              border: '1px solid #fef3c7',
-              borderRadius: '0.375rem',
-              color: '#92400e',
-              fontSize: '0.875rem',
-              alignItems: 'flex-start',
-            }}
-          >
-            <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
+          <div className="glass-alert-warning">
+            <AlertCircle size={18} style={{ color: 'var(--arca-warning)', flexShrink: 0, marginTop: '0.1rem' }} />
             <div>
               <strong>Periodo de prueba en curso:</strong> Según el criterio CA-02, solo se puede
               ratificar cuando ya concluyeron los {funcionario.diasPrueba} días de prueba (a partir

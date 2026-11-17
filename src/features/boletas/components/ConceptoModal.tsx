@@ -297,7 +297,7 @@ export function ConceptoModal({
               />
               <strong>Automático para todos</strong>
             </label>
-            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
               Si no es automático, se asigna mediante registro de novedades.
             </span>
           </div>

@@ -200,9 +200,9 @@ export function DetalleBoletaModal({
               style={{
                 marginTop: '1rem',
                 padding: '0.75rem 1rem',
-                backgroundColor: '#f8fafc',
-                borderRadius: '6px',
-                border: '1px solid #e2e8f0',
+                backgroundColor: 'var(--glass-bg-subtle)',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--glass-border)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.75rem',
@@ -213,7 +213,7 @@ export function DetalleBoletaModal({
                 <span className="stat-label" style={{ marginBottom: 0 }}>
                   Huella Criptográfica Inmutable (SHA-256)
                 </span>
-                <span className="font-mono text-xs text-slate-700 block truncate" title={hashSha256}>
+                <span className="font-mono text-xs block truncate" style={{ color: 'var(--text-secondary)' }} title={hashSha256}>
                   {hashSha256}
                 </span>
               </div>
@@ -268,10 +268,11 @@ export function DetalleBoletaModal({
               justifyContent: 'flex-end',
               gap: '2rem',
               padding: '1rem',
-              borderTop: '1px solid #e2e8f0',
+              borderTop: '1px solid var(--glass-border)',
               marginTop: '0.5rem',
-              backgroundColor: '#f8fafc',
-              borderRadius: '6px',
+              backgroundColor: 'var(--glass-bg-subtle)',
+              border: '1px solid var(--glass-border)',
+              borderRadius: 'var(--radius-sm)',
             }}
           >
             <div>

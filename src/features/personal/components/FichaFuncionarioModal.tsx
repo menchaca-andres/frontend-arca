@@ -27,8 +27,8 @@ const tituloSeccion = {
   fontSize: '0.9rem',
   textTransform: 'uppercase',
   letterSpacing: '0.05em',
-  color: '#475569',
-  borderBottom: '1px solid #e2e8f0',
+  color: 'var(--text-secondary)',
+  borderBottom: '1px solid var(--glass-border)',
   paddingBottom: '0.25rem',
 } as const
 
@@ -107,17 +107,17 @@ export function FichaFuncionarioModal({
         <div
           style={{
             padding: '1rem',
-            backgroundColor: '#f8fafc',
-            borderRadius: '0.5rem',
-            border: '1px solid #e2e8f0',
+            backgroundColor: 'var(--glass-bg-subtle)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--glass-border)',
           }}
         >
-          <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600, color: '#0f172a' }}>
+          <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)' }}>
             {ficha.nombres} {ficha.apellidos}
           </h3>
-          <p style={{ margin: '0.25rem 0 0', color: '#64748b', fontSize: '0.9rem' }}>
+          <p style={{ margin: '0.25rem 0 0', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
             CI:{' '}
-            <strong className="font-mono">
+            <strong className="font-mono" style={{ color: 'var(--text-primary)' }}>
               {ficha.ci} {ficha.ciExpedido}
             </strong>{' '}
             · Ingreso: {formatDate(ficha.fechaIngreso)}
@@ -126,20 +126,8 @@ export function FichaFuncionarioModal({
 
         {/* Sección: Estado Especial (Ratificado o Baja) */}
         {ficha.estado === 'RATIFICADO' && ficha.fechaRatificacion && (
-          <div
-            style={{
-              padding: '0.75rem 1rem',
-              backgroundColor: '#f0fdf4',
-              borderRadius: '0.375rem',
-              border: '1px solid #bbf7d0',
-              color: '#166534',
-              fontSize: '0.9rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}
-          >
-            <CheckCircle2 size={18} />
+          <div className="glass-alert-success">
+            <CheckCircle2 size={18} style={{ color: 'var(--arca-success)', flexShrink: 0 }} />
             <div>
               <strong>Funcionario Permanente:</strong> Ratificado formalmente el{' '}
               <strong>{formatDate(ficha.fechaRatificacion)}</strong>.
@@ -148,16 +136,7 @@ export function FichaFuncionarioModal({
         )}
 
         {ficha.estado === 'BAJA' && (
-          <div
-            style={{
-              padding: '0.75rem 1rem',
-              backgroundColor: '#fef2f2',
-              borderRadius: '0.375rem',
-              border: '1px solid #fecaca',
-              color: '#991b1b',
-              fontSize: '0.9rem',
-            }}
-          >
+          <div className="glass-alert-danger">
             <div>
               <strong>Funcionario dado de Baja:</strong> Efectiva el{' '}
               <strong>{formatDate(ficha.fechaBaja ?? '')}</strong>.
@@ -173,38 +152,26 @@ export function FichaFuncionarioModal({
 
         {/* Sección: Datos Personales */}
         <div>
-          <h4
-            style={{
-              margin: '0 0 0.5rem',
-              fontSize: '0.9rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              color: '#475569',
-              borderBottom: '1px solid #e2e8f0',
-              paddingBottom: '0.25rem',
-            }}
-          >
-            Datos Personales
-          </h4>
-          <div className="form-grid-2" style={{ gap: '0.75rem', fontSize: '0.9rem' }}>
+          <h4 style={tituloSeccion}>Datos Personales</h4>
+          <div className="form-grid-2" style={{ gap: '0.75rem', fontSize: '0.9rem', color: 'var(--text-primary)' }}>
             <div>
-              <span style={{ color: '#64748b' }}>Fecha de Nacimiento: </span>
+              <span style={{ color: 'var(--text-secondary)' }}>Fecha de Nacimiento: </span>
               <strong>{formatDate(ficha.fechaNacimiento)}</strong>
             </div>
             <div>
-              <span style={{ color: '#64748b' }}>Sexo: </span>
+              <span style={{ color: 'var(--text-secondary)' }}>Sexo: </span>
               <strong>{ficha.sexo === 'M' ? 'Masculino' : 'Femenino'}</strong>
             </div>
             <div>
-              <span style={{ color: '#64748b' }}>Correo electrónico: </span>
+              <span style={{ color: 'var(--text-secondary)' }}>Correo electrónico: </span>
               <strong>{ficha.correo || '—'}</strong>
             </div>
             <div>
-              <span style={{ color: '#64748b' }}>Teléfono: </span>
+              <span style={{ color: 'var(--text-secondary)' }}>Teléfono: </span>
               <strong>{ficha.telefono || '—'}</strong>
             </div>
             <div style={{ gridColumn: 'span 2' }}>
-              <span style={{ color: '#64748b' }}>Dirección: </span>
+              <span style={{ color: 'var(--text-secondary)' }}>Dirección: </span>
               <strong>{ficha.direccion || '—'}</strong>
             </div>
           </div>
@@ -212,56 +179,46 @@ export function FichaFuncionarioModal({
 
         {/* Sección: Asignación Laboral Vigente */}
         <div>
-          <h4
-            style={{
-              margin: '0 0 0.5rem',
-              fontSize: '0.9rem',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              color: '#475569',
-              borderBottom: '1px solid #e2e8f0',
-              paddingBottom: '0.25rem',
-            }}
-          >
+          <h4 style={tituloSeccion}>
             {ficha.estado === 'BAJA' ? 'Última Asignación Laboral' : 'Asignación Laboral Vigente'}
           </h4>
           {asignacion ? (
-            <div className="form-grid-2" style={{ gap: '0.75rem', fontSize: '0.9rem' }}>
+            <div className="form-grid-2" style={{ gap: '0.75rem', fontSize: '0.9rem', color: 'var(--text-primary)' }}>
               <div>
-                <span style={{ color: '#64748b' }}>Área: </span>
+                <span style={{ color: 'var(--text-secondary)' }}>Área: </span>
                 <strong>{asignacion.areaNombre}</strong>
               </div>
               <div>
-                <span style={{ color: '#64748b' }}>Cargo: </span>
+                <span style={{ color: 'var(--text-secondary)' }}>Cargo: </span>
                 <strong>{asignacion.cargoNombre}</strong>
               </div>
               <div>
-                <span style={{ color: '#64748b' }}>Remuneración (Haber Básico): </span>
+                <span style={{ color: 'var(--text-secondary)' }}>Remuneración (Haber Básico): </span>
                 <strong className="font-mono">{formatCurrency(asignacion.remuneracion)}</strong>
               </div>
               <div>
-                <span style={{ color: '#64748b' }}>Días de Prueba: </span>
+                <span style={{ color: 'var(--text-secondary)' }}>Días de Prueba: </span>
                 <strong>{ficha.diasPrueba} días</strong>
               </div>
               <div>
-                <span style={{ color: '#64748b' }}>Vigente desde: </span>
+                <span style={{ color: 'var(--text-secondary)' }}>Vigente desde: </span>
                 <strong>{formatDate(asignacion.vigenteDesde)}</strong>
               </div>
               {asignacion.vigenteHasta && (
                 <div>
-                  <span style={{ color: '#64748b' }}>Vigente hasta: </span>
-                  <strong style={{ color: '#dc2626' }}>
+                  <span style={{ color: 'var(--text-secondary)' }}>Vigente hasta: </span>
+                  <strong style={{ color: 'var(--arca-danger)' }}>
                     {formatDate(asignacion.vigenteHasta)}
                   </strong>
                 </div>
               )}
               <div>
-                <span style={{ color: '#64748b' }}>Motivo: </span>
+                <span style={{ color: 'var(--text-secondary)' }}>Motivo: </span>
                 <strong>{asignacion.motivo}</strong>
               </div>
             </div>
           ) : (
-            <p style={{ color: '#64748b', fontStyle: 'italic' }}>Sin asignación registrada.</p>
+            <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>Sin asignación registrada.</p>
           )}
         </div>
 
@@ -269,7 +226,7 @@ export function FichaFuncionarioModal({
         <div>
           <h4 style={tituloSeccion}>Historial de Asignaciones</h4>
           {ficha.historialAsignaciones.length === 0 ? (
-            <p style={{ color: '#64748b', fontStyle: 'italic' }}>Sin historial registrado.</p>
+            <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>Sin historial registrado.</p>
           ) : (
             <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
               {ficha.historialAsignaciones.map((item, i) => {
@@ -284,25 +241,25 @@ export function FichaFuncionarioModal({
                           height: '0.75rem',
                           marginTop: '0.3rem',
                           borderRadius: '9999px',
-                          backgroundColor: vigente ? '#16a34a' : '#94a3b8',
+                          backgroundColor: vigente ? 'var(--arca-success)' : 'var(--text-tertiary)',
                           flexShrink: 0,
                         }}
                       />
                       {!ultimo && (
-                        <span style={{ flex: 1, width: '2px', backgroundColor: '#e2e8f0' }} />
+                        <span style={{ flex: 1, width: '2px', backgroundColor: 'var(--glass-border)' }} />
                       )}
                     </div>
                     <div style={{ paddingBottom: ultimo ? 0 : '1rem', fontSize: '0.9rem' }}>
-                      <div style={{ color: '#64748b', fontSize: '0.8rem' }}>
+                      <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
                         {formatDate(item.vigenteDesde)} —{' '}
                         {vigente ? 'actual' : formatDate(item.vigenteHasta)} ·{' '}
                         {MOTIVO_LABEL[item.motivo] ?? item.motivo}
                       </div>
-                      <div>
+                      <div style={{ color: 'var(--text-primary)' }}>
                         <strong>{item.cargoNombre}</strong>{' '}
-                        <span style={{ color: '#64748b' }}>({item.areaNombre})</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>({item.areaNombre})</span>
                       </div>
-                      <div className="font-mono">{formatCurrency(item.remuneracion)}</div>
+                      <div className="font-mono" style={{ color: 'var(--text-primary)' }}>{formatCurrency(item.remuneracion)}</div>
                     </div>
                   </li>
                 )

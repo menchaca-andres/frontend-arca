@@ -116,20 +116,8 @@ export function DarDeBajaModal({ funcionario, isOpen, onClose, onSuccess }: DarD
         style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
       >
         {/* Banner de advertencia */}
-        <div
-          style={{
-            display: 'flex',
-            gap: '0.5rem',
-            padding: '0.75rem',
-            backgroundColor: '#fef2f2',
-            border: '1px solid #fee2e2',
-            borderRadius: '0.375rem',
-            color: '#991b1b',
-            fontSize: '0.875rem',
-            alignItems: 'flex-start',
-          }}
-        >
-          <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
+        <div className="glass-alert-danger">
+          <AlertTriangle size={18} style={{ color: 'var(--arca-danger)', flexShrink: 0, marginTop: '0.1rem' }} />
           <div>
             <strong>Baja lógica institucional:</strong> El funcionario pasará a estado{' '}
             <strong>BAJA</strong> y su asignación laboral vigente se cerrará al{' '}
@@ -142,18 +130,19 @@ export function DarDeBajaModal({ funcionario, isOpen, onClose, onSuccess }: DarD
         <div
           style={{
             padding: '0.75rem',
-            backgroundColor: '#f8fafc',
-            borderRadius: '0.375rem',
-            border: '1px solid #e2e8f0',
+            backgroundColor: 'var(--glass-bg-subtle)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--glass-border)',
             fontSize: '0.875rem',
+            color: 'var(--text-primary)',
           }}
         >
           <div>
             <strong>Funcionario:</strong> {funcionario.nombres} {funcionario.apellidos}
           </div>
-          <div style={{ color: '#64748b' }}>
+          <div style={{ color: 'var(--text-secondary)' }}>
             CI:{' '}
-            <strong className="font-mono">
+            <strong className="font-mono" style={{ color: 'var(--text-primary)' }}>
               {funcionario.ci} {funcionario.ciExpedido}
             </strong>{' '}
             · Ingreso: {formatDate(funcionario.fechaIngreso)}

@@ -254,27 +254,28 @@ export function KardexView({
                       flexWrap: 'wrap',
                       gap: '1.5rem',
                       padding: '0.75rem',
-                      background: 'var(--bg-muted, rgba(0,0,0,0.02))',
-                      borderRadius: 8,
+                      background: 'var(--glass-bg-subtle)',
+                      border: '1px solid var(--glass-border)',
+                      borderRadius: 'var(--radius-sm)',
                       marginBottom: '1rem',
                       fontSize: '0.875rem',
                     }}
                   >
                     <div>
-                      <strong style={{ color: 'var(--text-muted)' }}>Ganados: </strong>
+                      <strong style={{ color: 'var(--text-secondary)' }}>Ganados: </strong>
                       <span className="font-mono">{gestion.diasGanados} días</span>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-muted)' }}>Utilizados: </strong>
+                      <strong style={{ color: 'var(--text-secondary)' }}>Utilizados: </strong>
                       <span className="font-mono">{gestion.diasUsados} días</span>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-muted)' }}>Reservados: </strong>
+                      <strong style={{ color: 'var(--text-secondary)' }}>Reservados: </strong>
                       <span className="font-mono">{gestion.diasReservados} días</span>
                     </div>
                     <div>
-                      <strong style={{ color: 'var(--text-muted)' }}>Saldo en gestión: </strong>
-                      <strong className="font-mono" style={{ color: 'var(--primary)' }}>
+                      <strong style={{ color: 'var(--text-secondary)' }}>Saldo en gestión: </strong>
+                      <strong className="font-mono" style={{ color: 'var(--arca-teal-accent)' }}>
                         {gestion.diasDisponibles} días
                       </strong>
                     </div>
@@ -309,9 +310,9 @@ export function KardexView({
                             </TableCell>
                             <TableCell>
                               {sol.estado === 'APROBADA' ? (
-                                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                    <CheckCircle2 size={13} style={{ color: 'var(--success)' }} />
+                                    <CheckCircle2 size={13} style={{ color: 'var(--arca-success)' }} />
                                     <span>
                                       Aprobada {sol.fechaResolucion ? formatDate(sol.fechaResolucion) : ''}
                                     </span>
@@ -323,7 +324,7 @@ export function KardexView({
                                   )}
                                 </div>
                               ) : sol.estado === 'RECHAZADA' ? (
-                                <div style={{ fontSize: '0.8rem', color: 'var(--danger)' }}>
+                                <div style={{ fontSize: '0.8rem', color: 'var(--arca-danger)' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                                     <XCircle size={13} />
                                     <span>
@@ -335,7 +336,7 @@ export function KardexView({
                                       style={{
                                         marginTop: 2,
                                         fontSize: '0.75rem',
-                                        color: 'var(--text)',
+                                        color: 'var(--text-primary)',
                                       }}
                                     >
                                       <strong>Motivo:</strong> {sol.motivoRechazo}
@@ -349,7 +350,7 @@ export function KardexView({
                                     alignItems: 'center',
                                     gap: 4,
                                     fontSize: '0.8rem',
-                                    color: 'var(--warning)',
+                                    color: 'var(--arca-warning)',
                                   }}
                                 >
                                   <Clock size={13} />

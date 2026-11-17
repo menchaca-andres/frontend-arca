@@ -27,7 +27,6 @@ export function HomePage() {
       {/* Bienvenida y Datos de Sesión */}
       <header className="page-header-ds">
         <div>
-          <p className="eyebrow-ds">Panel de Control</p>
           <h1 className="page-title-ds">Bienvenido/a, {usuario.email}</h1>
           <p className="page-subtitle-ds">
             Sesión activa con rol <StatusBadge status={usuario.rol} />. Los módulos visibles en tu

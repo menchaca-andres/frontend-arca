@@ -102,13 +102,11 @@ export function PersonalPage() {
   // HU-11 CA-04: Aviso con funcionarios cuyo periodo de prueba termina en los próximos 7 días
   const [pruebasPorVencer, setPruebasPorVencer] = useState<PruebaPorVencerItem[]>([])
 
-  const verFicha = useCallback(
-    async (id: string) => {
+  const obtenerFicha = useCallback(
+    async (id: string): Promise<FichaFuncionario | null> => {
       setCargandoFicha(true)
       try {
         const ficha = await ApiService.getFuncionarioFicha(id)
-        setFichaSeleccionada(ficha)
-        setIsFichaOpen(true)
         return ficha
       } catch (err) {
         toast.error(
@@ -121,6 +119,18 @@ export function PersonalPage() {
       }
     },
     [toast],
+  )
+
+  const verFicha = useCallback(
+    async (id: string) => {
+      const ficha = await obtenerFicha(id)
+      if (ficha) {
+        setFichaSeleccionada(ficha)
+        setIsFichaOpen(true)
+      }
+      return ficha
+    },
+    [obtenerFicha],
   )
 
   const cargarFuncionarios = useCallback(async () => {
@@ -215,11 +225,13 @@ export function PersonalPage() {
   }
 
   // Abrir modal de ratificación (HU-11)
-  const iniciarRatificacion = async (funcionario: FuncionarioResumen | FichaFuncionario) => {
+  const iniciarRatificacion = async (
+    funcionario: FuncionarioResumen | FichaFuncionario | PruebaPorVencerItem,
+  ) => {
     let ficha: FichaFuncionario | null =
       'asignacionVigente' in funcionario ? (funcionario as FichaFuncionario) : null
     if (!ficha) {
-      ficha = await verFicha(funcionario.id)
+      ficha = await obtenerFicha(funcionario.id)
     }
     if (ficha) {
       setFuncionarioParaRatificar(ficha)
@@ -232,7 +244,7 @@ export function PersonalPage() {
     let ficha: FichaFuncionario | null =
       'asignacionVigente' in funcionario ? (funcionario as FichaFuncionario) : null
     if (!ficha) {
-      ficha = await verFicha(funcionario.id)
+      ficha = await obtenerFicha(funcionario.id)
     }
     if (ficha) {
       setFuncionarioParaBaja(ficha)
@@ -254,7 +266,6 @@ export function PersonalPage() {
     <div className="module-view-ds">
       <header className="page-header-ds">
         <div>
-          <p className="eyebrow-ds">Módulo de Personal (ms-personal)</p>
           <h1 className="page-title-ds">{esFuncionario ? 'Mi Ficha' : 'Padrón de Funcionarios'}</h1>
           <p className="page-subtitle-ds">
             {esFuncionario
@@ -291,13 +302,11 @@ export function PersonalPage() {
       {/* HU-11 CA-04: Aviso con los funcionarios cuyo periodo de prueba termina en los próximos 7 días */}
       {!esFuncionario && puedeGestionar && pruebasPorVencer.length > 0 && (
         <div
+          className="glass-alert-warning"
           style={{
-            marginBottom: '1rem',
-            padding: '1rem',
-            backgroundColor: '#fffbeb',
-            border: '1px solid #fef3c7',
-            borderRadius: '0.5rem',
-            color: '#92400e',
+            marginBottom: '1.25rem',
+            flexDirection: 'column',
+            width: '100%',
           }}
         >
           <div
@@ -307,33 +316,32 @@ export function PersonalPage() {
               gap: '0.5rem',
               fontWeight: 600,
               fontSize: '0.95rem',
+              color: 'var(--text-primary)',
             }}
           >
-            <Clock size={18} />
+            <Clock size={18} style={{ color: 'var(--arca-warning)' }} />
             <span>Aviso de Periodo de Prueba (HU-11: CA-04)</span>
           </div>
-          <p style={{ margin: '0.25rem 0 0.75rem', fontSize: '0.85rem' }}>
+          <p style={{ margin: '0.25rem 0 0.75rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
             Se identificaron {pruebasPorVencer.length} funcionario(s) cuyo periodo de prueba
             concluye en los próximos 7 días (o listos para ser ratificados):
           </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%' }}>
             {pruebasPorVencer.map((item) => (
               <div
                 key={item.id}
+                className="glass-card-nested"
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  backgroundColor: '#ffffff',
-                  padding: '0.6rem 0.85rem',
-                  borderRadius: '0.375rem',
-                  border: '1px solid #fde68a',
+                  padding: '0.65rem 0.95rem',
                   fontSize: '0.85rem',
                 }}
               >
                 <div>
-                  <strong style={{ color: '#0f172a' }}>{item.nombreCompleto}</strong>{' '}
-                  <span style={{ color: '#64748b' }}>
+                  <strong style={{ color: 'var(--text-primary)' }}>{item.nombreCompleto}</strong>{' '}
+                  <span style={{ color: 'var(--text-tertiary)' }}>
                     ({item.ci} {item.ciExpedido})
                   </span>{' '}
                   · Ingreso: {formatDate(item.fechaIngreso)} ({item.diasPrueba} días)
@@ -341,7 +349,7 @@ export function PersonalPage() {
                     style={{
                       marginLeft: '0.75rem',
                       fontWeight: 600,
-                      color: item.listoParaRatificar ? '#16a34a' : '#d97706',
+                      color: item.listoParaRatificar ? 'var(--arca-success)' : 'var(--arca-warning)',
                     }}
                   >
                     {item.listoParaRatificar

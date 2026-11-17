@@ -286,7 +286,7 @@ export function RegistrarFuncionarioModal({
             style={{
               fontWeight: 600,
               fontSize: '0.95rem',
-              color: '#1e293b',
+              color: 'var(--text-primary)',
               marginBottom: '0.75rem',
             }}
           >
@@ -356,7 +356,7 @@ export function RegistrarFuncionarioModal({
             style={{
               fontWeight: 600,
               fontSize: '0.95rem',
-              color: '#1e293b',
+              color: 'var(--text-primary)',
               marginBottom: '0.75rem',
             }}
           >
@@ -396,7 +396,7 @@ export function RegistrarFuncionarioModal({
             style={{
               fontWeight: 600,
               fontSize: '0.95rem',
-              color: '#1e293b',
+              color: 'var(--text-primary)',
               marginBottom: '0.75rem',
             }}
           >

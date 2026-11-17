@@ -305,10 +305,10 @@ export function EditorPlantillaModal({
         {/* Panel de Inserción de Campos Dinámicos (Human-Friendly) */}
         <div
           style={{
-            border: '1px solid rgba(0, 0, 0, 0.08)',
-            borderRadius: '12px',
+            border: '1px solid var(--glass-border)',
+            borderRadius: 'var(--radius-md)',
             padding: '14px 16px',
-            backgroundColor: '#fafafc',
+            backgroundColor: 'var(--glass-bg-subtle)',
           }}
         >
           <div
@@ -322,14 +322,14 @@ export function EditorPlantillaModal({
             }}
           >
             <div>
-              <span style={{ fontSize: '0.86rem', fontWeight: 600, color: '#1d1d1f' }}>
+              <span style={{ fontSize: '0.86rem', fontWeight: 600, color: 'var(--text-primary)' }}>
                 Campos Dinámicos del Contrato
               </span>
-              <p style={{ fontSize: '0.76rem', color: '#86868b', margin: '2px 0 0' }}>
-                Haz clic en cualquier campo para insertarlo automáticamente en la posición del cursor.
+              <p style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
+                Haga clic en cualquier campo para insertarlo automáticamente en la posición del cursor.
               </p>
             </div>
-            <span style={{ fontSize: '0.74rem', color: '#d97706', fontWeight: 500 }}>
+            <span style={{ fontSize: '0.74rem', color: 'var(--arca-warning)', fontWeight: 500 }}>
               ★ Campos obligatorios de ley
             </span>
           </div>
@@ -349,19 +349,19 @@ export function EditorPlantillaModal({
                     padding: '6px 12px',
                     fontSize: '0.8rem',
                     fontWeight: 500,
-                    backgroundColor: esObligatoria ? 'rgba(255, 149, 0, 0.1)' : '#ffffff',
-                    border: `1px solid ${esObligatoria ? 'rgba(255, 149, 0, 0.35)' : 'rgba(0, 0, 0, 0.1)'}`,
-                    color: esObligatoria ? '#9c4400' : '#1d1d1f',
+                    backgroundColor: esObligatoria ? 'rgba(255, 159, 10, 0.15)' : 'var(--glass-bg)',
+                    border: `1px solid ${esObligatoria ? 'rgba(255, 159, 10, 0.4)' : 'var(--glass-border)'}`,
+                    color: esObligatoria ? 'var(--arca-warning)' : 'var(--text-primary)',
                     borderRadius: '8px',
                     cursor: 'pointer',
-                    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)',
+                    boxShadow: 'var(--glass-shadow)',
                     transition: 'all 0.15s ease',
                   }}
                   title={`Inserta ${v.tag} en el documento`}
                 >
-                  <span style={{ color: esObligatoria ? '#d97706' : '#0f766e', fontWeight: 700 }}>+</span>
+                  <span style={{ color: esObligatoria ? 'var(--arca-warning)' : 'var(--arca-teal-accent)', fontWeight: 700 }}>+</span>
                   <span>{v.label}</span>
-                  {esObligatoria && <span style={{ color: '#d97706', fontWeight: 700 }}>★</span>}
+                  {esObligatoria && <span style={{ color: 'var(--arca-warning)', fontWeight: 700 }}>★</span>}
                 </button>
               )
             })}
@@ -450,11 +450,11 @@ export function EditorPlantillaModal({
               </div>
               <div
                 style={{
-                  border: '1px solid #d2d2d7',
+                  border: '1px solid var(--glass-border)',
                   borderRadius: '12px',
                   padding: '24px 28px',
-                  backgroundColor: '#ffffff',
-                  boxShadow: '0 4px 18px rgba(0, 0, 0, 0.05)',
+                  backgroundColor: 'var(--glass-bg)',
+                  boxShadow: 'var(--glass-shadow)',
                   minHeight: '360px',
                   maxHeight: '480px',
                   overflowY: 'auto',
@@ -465,7 +465,7 @@ export function EditorPlantillaModal({
                     fontSize: '0.92rem',
                     whiteSpace: 'pre-wrap',
                     lineHeight: 1.7,
-                    color: '#1d1d1f',
+                    color: 'var(--text-primary)',
                     fontFamily: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif',
                   }}
                 >
@@ -476,7 +476,7 @@ export function EditorPlantillaModal({
           )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', color: '#86868b' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
           <Info size={14} className="shrink-0" />
           <span>
             {esEdicion

@@ -1197,32 +1197,21 @@ export function BoletasPage() {
 
           {/* Banner si el período está en BORRADOR */}
           {periodoActual?.estado === 'BORRADOR' && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                padding: '0.875rem 1.25rem',
-                backgroundColor: '#fffbeb',
-                border: '1px solid #fde68a',
-                borderRadius: '0.5rem',
-                color: '#92400e',
-                fontSize: '0.875rem',
-              }}
-            >
-              <AlertCircle size={20} className="text-amber-600 flex-shrink-0" />
+            <div className="glass-alert-warning">
+              <AlertCircle size={20} style={{ color: 'var(--arca-warning)' }} className="flex-shrink-0" />
               <div>
-                <strong>Período en estado BORRADOR:</strong> Las boletas oficiales aún no han sido emitidas para este período.
+                <strong style={{ color: 'var(--text-primary)' }}>Período en estado BORRADOR:</strong>{' '}
+                <span style={{ color: 'var(--text-secondary)' }}>Las boletas oficiales aún no han sido emitidas para este período.</span>
                 {puedeGestionar && (
-                  <span>
-                    {' '}Para generar los correlativos y PDFs inmutables con hash SHA-256, andá a la pestaña{' '}
+                  <span style={{ color: 'var(--text-secondary)' }}>
+                    {' '}Para generar los correlativos y PDFs inmutables con hash SHA-256, ingrese a la pestaña{' '}
                     <button
                       type="button"
                       onClick={() => setTabActivo('planilla')}
                       style={{
                         textDecoration: 'underline',
                         fontWeight: 600,
-                        color: '#b45309',
+                        color: 'var(--arca-teal-accent)',
                         background: 'none',
                         border: 'none',
                         cursor: 'pointer',
@@ -1231,7 +1220,7 @@ export function BoletasPage() {
                     >
                       Planilla del Período
                     </button>{' '}
-                    y hacé clic en "Emitir Boletas del Período".
+                    y haga clic en "Emitir Boletas del Período".
                   </span>
                 )}
               </div>

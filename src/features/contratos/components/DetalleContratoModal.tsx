@@ -121,8 +121,8 @@ export function DetalleContratoModal({
             style={{
               padding: '1.1rem 1.35rem',
               borderRadius: '14px',
-              backgroundColor: '#f8fafc',
-              border: '1px solid #e2e8f0',
+              backgroundColor: 'var(--glass-bg-subtle)',
+              border: '1px solid var(--glass-border)',
               display: 'flex',
               flexDirection: 'column',
               gap: '0.8rem',
@@ -143,8 +143,8 @@ export function DetalleContratoModal({
                     width: '42px',
                     height: '42px',
                     borderRadius: '10px',
-                    backgroundColor: '#e0f2fe',
-                    color: '#0284c7',
+                    backgroundColor: 'var(--arca-info-bg)',
+                    color: 'var(--arca-info)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -153,10 +153,10 @@ export function DetalleContratoModal({
                   <User size={22} />
                 </div>
                 <div>
-                  <h4 style={{ margin: 0, color: '#1e293b', fontSize: '1.05rem', fontWeight: 600 }}>
+                  <h4 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.05rem', fontWeight: 600 }}>
                     {funcionarioNombre}
                   </h4>
-                  <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                     {cargoNombre} &bull; {areaNombre}
                   </span>
                 </div>
@@ -176,13 +176,13 @@ export function DetalleContratoModal({
                 gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
                 gap: '0.65rem',
                 paddingTop: '0.65rem',
-                borderTop: '1px solid #edf2f7',
+                borderTop: '1px solid var(--glass-border)',
                 fontSize: '0.82rem',
               }}
             >
               <div>
-                <span style={{ color: '#64748b', display: 'block' }}>Fecha de Emisión:</span>
-                <strong style={{ color: '#334155' }}>
+                <span style={{ color: 'var(--text-secondary)', display: 'block' }}>Fecha de Emisión:</span>
+                <strong style={{ color: 'var(--text-primary)' }}>
                   {new Date(detalle.createdAt).toLocaleDateString('es-BO', {
                     day: '2-digit',
                     month: 'long',
@@ -192,19 +192,19 @@ export function DetalleContratoModal({
               </div>
               {fechaIngreso && (
                 <div>
-                  <span style={{ color: '#64748b', display: 'block' }}>Fecha de Ingreso:</span>
-                  <strong style={{ color: '#334155' }}>{fechaIngreso}</strong>
+                  <span style={{ color: 'var(--text-secondary)', display: 'block' }}>Fecha de Ingreso:</span>
+                  <strong style={{ color: 'var(--text-primary)' }}>{fechaIngreso}</strong>
                 </div>
               )}
               {remuneracion !== undefined && (
                 <div>
-                  <span style={{ color: '#64748b', display: 'block' }}>Remuneración:</span>
-                  <strong style={{ color: '#047857' }}>Bs. {remuneracion.toLocaleString('es-BO')}</strong>
+                  <span style={{ color: 'var(--text-secondary)', display: 'block' }}>Remuneración:</span>
+                  <strong style={{ color: 'var(--arca-success)' }}>Bs. {remuneracion.toLocaleString('es-BO')}</strong>
                 </div>
               )}
               <div>
-                <span style={{ color: '#64748b', display: 'block' }}>Plantilla:</span>
-                <strong style={{ color: '#334155' }}>
+                <span style={{ color: 'var(--text-secondary)', display: 'block' }}>Plantilla:</span>
+                <strong style={{ color: 'var(--text-primary)' }}>
                   {detalle.plantillaVersion?.plantilla?.nombre || 'Plantilla de Trabajo'}
                 </strong>
               </div>
@@ -216,8 +216,8 @@ export function DetalleContratoModal({
             style={{
               padding: '10px 14px',
               borderRadius: '10px',
-              backgroundColor: '#f1f5f9',
-              border: '1px solid #cbd5e1',
+              backgroundColor: 'var(--glass-bg-subtle)',
+              border: '1px solid var(--glass-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -225,15 +225,15 @@ export function DetalleContratoModal({
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <ShieldCheck size={18} style={{ color: '#0284c7' }} />
-              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#334155' }}>
+              <ShieldCheck size={18} style={{ color: 'var(--arca-info)' }} />
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
                 Huella SHA-256 (CA-03):
               </span>
               <code
                 style={{
                   fontSize: '0.78rem',
                   fontFamily: 'monospace',
-                  color: '#0f172a',
+                  color: 'var(--text-primary)',
                   wordBreak: 'break-all',
                 }}
               >
@@ -322,26 +322,26 @@ export function DetalleContratoModal({
               </div>
 
               {detalle.historialVersiones.length === 0 ? (
-                <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
+                <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-tertiary)' }}>
                   No se encontraron versiones previas de contrato.
                 </div>
               ) : (
                 <div
                   style={{
-                    border: '1px solid #e2e8f0',
+                    border: '1px solid var(--glass-border)',
                     borderRadius: '12px',
                     overflow: 'hidden',
-                    backgroundColor: '#ffffff',
+                    backgroundColor: 'var(--glass-bg)',
                   }}
                 >
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                     <thead>
-                      <tr style={{ backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>
-                        <th style={{ padding: '10px 14px', color: '#475569', fontWeight: 600 }}>Versión</th>
-                        <th style={{ padding: '10px 14px', color: '#475569', fontWeight: 600 }}>Número</th>
-                        <th style={{ padding: '10px 14px', color: '#475569', fontWeight: 600 }}>Estado</th>
-                        <th style={{ padding: '10px 14px', color: '#475569', fontWeight: 600 }}>Fecha Emisión</th>
-                        <th style={{ padding: '10px 14px', color: '#475569', fontWeight: 600, textAlign: 'right' }}>
+                      <tr style={{ backgroundColor: 'var(--glass-bg-subtle)', borderBottom: '1px solid var(--glass-border)', textAlign: 'left' }}>
+                        <th style={{ padding: '10px 14px', color: 'var(--text-secondary)', fontWeight: 600 }}>Versión</th>
+                        <th style={{ padding: '10px 14px', color: 'var(--text-secondary)', fontWeight: 600 }}>Número</th>
+                        <th style={{ padding: '10px 14px', color: 'var(--text-secondary)', fontWeight: 600 }}>Estado</th>
+                        <th style={{ padding: '10px 14px', color: 'var(--text-secondary)', fontWeight: 600 }}>Fecha Emisión</th>
+                        <th style={{ padding: '10px 14px', color: 'var(--text-secondary)', fontWeight: 600, textAlign: 'right' }}>
                           Descarga
                         </th>
                       </tr>
@@ -353,20 +353,20 @@ export function DetalleContratoModal({
                           <tr
                             key={v.id}
                             style={{
-                              borderBottom: '1px solid #f1f5f9',
-                              backgroundColor: esActual ? 'rgba(37, 99, 235, 0.04)' : undefined,
+                              borderBottom: '1px solid var(--glass-border-dark)',
+                              backgroundColor: esActual ? 'var(--glass-bg-subtle)' : undefined,
                             }}
                           >
-                            <td style={{ padding: '10px 14px', fontWeight: 600, color: '#2563eb' }}>
-                              v{v.version} {esActual && <span style={{ fontSize: '0.75rem' }}>(Esta ficha)</span>}
+                            <td style={{ padding: '10px 14px', fontWeight: 600, color: 'var(--arca-info)' }}>
+                              v{v.version} {esActual && <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>(Esta ficha)</span>}
                             </td>
-                            <td style={{ padding: '10px 14px', fontFamily: 'monospace', fontWeight: 600 }}>
+                            <td style={{ padding: '10px 14px', fontFamily: 'monospace', fontWeight: 600, color: 'var(--text-primary)' }}>
                               {v.numero}
                             </td>
                             <td style={{ padding: '10px 14px' }}>
                               <StatusBadge status={v.estado} />
                             </td>
-                            <td style={{ padding: '10px 14px', color: '#64748b' }}>
+                            <td style={{ padding: '10px 14px', color: 'var(--text-secondary)' }}>
                               {new Date(v.createdAt).toLocaleDateString('es-BO', {
                                 day: '2-digit',
                                 month: 'short',

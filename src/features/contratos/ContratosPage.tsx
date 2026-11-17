@@ -307,7 +307,7 @@ export function ContratosPage() {
       {tabActivo === 'plantillas' ? (
         <Card>
           {cargandoPlantillas ? (
-            <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
+            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
               Cargando catálogo de plantillas...
             </div>
           ) : plantillas.length === 0 ? (
@@ -331,14 +331,14 @@ export function ContratosPage() {
                 {plantillas.map((p) => (
                   <TableRow key={p.id}>
                     <TableCell className="font-mono">
-                      <strong>{p.codigo}</strong>
+                      <strong style={{ color: 'var(--text-primary)' }}>{p.codigo}</strong>
                     </TableCell>
-                    <TableCell>{p.nombre}</TableCell>
+                    <TableCell style={{ color: 'var(--text-primary)' }}>{p.nombre}</TableCell>
                     <TableCell>
                       <StatusBadge status={p.tipo} />
                     </TableCell>
                     <TableCell>
-                      <span className="font-mono" style={{ fontWeight: 600, color: '#2563eb' }}>
+                      <span className="font-mono" style={{ fontWeight: 600, color: 'var(--arca-info)' }}>
                         v{p.versionActiva?.version ?? 1}
                       </span>
                     </TableCell>
@@ -377,19 +377,7 @@ export function ContratosPage() {
         <Card title={esFuncionario ? 'Mis Contratos Emitidos' : 'Contratos Emitidos (HU-18 / HU-19)'}>
           {/* Barra de Filtros para RRHH (CA-01) */}
           {puedeGestionar && (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                gap: '0.75rem',
-                marginBottom: '1.25rem',
-                padding: '1rem',
-                backgroundColor: '#f8fafc',
-                borderRadius: '12px',
-                border: '1px solid #e2e8f0',
-                alignItems: 'end',
-              }}
-            >
+            <div className="filter-panel-ds">
               <Select
                 label="Funcionario"
                 options={opcionesFuncionariosFiltro}
@@ -441,7 +429,7 @@ export function ContratosPage() {
           )}
 
           {cargandoContratos ? (
-            <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
+            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
               Cargando contratos emitidos...
             </div>
           ) : contratosEmitidos.length === 0 ? (
@@ -494,10 +482,10 @@ export function ContratosPage() {
                 {contratosEmitidos.map((c) => (
                   <TableRow key={c.id}>
                     <TableCell className="font-mono">
-                      <strong style={{ color: '#1e293b' }}>{c.numero}</strong>
+                      <strong style={{ color: 'var(--text-primary)' }}>{c.numero}</strong>
                     </TableCell>
                     <TableCell>
-                      <span className="font-mono" style={{ fontWeight: 600, color: '#2563eb' }}>
+                      <span className="font-mono" style={{ fontWeight: 600, color: 'var(--arca-info)' }}>
                         v{c.version}
                       </span>
                     </TableCell>
@@ -505,25 +493,12 @@ export function ContratosPage() {
                       <StatusBadge status={c.estado} />
                     </TableCell>
                     <TableCell>
-                      <div
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '0.4rem',
-                          backgroundColor: '#f1f5f9',
-                          padding: '4px 8px',
-                          borderRadius: '6px',
-                          fontFamily: 'monospace',
-                          fontSize: '0.78rem',
-                          color: '#334155',
-                        }}
-                        title={c.hashSha256}
-                      >
-                        <ShieldCheck size={14} style={{ color: '#0284c7' }} />
+                      <div className="hash-badge-ds" title={c.hashSha256}>
+                        <ShieldCheck size={14} className="hash-icon" />
                         <span>{c.hashSha256.substring(0, 16)}...</span>
                       </div>
                     </TableCell>
-                    <TableCell style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                    <TableCell style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
                       {new Date(c.createdAt).toLocaleDateString('es-BO', {
                         day: '2-digit',
                         month: 'short',

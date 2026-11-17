@@ -356,7 +356,8 @@ export function VacacionesPage() {
                 height: 10,
                 overflow: 'hidden',
                 borderRadius: 8,
-                background: 'var(--border, #e5e7eb)',
+                background: 'var(--glass-bg-subtle)',
+                border: '1px solid var(--glass-border)',
               }}
             >
               <div
@@ -364,7 +365,7 @@ export function VacacionesPage() {
                   width: `${porcentaje}%`,
                   height: '100%',
                   borderRadius: 8,
-                  background: 'var(--primary, #2563eb)',
+                  background: 'linear-gradient(90deg, var(--arca-teal-solid), var(--arca-teal-accent))',
                   transition: 'width 200ms ease',
                 }}
               />

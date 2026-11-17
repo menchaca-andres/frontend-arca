@@ -290,14 +290,14 @@ export function GenerarContratoModal({
               style={{
                 padding: '12px 16px',
                 borderRadius: '12px',
-                backgroundColor: '#f8fafc',
-                border: '1px solid #e2e8f0',
+                backgroundColor: 'var(--glass-bg-subtle)',
+                border: '1px solid var(--glass-border)',
               }}
             >
-              <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block' }}>
                 Número Correlativo (CA-07)
               </span>
-              <strong style={{ fontSize: '1.1rem', color: '#1e293b', fontFamily: 'monospace' }}>
+              <strong style={{ fontSize: '1.1rem', color: 'var(--text-primary)', fontFamily: 'monospace' }}>
                 {contratoEmitido.numero}
               </strong>
             </div>
@@ -306,14 +306,14 @@ export function GenerarContratoModal({
               style={{
                 padding: '12px 16px',
                 borderRadius: '12px',
-                backgroundColor: '#f8fafc',
-                border: '1px solid #e2e8f0',
+                backgroundColor: 'var(--glass-bg-subtle)',
+                border: '1px solid var(--glass-border)',
               }}
             >
-              <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block' }}>
                 Versión Vigente (CA-06)
               </span>
-              <strong style={{ fontSize: '1.1rem', color: '#2563eb' }}>
+              <strong style={{ fontSize: '1.1rem', color: 'var(--arca-info)' }}>
                 Versión {contratoEmitido.version} (VIGENTE)
               </strong>
             </div>
@@ -322,11 +322,11 @@ export function GenerarContratoModal({
               style={{
                 padding: '12px 16px',
                 borderRadius: '12px',
-                backgroundColor: '#f8fafc',
-                border: '1px solid #e2e8f0',
+                backgroundColor: 'var(--glass-bg-subtle)',
+                border: '1px solid var(--glass-border)',
               }}
             >
-              <span style={{ fontSize: '0.75rem', color: '#64748b', display: 'block' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block' }}>
                 Estado Operativo
               </span>
               <StatusBadge status={contratoEmitido.estado} />
@@ -338,8 +338,8 @@ export function GenerarContratoModal({
             style={{
               padding: '12px 16px',
               borderRadius: '12px',
-              backgroundColor: '#f1f5f9',
-              border: '1px solid #cbd5e1',
+              backgroundColor: 'var(--glass-bg-subtle)',
+              border: '1px solid var(--glass-border)',
             }}
           >
             <div
@@ -348,12 +348,12 @@ export function GenerarContratoModal({
                 alignItems: 'center',
                 gap: '0.5rem',
                 marginBottom: '0.35rem',
-                color: '#334155',
+                color: 'var(--text-secondary)',
                 fontSize: '0.82rem',
                 fontWeight: 600,
               }}
             >
-              <ShieldCheck size={16} style={{ color: '#0284c7' }} />
+              <ShieldCheck size={16} style={{ color: 'var(--arca-info)' }} />
               <span>Huella Criptográfica SHA-256 del PDF (CA-04)</span>
             </div>
             <code
@@ -362,11 +362,11 @@ export function GenerarContratoModal({
                 wordBreak: 'break-all',
                 fontSize: '0.8rem',
                 fontFamily: 'monospace',
-                color: '#0f172a',
-                backgroundColor: '#ffffff',
+                color: 'var(--text-primary)',
+                backgroundColor: 'var(--glass-bg)',
                 padding: '8px 12px',
                 borderRadius: '6px',
-                border: '1px solid #e2e8f0',
+                border: '1px solid var(--glass-border)',
               }}
             >
               {contratoEmitido.hashSha256}
@@ -375,21 +375,21 @@ export function GenerarContratoModal({
 
           {/* Vista del texto final renderizado */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#475569' }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
               Contenido Persistido Inmutable:
             </span>
             <div
               style={{
-                border: '1px solid #e2e8f0',
+                border: '1px solid var(--glass-border)',
                 borderRadius: '10px',
                 padding: '16px 20px',
-                backgroundColor: '#ffffff',
+                backgroundColor: 'var(--glass-bg)',
                 maxHeight: '260px',
                 overflowY: 'auto',
                 fontFamily: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif',
                 fontSize: '0.88rem',
                 lineHeight: 1.6,
-                color: '#1e293b',
+                color: 'var(--text-primary)',
                 whiteSpace: 'pre-wrap',
               }}
             >
@@ -486,12 +486,12 @@ export function GenerarContratoModal({
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Eye size={16} style={{ color: '#0284c7' }} />
-                <span style={{ fontSize: '0.88rem', fontWeight: 600, color: '#1e293b' }}>
+                <Eye size={16} style={{ color: 'var(--arca-info)' }} />
+                <span style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>
                   Previsualización en Vivo del Contrato (CA-02)
                 </span>
                 {cargandoPreview && (
-                  <RefreshCw size={14} className="animate-spin" style={{ color: '#64748b' }} />
+                  <RefreshCw size={14} className="animate-spin" style={{ color: 'var(--text-secondary)' }} />
                 )}
               </div>
 
@@ -510,11 +510,11 @@ export function GenerarContratoModal({
             {/* Hoja de Contrato Legal estilo Apple */}
             <div
               style={{
-                border: '1px solid #d2d2d7',
+                border: '1px solid var(--glass-border)',
                 borderRadius: '14px',
                 padding: '28px 32px',
-                backgroundColor: '#ffffff',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.06)',
+                backgroundColor: 'var(--glass-bg)',
+                boxShadow: 'var(--glass-shadow)',
                 minHeight: '340px',
                 maxHeight: '440px',
                 overflowY: 'auto',
@@ -529,11 +529,11 @@ export function GenerarContratoModal({
                     alignItems: 'center',
                     justifyContent: 'center',
                     height: '280px',
-                    color: '#64748b',
+                    color: 'var(--text-secondary)',
                     gap: '0.75rem',
                   }}
                 >
-                  <RefreshCw size={28} className="animate-spin" style={{ color: '#2563eb' }} />
+                  <RefreshCw size={28} className="animate-spin" style={{ color: 'var(--arca-info)' }} />
                   <span style={{ fontSize: '0.9rem' }}>
                     Compilando plantilla con datos de ms-personal...
                   </span>
@@ -544,7 +544,7 @@ export function GenerarContratoModal({
                     fontFamily: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif',
                     fontSize: '0.95rem',
                     lineHeight: 1.7,
-                    color: '#1d1d1f',
+                    color: 'var(--text-primary)',
                     whiteSpace: 'pre-wrap',
                     textAlign: 'justify',
                   }}

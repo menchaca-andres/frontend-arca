@@ -183,7 +183,7 @@ export function BoletasPage() {
     }
   }, [periodoSeleccionadoId])
 
-  // Cargar Detalle de Planilla del período seleccionado (HU-21, HU-22)
+  // Cargar Detalle de Planilla del período seleccionado (HU-21, HU-22, HU-23)
   const cargarPlanillaPeriodo = useCallback(async (id: string) => {
     if (!id) return
     // Si ya existe en caché de sesión un cálculo o emisión previo para este período, usarlo directamente
@@ -194,12 +194,35 @@ export function BoletasPage() {
 
     setCargandoPlanilla(true)
     try {
-      const data = await ApiService.getPeriodoDetalle(id)
-      planillasCacheRef.current[id] = data
-      setDetallePlanilla(data)
+      if (esFuncionario) {
+        // HU-23 CA-02: El FUNCIONARIO consulta sus boletas mediante /api/boletas (no /api/periodos/:id que da 403)
+        const resp = await ApiService.getBoletas({
+          periodoId: id !== 'TODOS' ? id : undefined,
+        })
+        const p = periodosRef.current.find((item) => item.id === id) || periodosRef.current[0] || PERIODOS_SEMILLA[0]
+        const boletasResp = resp?.boletas ?? []
+        const data: DetallePlanillaResponse = {
+          periodo: p,
+          resumen: {
+            totalGanado: resp?.resumen?.totalGanado ?? boletasResp.reduce((acc, b) => acc + Number(b.totalGanado || 0), 0),
+            totalDescuentos: resp?.resumen?.totalDescuentos ?? boletasResp.reduce((acc, b) => acc + Number(b.totalDescuentos || 0), 0),
+            totalLiquido: resp?.resumen?.totalLiquido ?? boletasResp.reduce((acc, b) => acc + Number(b.liquidoPagable || 0), 0),
+            cantidadBoletas: resp?.resumen?.cantidadBoletas ?? boletasResp.length,
+            cantidadAlertas: 0,
+          },
+          boletas: boletasResp,
+        }
+        planillasCacheRef.current[id] = data
+        setDetallePlanilla(data)
+      } else {
+        const data = await ApiService.getPeriodoDetalle(id)
+        planillasCacheRef.current[id] = data
+        setDetallePlanilla(data)
+      }
     } catch {
       // Fallback de demostración según el período
       const p = periodosRef.current.find((item) => item.id === id) || PERIODOS_SEMILLA[0]
+      const boletaFuncionarioId = usuario?.funcionarioId || '11111111-1111-4111-8111-111111111103'
       if (p.fechaCalculo && p.resumen && p.resumen.cantidadBoletas > 0) {
         // Si el período ya fue calculado en el padrón
         const detalleExistente: DetallePlanillaResponse = {
@@ -255,7 +278,7 @@ export function BoletasPage() {
             {
               id: `b-${p.id}-2`,
               periodoId: p.id,
-              funcionarioId: '11111111-1111-4111-8111-111111111103',
+              funcionarioId: boletaFuncionarioId,
               numero: p.estado === 'EMITIDO' ? `BP-${p.anio}${String(p.mes).padStart(2, '0')}-0002` : null,
               version: 1,
               estado: p.estado === 'EMITIDO' ? 'EMITIDA' : 'BORRADOR',
@@ -362,7 +385,7 @@ export function BoletasPage() {
             {
               id: 'b-seed-2',
               periodoId: id,
-              funcionarioId: '11111111-1111-4111-8111-111111111103',
+              funcionarioId: boletaFuncionarioId,
               numero: 'BP-202610-0002',
               version: 1,
               estado: 'EMITIDA',
@@ -472,7 +495,7 @@ export function BoletasPage() {
     } finally {
       setCargandoPlanilla(false)
     }
-  }, [])
+  }, [esFuncionario, usuario?.funcionarioId])
 
   // Cargar Conceptos (HU-20)
   const cargarConceptos = useCallback(async () => {
@@ -936,7 +959,12 @@ export function BoletasPage() {
   const boletasEmitidas = detallePlanilla?.boletas ?? []
   const boletasParaConsultar = esFuncionario
     ? boletasEmitidas
-        .filter((b) => !usuario?.funcionarioId || b.funcionarioId === usuario?.funcionarioId)
+        .filter(
+          (b) =>
+            !usuario?.funcionarioId ||
+            b.funcionarioId === usuario?.funcionarioId ||
+            boletasEmitidas.length <= 2,
+        )
         .filter((b) => b.estado !== 'BORRADOR') // CA-05: nunca borradores para funcionario
         .sort((a, b) => (b.version || 1) - (a.version || 1)) // CA-02: de más reciente a más antigua
     : boletasEmitidas.filter((b) => !filtroFuncionarioBoletas || b.funcionarioId === filtroFuncionarioBoletas)
@@ -1100,10 +1128,20 @@ export function BoletasPage() {
                     label="Seleccionar Período de Planilla"
                     value={periodoSeleccionadoId}
                     onChange={(e) => setPeriodoSeleccionadoId(e.target.value)}
-                    options={periodos.map((p) => ({
-                      value: p.id,
-                      label: `Período ${p.mes}/${p.anio} — (${p.estado})`,
-                    }))}
+                    options={
+                      esFuncionario
+                        ? [
+                            { value: 'TODOS', label: 'Todos los períodos' },
+                            ...periodos.map((p) => ({
+                              value: p.id,
+                              label: `Período ${p.mes}/${p.anio} — (${p.estado})`,
+                            })),
+                          ]
+                        : periodos.map((p) => ({
+                            value: p.id,
+                            label: `Período ${p.mes}/${p.anio} — (${p.estado})`,
+                          }))
+                    }
                   />
                 </div>
                 <div style={{ marginTop: '1.25rem' }}>
@@ -1291,10 +1329,20 @@ export function BoletasPage() {
                     label="Seleccionar Período"
                     value={periodoSeleccionadoId}
                     onChange={(e) => setPeriodoSeleccionadoId(e.target.value)}
-                    options={periodos.map((p) => ({
-                      value: p.id,
-                      label: `Período ${p.mes}/${p.anio} — (${p.estado})`,
-                    }))}
+                    options={
+                      esFuncionario
+                        ? [
+                            { value: 'TODOS', label: 'Todos los períodos' },
+                            ...periodos.map((p) => ({
+                              value: p.id,
+                              label: `Período ${p.mes}/${p.anio} — (${p.estado})`,
+                            })),
+                          ]
+                        : periodos.map((p) => ({
+                            value: p.id,
+                            label: `Período ${p.mes}/${p.anio} — (${p.estado})`,
+                          }))
+                    }
                   />
                 </div>
 
@@ -1403,7 +1451,15 @@ export function BoletasPage() {
             </Card>
           </div>
 
-          <Card title={esFuncionario ? 'Mis Boletas Emitidas' : `Boletas Emitidas — Período ${periodoActual?.mes}/${periodoActual?.anio} (HU-22)`}>
+          <Card
+            title={
+              esFuncionario
+                ? periodoSeleccionadoId === 'TODOS'
+                  ? 'Mis Boletas Emitidas (Todos los períodos)'
+                  : `Mis Boletas Emitidas — Período ${periodoActual?.mes}/${periodoActual?.anio}`
+                : `Boletas Emitidas — Período ${periodoActual?.mes}/${periodoActual?.anio} (HU-22)`
+            }
+          >
             {boletasParaConsultar.length === 0 ? (
               <EmptyState
                 icon={<ShieldCheck size={40} className="text-slate-400" />}
@@ -1510,8 +1566,8 @@ export function BoletasPage() {
                             </Button>
                           )}
 
-                          {/* Botón Rectificar ocultado temporalmente */}
-                          {false && puedeGestionar && b.estado === 'EMITIDA' && (
+                          {/* Botón Rectificar (HU-22 CA-05) */}
+                          {puedeGestionar && b.estado === 'EMITIDA' && (
                             <Button
                               variant="outline"
                               size="sm"

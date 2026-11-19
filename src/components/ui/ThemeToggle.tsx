@@ -10,8 +10,23 @@ export function ThemeToggle() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
+    document.documentElement.style.colorScheme = theme
+    const metaColorScheme = document.querySelector('meta[name="color-scheme"]')
+    if (metaColorScheme) {
+      metaColorScheme.setAttribute('content', theme)
+    }
     localStorage.setItem('arca-theme', theme)
   }, [theme])
+
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'arca-theme' && (e.newValue === 'light' || e.newValue === 'dark')) {
+        setTheme(e.newValue)
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
+  }, [])
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
@@ -29,4 +44,5 @@ export function ThemeToggle() {
     </button>
   )
 }
+
 

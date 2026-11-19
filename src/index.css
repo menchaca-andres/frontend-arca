@@ -4,7 +4,15 @@
    ============================================================ */
 
 :root {
-  color-scheme: light;
+  color-scheme: light dark;
+
+  &:has(> head > meta[name="color-scheme"][content="dark"]) {
+    color-scheme: dark;
+  }
+  &:has(> head > meta[name="color-scheme"][content="light"]) {
+    color-scheme: light;
+  }
+
   font-family:
     -apple-system,
     BlinkMacSystemFont,
@@ -124,6 +132,19 @@
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  scroll-padding-top: calc(var(--topbar-height) + 16px);
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--arca-teal-accent);
+  outline-offset: 2px;
 }
 
 body {
@@ -1260,8 +1281,32 @@ ul {
 }
 
 /* ============================================================
-   6. MODALES, TOASTS & DIALOGS
+   6. MODALES, TOASTS & DIALOGS (Native <dialog> & Top Layer)
    ============================================================ */
+
+dialog.modal-dialog-ds:modal {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  margin: auto;
+  max-width: 100vw;
+  max-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overscroll-behavior: contain;
+  overflow: visible;
+}
+
+dialog.modal-dialog-ds::backdrop {
+  background: rgba(5, 10, 20, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  overflow: hidden;
+  overscroll-behavior: contain;
+  animation: modalFadeIn 0.25s ease-out;
+}
 
 .modal-backdrop-ds {
   position: fixed;
@@ -1281,7 +1326,7 @@ ul {
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--glass-inner-highlight), var(--glass-shadow-floating);
-  width: min(560px, 100%);
+  width: min(560px, calc(100vw - 32px));
   max-height: 88vh;
   display: flex;
   flex-direction: column;
@@ -1289,17 +1334,25 @@ ul {
   animation: modalSpringUp 0.35s var(--spring-bounce);
 }
 
+.modal-sm .modal-container-ds,
+.modal-container-ds.modal-sm,
 .modal-sm {
-  width: min(420px, 100%);
+  width: min(420px, calc(100vw - 32px));
 }
+.modal-md .modal-container-ds,
+.modal-container-ds.modal-md,
 .modal-md {
-  width: min(560px, 100%);
+  width: min(560px, calc(100vw - 32px));
 }
+.modal-lg .modal-container-ds,
+.modal-container-ds.modal-lg,
 .modal-lg {
-  width: min(780px, 100%);
+  width: min(780px, calc(100vw - 32px));
 }
+.modal-xl .modal-container-ds,
+.modal-container-ds.modal-xl,
 .modal-xl {
-  width: min(960px, 100%);
+  width: min(960px, calc(100vw - 32px));
 }
 
 .modal-header-ds {
@@ -1318,8 +1371,9 @@ ul {
 }
 
 .modal-close-btn-ds {
-  width: 30px;
-  height: 30px;
+  position: relative;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--glass-bg-subtle);
   border: 1px solid var(--glass-border);
@@ -1330,10 +1384,22 @@ ul {
   transition: all 0.2s ease;
 }
 
+.modal-close-btn-ds::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+}
+
 .modal-close-btn-ds:hover {
   background: var(--glass-bg-strong);
   color: var(--text-primary);
   transform: scale(1.05);
+}
+
+.modal-close-btn-ds:focus-visible {
+  outline: 2px solid var(--arca-teal-accent);
+  outline-offset: 2px;
 }
 
 .modal-body-ds {
@@ -1960,6 +2026,50 @@ ul {
   }
 }
 
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass-bg: #ffffff;
+    --glass-bg-subtle: #f1f5f9;
+    --glass-bg-strong: #ffffff;
+    --glass-border: #cbd5e1;
+    --glass-border-dark: rgba(0, 0, 0, 0.12);
+  }
+
+  [data-theme='dark'] {
+    --glass-bg: #1e2430;
+    --glass-bg-subtle: #161b24;
+    --glass-bg-strong: #161b24;
+    --glass-border: #334155;
+    --glass-border-dark: rgba(0, 0, 0, 0.5);
+  }
+
+  *,
+  *::before,
+  *::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .liquid-mesh-canvas {
+    background: #f8fafc !important;
+  }
+
+  [data-theme='dark'] .liquid-mesh-canvas {
+    background: #0b0f19 !important;
+  }
+
+  .mesh-blob {
+    display: none !important;
+  }
+
+  dialog.modal-dialog-ds::backdrop,
+  .modal-backdrop-ds {
+    background: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
 /* ============================================================
    10. REFINAMIENTO MINIMALISTA (Apple clean)
    Menos brillo, menos sombra, más aire. Mantiene el vidrio.
@@ -2430,7 +2540,7 @@ ul {
 
 .password-toggle-btn {
   position: absolute;
-  right: 12px;
+  right: 6px;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
@@ -2439,17 +2549,22 @@ ul {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
+  padding: 8px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: var(--radius-sm);
   transition: color 0.2s ease, transform 0.15s ease;
-  height: auto !important;
-  width: auto !important;
   margin: 0 !important;
 }
 
 .password-toggle-btn:hover {
   color: var(--text-primary) !important;
-  transform: scale(1.1) !important;
+  transform: scale(1.05) !important;
+}
+
+.password-toggle-btn:focus-visible {
+  outline: 2px solid var(--arca-teal-accent);
+  outline-offset: -2px;
 }
 
 .password-toggle-btn:active {

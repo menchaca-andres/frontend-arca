@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff } from 'lucide-react'
+import { Button, Input } from '../../components'
 import { ApiError } from '../../services/api'
 import { useAuth } from './useAuth'
 
@@ -16,7 +16,6 @@ export function LoginPage() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [mostrarPassword, setMostrarPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   if (usuario) {
@@ -42,42 +41,33 @@ export function LoginPage() {
         <header>
           <p className="eyebrow">ARCA Ltda.</p>
           <h1>Gestión Humana</h1>
-          <p className="muted">Ingresa con tu correo y contraseña.</p>
+          <p className="muted">Ingresa con tu correo y contraseña institucional.</p>
         </header>
 
         <form onSubmit={onSubmit} noValidate>
-          <label htmlFor="email">Correo</label>
-          <input
+          <Input
             id="email"
+            label="Correo electrónico"
             type="email"
             autoComplete="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             required
             disabled={cargando}
+            placeholder="usuario@arcaltda.com"
           />
 
-          <label htmlFor="password">Contraseña</label>
-          <div className="login-password-wrapper">
-            <input
-              id="password"
-              type={mostrarPassword ? 'text' : 'password'}
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-              disabled={cargando}
-            />
-            <button
-              type="button"
-              className="password-toggle-btn"
-              onClick={() => setMostrarPassword((prev) => !prev)}
-              aria-label={mostrarPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
-              tabIndex={-1}
-            >
-              {mostrarPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
+          <Input
+            id="password"
+            label="Contraseña"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
+            disabled={cargando}
+            placeholder="••••••••"
+          />
 
           {error && (
             <p className="form-error" role="alert">
@@ -85,9 +75,9 @@ export function LoginPage() {
             </p>
           )}
 
-          <button type="submit" disabled={cargando}>
-            {cargando ? 'Ingresando…' : 'Ingresar'}
-          </button>
+          <Button type="submit" variant="primary" disabled={cargando} size="lg">
+            {cargando ? 'Ingresando…' : 'Ingresar al Sistema'}
+          </Button>
         </form>
       </section>
     </main>

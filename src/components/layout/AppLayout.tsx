@@ -18,6 +18,10 @@ export function AppLayout() {
 
   return (
     <div className="layout-container-ds">
+      <a href="#main-content" className="skip-link-ds">
+        Saltar al contenido principal
+      </a>
+
       <Sidebar
         rol={usuario.rol}
         isOpenMobile={mobileSidebarOpen}

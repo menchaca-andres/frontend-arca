@@ -39,7 +39,6 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           className="password-toggle-btn"
           onClick={() => setShowPassword((prev) => !prev)}
           aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
-          tabIndex={-1}
         >
           {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
         </button>

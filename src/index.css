@@ -64,35 +64,34 @@
   --arca-slate-100: #f2f2f7;
   --arca-slate-50: #f8f8fa;
 
-  /* Liquid Glass System Tokens - Light Mode */
-  --glass-bg: rgba(255, 255, 255, 0.58);
-  --glass-bg-subtle: rgba(255, 255, 255, 0.32);
-  --glass-bg-strong: rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.7);
-  --glass-border-dark: rgba(0, 0, 0, 0.07);
-  --glass-inner-highlight: inset 0 1px 0.5px rgba(255, 255, 255, 0.9);
-  --glass-inner-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.04);
-  --glass-shadow: 0 10px 30px -6px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
-  --glass-shadow-floating:
-    0 20px 50px -10px rgba(15, 23, 42, 0.14), 0 8px 20px -4px rgba(15, 23, 42, 0.06);
+  /* Enterprise Minimalist Swiss Tokens - Light Mode */
+  --glass-bg: #ffffff;
+  --glass-bg-subtle: #f8fafc;
+  --glass-bg-strong: #ffffff;
+  --glass-border: #e2e8f0;
+  --glass-border-dark: #cbd5e1;
+  --glass-inner-highlight: none;
+  --glass-inner-shadow: none;
+  --glass-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+  --glass-shadow-floating: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
 
   /* Typography Colors */
-  --text-primary: #1c1c1e;
-  --text-secondary: #545458;
-  --text-tertiary: #8e8e93;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
 
-  /* Layout & Radii */
+  /* Layout & Radii - Enterprise Ergonomics */
   --sidebar-width: 256px;
   --topbar-height: 64px;
   --island-gap: 14px;
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 24px;
-  --radius-xl: 32px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
   --radius-pill: 9999px;
 
   /* Apple Spring Physics */
-  --spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --spring-bounce: cubic-bezier(0.16, 1, 0.3, 1);
   --spring-smooth: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -113,21 +112,20 @@
   --arca-teal-solid: #14b8a6;
   --arca-teal-glow: rgba(45, 212, 191, 0.35);
 
-  /* Liquid Glass System Tokens - Dark Mode */
-  --glass-bg: rgba(22, 27, 38, 0.65);
-  --glass-bg-subtle: rgba(255, 255, 255, 0.06);
-  --glass-bg-strong: rgba(28, 34, 48, 0.88);
-  --glass-border: rgba(255, 255, 255, 0.16);
-  --glass-border-dark: rgba(0, 0, 0, 0.35);
-  --glass-inner-highlight: inset 0 1px 0.5px rgba(255, 255, 255, 0.25);
-  --glass-inner-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.4);
-  --glass-shadow: 0 14px 40px -10px rgba(0, 0, 0, 0.6), 0 4px 12px -2px rgba(0, 0, 0, 0.4);
-  --glass-shadow-floating:
-    0 26px 70px -12px rgba(0, 0, 0, 0.8), 0 10px 30px -4px rgba(0, 0, 0, 0.55);
+  /* Enterprise Minimalist Swiss Tokens - Dark Mode */
+  --glass-bg: #131926;
+  --glass-bg-subtle: #0b0f19;
+  --glass-bg-strong: #131926;
+  --glass-border: #243046;
+  --glass-border-dark: #1b2434;
+  --glass-inner-highlight: none;
+  --glass-inner-shadow: none;
+  --glass-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.35);
+  --glass-shadow-floating: 0 12px 28px -4px rgba(0, 0, 0, 0.6);
 
-  --text-primary: rgba(255, 255, 255, 0.95);
-  --text-secondary: rgba(255, 255, 255, 0.68);
-  --text-tertiary: rgba(255, 255, 255, 0.42);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
 }
 
 * {
@@ -179,7 +177,7 @@ ul {
 }
 
 /* ============================================================
-   BACKGROUND ANIMATED LIQUID MESH CANVAS
+   ENTERPRISE BACKGROUND CANVAS (Clean, Static, Zero GPU Overhead)
    ============================================================ */
 
 .liquid-mesh-canvas {
@@ -189,25 +187,17 @@ ul {
   height: 100vh;
   z-index: -1;
   overflow: hidden;
-  background: #f2f5f9;
+  background: var(--glass-bg-subtle);
   pointer-events: none;
-  transition: background 0.4s ease;
+  transition: background 0.2s ease;
 }
 
 [data-theme='dark'] .liquid-mesh-canvas {
-  background: #0a0e17;
+  background: var(--glass-bg-subtle);
 }
 
 .mesh-blob {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.5;
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-[data-theme='dark'] .mesh-blob {
-  opacity: 0.6;
+  display: none !important;
 }
 
 .mesh-blob-1 {
@@ -2071,55 +2061,22 @@ dialog.modal-dialog-ds::backdrop {
 }
 
 /* ============================================================
-   10. REFINAMIENTO MINIMALISTA (Apple clean)
-   Menos brillo, menos sombra, más aire. Mantiene el vidrio.
+   10. REFINAMIENTO EMPRESARIAL SUIZO (Clean Enterprise Swiss)
+   Alta legibilidad, contraste sólido, sin reflejos ni animaciones invasivas.
    ============================================================ */
 
-:root {
-  --glass-bg: rgba(255, 255, 255, 0.62);
-  --glass-bg-strong: rgba(255, 255, 255, 0.82);
-  --glass-border: rgba(255, 255, 255, 0.6);
-  --glass-border-dark: rgba(0, 0, 0, 0.06);
-  --glass-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
-  --glass-shadow-floating: 0 8px 28px rgba(15, 23, 42, 0.08);
-  --glass-inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.8);
-}
-
-[data-theme='dark'] {
-  --glass-bg: rgba(28, 30, 38, 0.62);
-  --glass-bg-strong: rgba(34, 37, 47, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
-  --glass-shadow-floating: 0 10px 32px rgba(0, 0, 0, 0.45);
-  --glass-inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.12);
-}
-
-/* Fondo: más sereno, 3 manchas suaves */
-.liquid-mesh-canvas {
-  background: #f5f5f7;
-}
-[data-theme='dark'] .liquid-mesh-canvas {
-  background: #0b0d12;
-}
-.mesh-blob {
-  opacity: 0.3;
-}
-[data-theme='dark'] .mesh-blob {
-  opacity: 0.32;
-}
-.mesh-blob-4 {
-  display: none;
-}
-
-/* Tipografía más calmada */
+/* Tipografía funcional */
 .page-title-ds {
-  font-size: 1.75rem;
-  letter-spacing: -0.03em;
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 .eyebrow-ds,
 .eyebrow {
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.72rem;
 }
 .stat-label,
 .table-th-ds {
@@ -2127,59 +2084,65 @@ dialog.modal-dialog-ds::backdrop {
   font-weight: 600;
 }
 
-/* Tarjetas: sin reflejo diagonal, elevación sutil */
+/* Tarjetas: sólidas, nítidas, sin reflejos radiales ni spotlight */
 .card-ds::before,
 .stat-card::before,
-.module-card-ds::before {
-  display: none;
-}
+.module-card-ds::before,
 .card-ds::after,
 .stat-card::after,
 .module-card-ds::after {
-  background: radial-gradient(
-    320px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(255, 255, 255, 0.14),
-    transparent 65%
-  );
+  display: none !important;
 }
-.card-ds:hover,
-.stat-card:hover,
-.module-card-ds:hover {
-  transform: translateY(-2px);
-  border-color: var(--glass-border);
-  box-shadow: var(--glass-inner-highlight), var(--glass-shadow-floating);
-}
+
 .card-ds,
 .stat-card,
 .module-card-ds {
-  box-shadow: var(--glass-inner-highlight), var(--glass-shadow);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* Botones: planos, sin brillo superior */
+.card-ds:hover,
+.stat-card:hover,
+.module-card-ds:hover {
+  transform: translateY(-1px);
+  border-color: var(--arca-teal-accent);
+  box-shadow: var(--glass-shadow-floating);
+}
+
+/* Tablas con alineación tabular para cifras */
+.table-td-ds {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Botones: sobrios, estables, sin rebotes de escala */
 .btn-ds::before {
   display: none;
 }
 .btn-ds:hover:not(:disabled) {
-  transform: scale(1.02);
+  transform: none;
+  filter: brightness(1.05);
   box-shadow: var(--glass-shadow);
 }
 .btn-primary {
   background: var(--arca-teal-700);
   border-color: transparent;
-  box-shadow: 0 1px 2px rgba(15, 118, 110, 0.25);
+  box-shadow: 0 1px 2px rgba(15, 118, 110, 0.2);
 }
 .btn-primary:hover:not(:disabled) {
   background: var(--arca-teal-800);
-  box-shadow: 0 4px 14px rgba(15, 118, 110, 0.28);
+  box-shadow: 0 2px 6px rgba(15, 118, 110, 0.25);
 }
 .btn-danger {
   background: var(--arca-danger);
   border-color: transparent;
-  box-shadow: 0 1px 2px rgba(255, 69, 58, 0.25);
+  box-shadow: 0 1px 2px rgba(255, 69, 58, 0.2);
 }
 .btn-danger:hover:not(:disabled) {
   background: #e63b31;
-  box-shadow: 0 4px 14px rgba(255, 69, 58, 0.28);
+  box-shadow: 0 2px 6px rgba(255, 69, 58, 0.25);
 }
 .btn-secondary {
   box-shadow: none;
@@ -2187,7 +2150,7 @@ dialog.modal-dialog-ds::backdrop {
 .login-card button[type='submit'] {
   background: var(--arca-teal-700);
   border-color: transparent;
-  box-shadow: 0 1px 2px rgba(15, 118, 110, 0.25);
+  box-shadow: 0 1px 2px rgba(15, 118, 110, 0.2);
 }
 
 /* Navegación: activo discreto */

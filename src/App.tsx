@@ -11,20 +11,12 @@ import { ContratosPage } from './features/contratos'
 import { CatalogosPage, PersonalPage } from './features/personal'
 import { UsuariosPage } from './features/usuarios'
 import { VacacionesPage } from './features/vacaciones'
-import { useGlowPointer } from './utils/useGlowPointer'
 
 function App() {
-  useGlowPointer()
-
   return (
     <>
-      {/* Animated Liquid Glass Mesh Canvas */}
-      <div className="liquid-mesh-canvas" aria-hidden="true">
-        <div className="mesh-blob mesh-blob-1" />
-        <div className="mesh-blob mesh-blob-2" />
-        <div className="mesh-blob mesh-blob-3" />
-        <div className="mesh-blob mesh-blob-4" />
-      </div>
+      {/* Background Canvas (Static & Crisp) */}
+      <div className="liquid-mesh-canvas" aria-hidden="true" />
 
       <BrowserRouter>
         <AuthProvider>
